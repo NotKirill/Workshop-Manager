@@ -1,1 +1,1 @@
-rootProject.name = "workshopmanager"
+rootProject.name = "workshop-manager-backend"
