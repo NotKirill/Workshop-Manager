@@ -1,7 +1,11 @@
 spring:
   application:
     name: workshop-manager-backend
-
   datasource:
     hikari:
       data-source-properties: stringtype=unspecified
+  Liquibase:
+    enabled: true
+  docker:
+    compose:
+      enabled: true
