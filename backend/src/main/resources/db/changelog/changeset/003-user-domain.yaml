@@ -5,12 +5,6 @@ databaseChangeLog:
       changes:
         - createTable:
             tableName: users
-            constraints:
-              uniqueConstraints:
-                - columnNames: login
-                  constraintName: uk_user_login
-                - columnNames: email
-                  constraintName: uk_user_email
             columns:
               - column:
                   name: id
@@ -25,9 +19,14 @@ databaseChangeLog:
                   type: TEXT
                   constraints:
                     nullable: false
+                    unique: true
+                    uniqueConstraintName: uk_user_login
               - column:
                   name: email
                   type: TEXT
+                  constraints:
+                    unique: true
+                    uniqueConstraintName: uk_user_email
               - column:
                   name: password_hash
                   type: TEXT
@@ -49,10 +48,6 @@ databaseChangeLog:
                   type: SMALLINT[]
         - createTable:
             tableName: permissions
-            constraints:
-              uniqueConstraints:
-                - columnNames: name
-                  constraintName: uk_permission_name
             columns:
               - column:
                   name: id
@@ -67,6 +62,8 @@ databaseChangeLog:
                   type: TEXT
                   constraints:
                     nullable: false
+                    unique: true
+                    uniqueConstraintName: uk_permission_name
               - column:
                   name: description
                   type: TEXT

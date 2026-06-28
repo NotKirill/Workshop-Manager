@@ -5,10 +5,6 @@ databaseChangeLog:
       changes:
         - createTable:
             tableName: steam_workshop_items
-            constraints:
-              uniqueConstraints:
-                - columnNames: publishedfileid
-                  constraintName: uk_steam_workshop_item_identity
             columns:
               - column:
                   name: internal_id
@@ -23,6 +19,8 @@ databaseChangeLog:
                   type: TEXT
                   constraints:
                     nullable: false
+                    unique: true
+                    uniqueConstraintName: uk_steam_workshop_item_identity
               - column:
                   name: creator
                   type: TEXT
@@ -67,10 +65,6 @@ databaseChangeLog:
                   type: INTEGER
         - createTable:
             tableName: steam_workshop_tags
-            constraints:
-              uniqueConstraints:
-                - columnNames: tag, consumer_app_id
-                  constraintName: uk_steam_workshop_tag_identity
             columns:
               - column:
                   name: tag_id
@@ -83,12 +77,20 @@ databaseChangeLog:
               - column:
                   name: tag
                   type: TEXT
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: uk_steam_workshop_tag_identity
               - column:
                   name: display_name
                   type: TEXT
               - column:
                   name: consumer_app_id
                   type: BIGINT
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: uk_steam_workshop_tag_identity
         - createTable:
             tableName: steam_workshop_item_tags
             columns:

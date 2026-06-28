@@ -5,10 +5,6 @@ databaseChangeLog:
       changes:
         - createTable:
             tableName: author_metadata
-            constraints:
-              uniqueConstraints:
-                - columnNames: modspace_type, original_id
-                  constraintName: uk_author_metadata_identity
             columns:
               - column:
                   name: id
@@ -23,11 +19,15 @@ databaseChangeLog:
                   type: modspace_type
                   constraints:
                     nullable: false
+                    unique: true
+                    uniqueConstraintName: uk_author_metadata_identity
               - column:
                   name: original_id
                   type: TEXT
                   constraints:
                     nullable: false
+                    unique: true
+                    uniqueConstraintName: uk_author_metadata_identity
               - column:
                   name: name
                   type: TEXT

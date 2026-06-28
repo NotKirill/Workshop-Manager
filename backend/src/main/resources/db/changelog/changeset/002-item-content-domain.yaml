@@ -5,10 +5,6 @@ databaseChangeLog:
       changes:
         - createTable:
             tableName: item_contents
-            constraints:
-              uniqueConstraints:
-                - columnNames: internal_metadata_id
-                  constraintName: uk_item_contents_internal_metadata_id
             columns:
               - column:
                   name: id
@@ -23,6 +19,8 @@ databaseChangeLog:
                   type: BIGINT
                   constraints:
                     nullable: false
+                    unique: true
+                    uniqueConstraintName: uk_item_contents_internal_metadata_id
               - column:
                   name: reference_count
                   type: INTEGER

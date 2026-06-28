@@ -21,10 +21,6 @@ databaseChangeLog:
                     nullable: false
         - createTable:
             tableName: game_to_modspace_ids
-            constraints:
-              uniqueConstraints:
-                - columnNames: source_modspace, external_id
-                  constraintName: uk_game_to_modspace_id_identity
             columns:
               - column:
                   name: game_id
@@ -38,11 +34,15 @@ databaseChangeLog:
                   type: modspace_type
                   constraints:
                     nullable: false
+                    unique: true
+                    uniqueConstraintName: uk_game_to_modspace_id_identity
               - column:
                   name: external_id
                   type: TEXT
                   constraints:
                     nullable: false
+                    unique: true
+                    uniqueConstraintName: uk_game_to_modspace_id_identity
         - createTable:
             tableName: game_compatibility
             columns:
