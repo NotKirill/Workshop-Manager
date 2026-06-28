@@ -1,0 +1,159 @@
+databaseChangeLog:
+  - changeSet:
+      id: 006
+      author: NotKirill
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: CREATE TYPE media_provider AS ENUM ('UNKNOWN', 'YOUTUBE', 'SKETCHFAB')
+        - sql:
+            dbms: postgresql
+            sql: CREATE TYPE media_type AS ENUM ('FILE', 'EMBED')
+        - sql:
+            dbms: postgresql
+            sql: CREATE TYPE entity_type AS ENUM ('ITEM', 'USER', 'GAME', 'AUTHOR')
+        - createTable:
+            tableName: media_files
+            columns:
+              - column:
+                  name: media_item_id
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_media_file
+                    nullable: false
+              - column:
+                  name: source_id
+                  type: TEXT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: file_size
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+              - column:
+                  name: file_name
+                  type: TEXT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: s3_key
+                  type: TEXT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: metadata
+                  type: JSONB
+        - createTable:
+            tableName: media_embeds
+            columns:
+              - column:
+                  name: media_item_id
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_media_embed
+                    nullable: false
+              - column:
+                  name: external_id
+                  type: TEXT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: provider
+                  type: media_provider
+                  constraints:
+                    nullable: false
+              - column:
+                  name: metadata
+                  type: JSONB
+        - createTable:
+            tableName: media_items
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_media_item
+                    nullable: false
+              - column:
+                  name: type
+                  type: media_type
+                  constraints:
+                    nullable: false
+              - column:
+                  name: time_uploaded
+                  type: TIMESTAMPTZ
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: owner_user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+        - createTable:
+            tableName: media_links
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_media_link
+                    nullable: false
+              - column:
+                  name: media_item_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: entity
+                  type: entity_type
+                  constraints:
+                    nullable: false
+              - column:
+                  name: entity_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: purpose
+                  type: TEXT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: sort_order
+                  type: INTEGER
+              - column:
+                  name: metadata
+                  type: JSONB
+        - createTable:
+            tableName: media_link_overrides
+            columns:
+              - column:
+                  name: link_id
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_media_link_override
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_media_link_override
+                    nullable: false
+              - column:
+                  name: media_item_id
+                  type: BIGINT
+                  constraints:
+                    nullable: true
+              - column:
+                  name: sort_order
+                  type: INTEGER

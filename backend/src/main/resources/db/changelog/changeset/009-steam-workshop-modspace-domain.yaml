@@ -1,0 +1,164 @@
+databaseChangeLog:
+  - changeSet:
+      id: 009
+      author: NotKirill
+      changes:
+        - createTable:
+            tableName: steam_workshop_items
+            constraints:
+              uniqueConstraints:
+                - columnNames: publishedfileid
+                  constraintName: uk_steam_workshop_item_identity
+            columns:
+              - column:
+                  name: internal_id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_steam_workshop_item
+                    nullable: false
+              - column:
+                  name: publishedfileid
+                  type: TEXT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: creator
+                  type: TEXT
+              - column:
+                  name: creator_app_id
+                  type: BIGINT
+              - column:
+                  name: consumer_app_id
+                  type: BIGINT
+              - column:
+                  name: file_size
+                  type: TEXT
+              - column:
+                  name: preview_url
+                  type: TEXT
+              - column:
+                  name: title
+                  type: TEXT
+              - column:
+                  name: description
+                  type: TEXT
+              - column:
+                  name: time_created
+                  type: TIMESTAMPTZ
+              - column:
+                  name: time_updated
+                  type: TIMESTAMPTZ
+              - column:
+                  name: visibility
+                  type: SMALLINT
+              - column:
+                  name: subscriptions
+                  type: INTEGER
+              - column:
+                  name: favorited
+                  type: INTEGER
+              - column:
+                  name: lifetime_subscriptions
+                  type: INTEGER
+              - column:
+                  name: lifetime_favorited
+                  type: INTEGER
+        - createTable:
+            tableName: steam_workshop_tags
+            constraints:
+              uniqueConstraints:
+                - columnNames: tag, consumer_app_id
+                  constraintName: uk_steam_workshop_tag_identity
+            columns:
+              - column:
+                  name: tag_id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_steam_workshop_tag
+                    nullable: false
+              - column:
+                  name: tag
+                  type: TEXT
+              - column:
+                  name: display_name
+                  type: TEXT
+              - column:
+                  name: consumer_app_id
+                  type: BIGINT
+        - createTable:
+            tableName: steam_workshop_item_tags
+            columns:
+              - column:
+                  name: internal_id
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_steam_workshop_item_tag
+                    nullable: false
+              - column:
+                  name: tag_id
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_steam_workshop_item_tag
+                    nullable: false
+        - createTable:
+            tableName: steam_workshop_extended
+            columns:
+              - column:
+                  name: internal_id
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_steam_workshop_extended
+                    nullable: false
+              - column:
+                  name: preview_file_size
+                  type: TEXT
+              - column:
+                  name: short_description
+                  type: TEXT
+              - column:
+                  name: num_children
+                  type: SMALLINT
+              - column:
+                  name: previews
+                  type: JSONB
+              - column:
+                  name: children
+                  type: JSONB
+              - column:
+                  name: kvtags
+                  type: JSONB
+              - column:
+                  name: maybe_inappropriate_sex
+                  type: BOOLEAN
+              - column:
+                  name: maybe_inappropriate_violence
+                  type: BOOLEAN
+              - column:
+                  name: content_descriptorids
+                  type: SMALLINT[]
+        - createTable:
+            tableName: steam_workshop_vote_data
+            columns:
+              - column:
+                  name: internal_id
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_steam_workshop_vote_data
+                    nullable: false
+              - column:
+                  name: score
+                  type: REAL
+              - column:
+                  name: votes_up
+                  type: INTEGER
+              - column:
+                  name: votes_down
+                  type: INTEGER

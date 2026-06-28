@@ -1,0 +1,95 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001
+      author: NotKirill
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: CREATE TYPE modspace_type AS ENUM ('LOCAL', 'UNKNOWN', 'STEAM')
+        - createTable:
+            tableName: item_metadata_internal
+            constraints:
+              uniqueConstraints:
+                - columnNames: source_modspace, game_id, original_id
+                  constraintName: uk_item_metadata_internal_identity
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_item_metadata_internal
+                    nullable: false
+              - column:
+                  name: source_modspace
+                  type: modspace_type
+                  constraints:
+                    nullable: false
+              - column:
+                  name: game_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: original_id
+                  type: TEXT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: time_registered
+                  type: TIMESTAMPTZ
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: time_updated
+                  type: TIMESTAMPTZ
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: item_metadata_personal
+            constraints:
+              uniqueConstraints:
+                - columnNames: user_id, internal_metadata_id
+                  constraintName: uk_item_metadata_personal_identity
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_item_metadata_personal
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: internal_metadata_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: title
+                  type: TEXT
+              - column:
+                  name: description
+                  type: TEXT
+              - column:
+                  name: user_commentary
+                  type: TEXT
+              - column:
+                  name: metadata_only
+                  type: BOOLEAN
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+              - column:
+                  name: content_import
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false

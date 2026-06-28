@@ -1,0 +1,35 @@
+databaseChangeLog:
+  - changeSet:
+      id: 005
+      author: NotKirill
+      changes:
+        - createTable:
+            tableName: author_metadata
+            constraints:
+              uniqueConstraints:
+                - columnNames: modspace_type, original_id
+                  constraintName: uk_author_metadata_identity
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_author_metadata
+                    nullable: false
+              - column:
+                  name: source_modspace
+                  type: modspace_type
+                  constraints:
+                    nullable: false
+              - column:
+                  name: original_id
+                  type: TEXT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  type: TEXT
+                  constraints:
+                    nullable: false

@@ -1,0 +1,96 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003
+      author: NotKirill
+      changes:
+        - createTable:
+            tableName: users
+            constraints:
+              uniqueConstraints:
+                - columnNames: login
+                  constraintName: uk_user_login
+                - columnNames: email
+                  constraintName: uk_user_email
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_user
+                    nullable: false
+              - column:
+                  name: login
+                  type: TEXT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: email
+                  type: TEXT
+              - column:
+                  name: password_hash
+                  type: TEXT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: time_created
+                  type: TIMESTAMPTZ
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  type: TEXT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: permissions_ids
+                  type: SMALLINT[]
+        - createTable:
+            tableName: permissions
+            constraints:
+              uniqueConstraints:
+                - columnNames: name
+                  constraintName: uk_permission_name
+            columns:
+              - column:
+                  name: id
+                  type: SMALLINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_permission
+                    nullable: false
+              - column:
+                  name: name
+                  type: TEXT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: TEXT
+        - createTable:
+            tableName: user_shared_permissions
+            columns:
+              - column:
+                  name: user_provider_id
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_user_shared_permission
+                    nullable: false
+              - column:
+                  name: user_consumer_id
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_user_shared_permission
+                    nullable: false
+              - column:
+                  name: permission_id
+                  type: SMALLINT
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_user_shared_permission
+                    nullable: false

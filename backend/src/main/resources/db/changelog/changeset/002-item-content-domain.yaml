@@ -1,0 +1,79 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002
+      author: NotKirill
+      changes:
+        - createTable:
+            tableName: item_contents
+            constraints:
+              uniqueConstraints:
+                - columnNames: internal_metadata_id
+                  constraintName: uk_item_contents_internal_metadata_id
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_item_content
+                    nullable: false
+              - column:
+                  name: internal_metadata_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: reference_count
+                  type: INTEGER
+              - column:
+                  name: edition
+                  type: TEXT
+                  defaultValue: "latest"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: attributes
+                  type: TEXT[]
+              - column:
+                  name: max_revisions
+                  type: SMALLINT
+                  defaultValueNumeric: 1
+        - createTable:
+            tableName: item_content_revisions
+            columns:
+              - column:
+                  name: item_content_id
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_item_content_revision
+                    nullable: false
+              - column:
+                  name: revision
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_item_content_revision
+                    nullable: false
+              - column:
+                  name: s3_key
+                  type: TEXT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: file_name
+                  type: TEXT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: file_size
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+              - column:
+                  name: time_created
+                  type: TIMESTAMPTZ
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false

@@ -1,0 +1,135 @@
+databaseChangeLog:
+  - changeSet:
+      id: 007
+      author: NotKirill
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: CREATE TYPE relation_type AS ENUM ('PARENT', 'ALTERNATE', 'DEPENDENCY')
+        - createTable:
+            tableName: user_groups
+            constraints:
+              uniqueConstraints:
+                - columnNames: user_id, game_id
+                  constraintName: uk_user_group_identity
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_user_group
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: game_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  type: TEXT
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: user_group_items
+            columns:
+              - column:
+                  name: user_group_id
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_user_group_item
+                    nullable: false
+              - column:
+                  name: item_personal_metadata_id
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_user_group_item
+                    nullable: false
+        - createTable:
+            tableName: user_ratings
+            columns:
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_user_rating
+                    nullable: false
+              - column:
+                  name: item_personal_metadata_id
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_user_rating
+                    nullable: false
+              - column:
+                  name: score
+                  type: SMALLINT
+        - createTable:
+            tableName: user_tags
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_user_tag
+                    nullable: false
+              - column:
+                  name: display_name
+                  type: TEXT
+              - column:
+                  name: game_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: user_item_tags
+            columns:
+              - column:
+                  name: tag_id
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_user_item_tag
+                    nullable: false
+              - column:
+                  name: item_personal_metadata_id
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_user_item_tag
+                    nullable: false
+        - createTable:
+            tableName: user_item_relations
+            columns:
+              - column:
+                  name: source_item_personal_metadata_id
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_user_item_relation
+                    nullable: false
+              - column:
+                  name: target_item_personal_metadata_id
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_user_item_relation
+                    nullable: false
+              - column:
+                  name: relation
+                  type: relation_type
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_user_item_relation
+                    nullable: false
