@@ -1,0 +1,15 @@
+package notkirill.workshopmanager.models.repositories;
+
+import notkirill.workshopmanager.models.MediaLinkOverride;
+import notkirill.workshopmanager.models.idClasses.MediaLinkOverrideComplexKey;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
+
+public interface MediaLinkOverrideRepository extends JpaRepository<MediaLinkOverride, MediaLinkOverrideComplexKey> {
+    Optional<MediaLinkOverride> findByLinkId(long linkId);
+
+    Optional<MediaLinkOverride> findByUserId(long userId);
+
+    Optional<MediaLinkOverride> findByLinkIdAndUserId(long linkId, long userId);
+}
