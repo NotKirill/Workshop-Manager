@@ -6,8 +6,8 @@ import jakarta.validation.constraints.NotNull;
 @Entity
 @Table(name = "steam_workshop_tags",
         uniqueConstraints = {
-        @UniqueConstraint(name = "uk_steam_workshop_tag_identity", columnNames = {"tag", "consumer_app_id"})
-})
+                @UniqueConstraint(name = "uk_steam_workshop_tag_identity", columnNames = {"tag", "consumer_app_id"})
+        })
 public class SteamWorkshopTag {
     // TODO rename
     @Id

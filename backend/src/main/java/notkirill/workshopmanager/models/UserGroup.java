@@ -6,8 +6,8 @@ import jakarta.validation.constraints.NotNull;
 @Entity
 @Table(name = "user_groups",
         uniqueConstraints = {
-        @UniqueConstraint(name = "uk_user_group_identity", columnNames = {"user_id", "game_id"})
-})
+                @UniqueConstraint(name = "uk_user_group_identity", columnNames = {"user_id", "game_id"})
+        })
 public class UserGroup {
     @Id
     @NotNull

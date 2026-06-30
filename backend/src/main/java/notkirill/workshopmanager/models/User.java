@@ -9,9 +9,9 @@ import java.util.Arrays;
 @Entity
 @Table(name = "users",
         uniqueConstraints = {
-        @UniqueConstraint(name = "uk_user_email", columnNames = {"email"}),
-        @UniqueConstraint(name = "uk_user_login", columnNames = {"login"})
-})
+                @UniqueConstraint(name = "uk_user_email", columnNames = {"email"}),
+                @UniqueConstraint(name = "uk_user_login", columnNames = {"login"})
+        })
 public class User {
     @Id
     @NotNull

@@ -6,8 +6,8 @@ import jakarta.validation.constraints.NotNull;
 @Entity
 @Table(name = "item_metadata_personal",
         uniqueConstraints = {
-        @UniqueConstraint(name = "uk_item_metadata_personal_identity", columnNames = {"user_id", "internal_metadata_id"})
-})
+                @UniqueConstraint(name = "uk_item_metadata_personal_identity", columnNames = {"user_id", "internal_metadata_id"})
+        })
 public class ItemMetadataPersonal {
     @Id
     @NotNull

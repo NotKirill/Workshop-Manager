@@ -9,8 +9,8 @@ import org.hibernate.type.SqlTypes;
 @Entity
 @Table(name = "author_metadata",
         uniqueConstraints = {
-        @UniqueConstraint(name = "uk_author_metadata_identity", columnNames = {"source_modspace", "original_id"})
-})
+                @UniqueConstraint(name = "uk_author_metadata_identity", columnNames = {"source_modspace", "original_id"})
+        })
 public class AuthorMetadata {
     @Id
     @NotNull

@@ -9,8 +9,8 @@ import org.hibernate.type.SqlTypes;
 @Entity
 @Table(name = "game_to_modspace_ids",
         uniqueConstraints = {
-        @UniqueConstraint(name = "uk_game_to_modspace_id_identity", columnNames = {"source_modspace", "external_id"})
-})
+                @UniqueConstraint(name = "uk_game_to_modspace_id_identity", columnNames = {"source_modspace", "external_id"})
+        })
 public class GameToModspaceId {
     @Id
     @NotNull

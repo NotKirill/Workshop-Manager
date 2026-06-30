@@ -8,8 +8,8 @@ import java.time.OffsetDateTime;
 @Entity
 @Table(name = "steam_workshop_items",
         uniqueConstraints = {
-        @UniqueConstraint(name = "uk_steam_workshop_item_identity", columnNames = {"publishedfileid"})
-})
+                @UniqueConstraint(name = "uk_steam_workshop_item_identity", columnNames = {"publishedfileid"})
+        })
 public class SteamWorkshopItem {
     @Id
     @NotNull

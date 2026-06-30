@@ -11,8 +11,8 @@ import java.time.OffsetDateTime;
 @Entity
 @Table(name = "item_metadata_internal",
         uniqueConstraints = {
-        @UniqueConstraint(name = "uk_item_metadata_internal_identity", columnNames = {"source_modspace", "game_id", "original_id"})
-})
+                @UniqueConstraint(name = "uk_item_metadata_internal_identity", columnNames = {"source_modspace", "game_id", "original_id"})
+        })
 public class ItemMetadataInternal {
     @Id
     @NotNull

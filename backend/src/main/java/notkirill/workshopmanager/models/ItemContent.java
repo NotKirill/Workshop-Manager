@@ -8,8 +8,8 @@ import java.util.Arrays;
 @Entity
 @Table(name = "item_contents",
         uniqueConstraints = {
-        @UniqueConstraint(name = "uk_item_contents_internal_metadata_id", columnNames = {"internal_metadata_id"})
-})
+                @UniqueConstraint(name = "uk_item_contents_internal_metadata_id", columnNames = {"internal_metadata_id"})
+        })
 public class ItemContent {
     @Id
     @NotNull
