@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.time.OffsetDateTime;
 
+// TODO fix plural
 @Entity
 @Table(name = "third_party_rate_limits")
 public class ThirdPartyRateLimits {

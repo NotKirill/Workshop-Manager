@@ -1,5 +1,6 @@
 package notkirill.workshopmanager.models;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
@@ -28,7 +29,8 @@ public class ItemContent {
     @Column(name = "edition", nullable = false)
     private String edition = "latest";
 
-    @Column(name = "attributes", columnDefinition = "TEXT[]")
+    @Nullable
+    @Column(name = "attributes", columnDefinition = "TEXT[]", nullable = true)
     private String[] attributes;
 
     @Column(name = "max_revisions")

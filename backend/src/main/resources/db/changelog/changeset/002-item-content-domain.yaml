@@ -30,9 +30,15 @@ databaseChangeLog:
                   defaultValue: "latest"
                   constraints:
                     nullable: false
+                    unique: true
+                    uniqueConstraintName: uk_item_contents_internal_metadata_id
               - column:
                   name: attributes
                   type: TEXT[]
+                  constraints:
+                    nullable: true
+                    unique: true
+                    uniqueConstraintName: uk_item_contents_internal_metadata_id
               - column:
                   name: max_revisions
                   type: SMALLINT
