@@ -5,19 +5,24 @@ import notkirill.workshopmanager.models.dto.SteamWorkshopVoteDataRequest;
 import notkirill.workshopmanager.models.dto.SteamWorkshopVoteDataResponse;
 
 public class SteamWorkshopVoteDataMapper {
-    public SteamWorkshopVoteDataResponse fromEntity(SteamWorkshopVoteData entity) {
+    public SteamWorkshopVoteDataResponse entityToResponse(SteamWorkshopVoteData entity) {
         return new SteamWorkshopVoteDataResponse(entity.getInternalId(),
                 entity.getScore(),
                 entity.getVotesUp(),
                 entity.getVotesDown());
-
-
     }
 
-    public SteamWorkshopVoteData toEntity(SteamWorkshopVoteDataRequest request) {
+    public SteamWorkshopVoteData requestToEntity(SteamWorkshopVoteDataRequest request) {
         return new SteamWorkshopVoteData(request.internalId(),
                 request.score(),
                 request.votesUp(),
                 request.votesDown());
+    }
+
+    public void updateEntityFromRequest(SteamWorkshopVoteDataRequest request, SteamWorkshopVoteData entity) {
+        entity.setInternalId(request.internalId());
+        entity.setScore(request.score());
+        entity.setVotesUp(request.votesUp());
+        entity.setVotesDown(request.votesDown());
     }
 }

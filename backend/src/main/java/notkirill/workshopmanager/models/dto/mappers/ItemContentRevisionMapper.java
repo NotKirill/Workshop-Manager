@@ -5,7 +5,7 @@ import notkirill.workshopmanager.models.dto.ItemContentRevisionRequest;
 import notkirill.workshopmanager.models.dto.ItemContentRevisionResponse;
 
 public class ItemContentRevisionMapper {
-    public ItemContentRevisionResponse fromEntity(ItemContentRevision entity) {
+    public ItemContentRevisionResponse entityToResponse(ItemContentRevision entity) {
         return new ItemContentRevisionResponse(entity.getItemContentId(),
                 entity.getRevision(),
                 entity.getS3Key(),
@@ -14,12 +14,21 @@ public class ItemContentRevisionMapper {
                 entity.getTimeCreated());
     }
 
-    public ItemContentRevision toEntity(ItemContentRevisionRequest request) {
+    public ItemContentRevision requestToEntity(ItemContentRevisionRequest request) {
         return new ItemContentRevision(request.itemContentId(),
                 request.revision(),
                 request.s3Key(),
                 request.fileName(),
                 request.fileSize(),
                 request.timeCreated());
+    }
+
+    public void updateEntityFromRequest(ItemContentRevisionRequest request, ItemContentRevision entity) {
+        entity.setItemContentId(request.itemContentId());
+        entity.setRevision(request.revision());
+        entity.setS3Key(request.s3Key());
+        entity.setFileName(request.fileName());
+        entity.setFileSize(request.fileSize());
+        entity.setTimeCreated(request.timeCreated());
     }
 }

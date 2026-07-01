@@ -5,7 +5,7 @@ import notkirill.workshopmanager.models.dto.MediaLinkRequest;
 import notkirill.workshopmanager.models.dto.MediaLinkResponse;
 
 public class MediaLinkMapper {
-    public MediaLinkResponse fromEntity(MediaLink entity) {
+    public MediaLinkResponse entityToResponse(MediaLink entity) {
         return new MediaLinkResponse(entity.getId(),
                 entity.getMediaItemId(),
                 entity.getEntity(),
@@ -13,16 +13,23 @@ public class MediaLinkMapper {
                 entity.getPurpose(),
                 entity.getSortOrder(),
                 entity.getMetadata());
-
-
     }
 
-    public MediaLink toEntity(MediaLinkRequest request) {
+    public MediaLink requestToEntity(MediaLinkRequest request) {
         return new MediaLink(request.mediaItemId(),
                 request.entity(),
                 request.entityId(),
                 request.purpose(),
                 request.sortOrder(),
                 request.metadata());
+    }
+
+    public void updateEntityFromRequest(MediaLinkRequest request, MediaLink entity) {
+        entity.setMediaItemId(request.mediaItemId());
+        entity.setEntity(request.entity());
+        entity.setEntityId(request.entityId());
+        entity.setPurpose(request.purpose());
+        entity.setSortOrder(request.sortOrder());
+        entity.setMetadata(request.metadata());
     }
 }

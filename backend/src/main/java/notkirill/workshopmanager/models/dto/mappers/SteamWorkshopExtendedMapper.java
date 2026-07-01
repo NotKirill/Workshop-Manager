@@ -5,7 +5,7 @@ import notkirill.workshopmanager.models.dto.SteamWorkshopExtendedRequest;
 import notkirill.workshopmanager.models.dto.SteamWorkshopExtendedResponse;
 
 public class SteamWorkshopExtendedMapper {
-    public SteamWorkshopExtendedResponse fromEntity(SteamWorkshopExtended entity) {
+    public SteamWorkshopExtendedResponse entityToResponse(SteamWorkshopExtended entity) {
         return new SteamWorkshopExtendedResponse(entity.getInternalId(),
                 entity.getPreviewFileSize(),
                 entity.getShortDescription(),
@@ -16,10 +16,9 @@ public class SteamWorkshopExtendedMapper {
                 entity.isMaybeInappropriateSex(),
                 entity.isMaybeInappropriateViolence(),
                 entity.getContentDescriptorIds());
-
     }
 
-    public SteamWorkshopExtended toEntity(SteamWorkshopExtendedRequest request) {
+    public SteamWorkshopExtended requestToEntity(SteamWorkshopExtendedRequest request) {
         return new SteamWorkshopExtended(request.internalId(),
                 request.previewFileSize(),
                 request.shortDescription(),
@@ -30,5 +29,18 @@ public class SteamWorkshopExtendedMapper {
                 request.maybeInappropriateSex(),
                 request.maybeInappropriateViolence(),
                 request.contentDescriptorIds());
+    }
+
+    public void updateEntityFromRequest(SteamWorkshopExtendedRequest request, SteamWorkshopExtended entity) {
+        entity.setInternalId(request.internalId());
+        entity.setPreviewFileSize(request.previewFileSize());
+        entity.setShortDescription(request.shortDescription());
+        entity.setNumChildren(request.numChildren());
+        entity.setPreviews(request.previews());
+        entity.setChildren(request.children());
+        entity.setKvtags(request.kvtags());
+        entity.setMaybeInappropriateSex(request.maybeInappropriateSex());
+        entity.setMaybeInappropriateViolence(request.maybeInappropriateViolence());
+        entity.setContentDescriptorIds(request.contentDescriptorIds());
     }
 }

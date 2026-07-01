@@ -6,15 +6,21 @@ import notkirill.workshopmanager.models.dto.GameToModspaceIdResponse;
 
 
 public class GameToModspaceIdMapper {
-    public GameToModspaceIdResponse fromEntity(GameToModspaceId entity) {
+    public GameToModspaceIdResponse entityToResponse(GameToModspaceId entity) {
         return new GameToModspaceIdResponse(entity.getGameId(),
                 entity.getSourceModspace(),
                 entity.getExternalId());
     }
 
-    public GameToModspaceId toEntity(GameToModspaceIdRequest request) {
+    public GameToModspaceId requestToEntity(GameToModspaceIdRequest request) {
         return new GameToModspaceId(request.gameId(),
                 request.sourceModspace(),
                 request.externalId());
+    }
+
+    public void updateEntityFromRequest(GameToModspaceIdRequest request, GameToModspaceId entity) {
+        entity.setGameId(request.gameId());
+        entity.setSourceModspace(request.sourceModspace());
+        entity.setExternalId(request.externalId());
     }
 }

@@ -5,7 +5,7 @@ import notkirill.workshopmanager.models.dto.SteamWorkshopItemRequest;
 import notkirill.workshopmanager.models.dto.SteamWorkshopItemResponse;
 
 public class SteamWorkshopItemMapper {
-    public SteamWorkshopItemResponse fromEntity(SteamWorkshopItem entity) {
+    public SteamWorkshopItemResponse entityToResponse(SteamWorkshopItem entity) {
         return new SteamWorkshopItemResponse(entity.getInternalId(),
                 entity.getPublishedFileId(),
                 entity.getCreator(),
@@ -22,10 +22,9 @@ public class SteamWorkshopItemMapper {
                 entity.getFavorited(),
                 entity.getLifetimeSubscriptions(),
                 entity.getLifetimeFavorited());
-
     }
 
-    public SteamWorkshopItem toEntity(SteamWorkshopItemRequest request) {
+    public SteamWorkshopItem requestToEntity(SteamWorkshopItemRequest request) {
         return new SteamWorkshopItem(request.publishedFileId(),
                 request.creator(),
                 request.creatorAppId(),
@@ -41,5 +40,23 @@ public class SteamWorkshopItemMapper {
                 request.favorited(),
                 request.lifetimeSubscriptions(),
                 request.lifetimeFavorited());
+    }
+
+    public void updateEntityFromRequest(SteamWorkshopItemRequest request, SteamWorkshopItem entity) {
+        entity.setPublishedFileId(request.publishedFileId());
+        entity.setCreator(request.creator());
+        entity.setCreatorAppId(request.creatorAppId());
+        entity.setConsumerAppId(request.consumerAppId());
+        entity.setFileSize(request.fileSize());
+        entity.setPreviewUrl(request.previewUrl());
+        entity.setTitle(request.title());
+        entity.setDescription(request.description());
+        entity.setTimeCreated(request.timeCreated());
+        entity.setTimeUpdated(request.timeUpdated());
+        entity.setVisibility(request.visibility());
+        entity.setSubscriptions(request.subscriptions());
+        entity.setFavorited(request.favorited());
+        entity.setLifetimeSubscriptions(request.lifetimeSubscriptions());
+        entity.setLifetimeFavorited(request.lifetimeFavorited());
     }
 }

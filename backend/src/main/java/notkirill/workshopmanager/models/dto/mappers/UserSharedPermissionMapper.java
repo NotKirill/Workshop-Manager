@@ -5,17 +5,21 @@ import notkirill.workshopmanager.models.dto.UserSharedPermissionRequest;
 import notkirill.workshopmanager.models.dto.UserSharedPermissionResponse;
 
 public class UserSharedPermissionMapper {
-    public UserSharedPermissionResponse fromEntity(UserSharedPermission entity) {
+    public UserSharedPermissionResponse entityToResponse(UserSharedPermission entity) {
         return new UserSharedPermissionResponse(entity.getUserProviderId(),
                 entity.getUserConsumerId(),
                 entity.getPermissionId());
-
-
     }
 
-    public UserSharedPermission toEntity(UserSharedPermissionRequest request) {
+    public UserSharedPermission requestToEntity(UserSharedPermissionRequest request) {
         return new UserSharedPermission(request.userProviderId(),
                 request.userConsumerId(),
                 request.permissionId());
+    }
+
+    public void updateEntityFromRequest(UserSharedPermissionRequest request, UserSharedPermission entity) {
+        entity.setUserProviderId(request.userProviderId());
+        entity.setUserConsumerId(request.userConsumerId());
+        entity.setPermissionId(request.permissionId());
     }
 }

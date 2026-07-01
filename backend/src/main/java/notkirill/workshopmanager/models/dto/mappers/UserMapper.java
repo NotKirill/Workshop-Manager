@@ -5,7 +5,7 @@ import notkirill.workshopmanager.models.dto.UserRequest;
 import notkirill.workshopmanager.models.dto.UserResponse;
 
 public class UserMapper {
-    public UserResponse fromEntity(User entity) {
+    public UserResponse entityToResponse(User entity) {
         return new UserResponse(entity.getId(),
                 entity.getLogin(),
                 entity.getEmail(),
@@ -13,16 +13,23 @@ public class UserMapper {
                 entity.getTimeCreated(),
                 entity.getName(),
                 entity.getPermissionsIds());
-
-
     }
 
-    public User toEntity(UserRequest request) {
+    public User requestToEntity(UserRequest request) {
         return new User(request.login(),
                 request.email(),
                 request.passwordHash(),
                 request.timeCreated(),
                 request.name(),
                 request.permissionsIds());
+    }
+
+    public void updateEntityFromRequest(UserRequest request, User entity) {
+        entity.setLogin(request.login());
+        entity.setEmail(request.email());
+        entity.setPasswordHash(request.passwordHash());
+        entity.setTimeCreated(request.timeCreated());
+        entity.setName(request.name());
+        entity.setPermissionsIds(request.permissionsIds());
     }
 }

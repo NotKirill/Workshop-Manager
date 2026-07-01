@@ -5,7 +5,7 @@ import notkirill.workshopmanager.models.dto.ItemContentRequest;
 import notkirill.workshopmanager.models.dto.ItemContentResponse;
 
 public class ItemContentMapper {
-    public ItemContentResponse fromEntity(ItemContent entity) {
+    public ItemContentResponse entityToResponse(ItemContent entity) {
         return new ItemContentResponse(entity.getId(),
                 entity.getInternalMetadataId(),
                 entity.getReferenceCount(),
@@ -14,11 +14,19 @@ public class ItemContentMapper {
                 entity.getMaxRevisions());
     }
 
-    public ItemContent toEntity(ItemContentRequest request) {
+    public ItemContent requestToEntity(ItemContentRequest request) {
         return new ItemContent(request.internalMetadataId(),
                 request.referenceCount(),
                 request.edition(),
                 request.attributes(),
                 request.maxRevisions());
+    }
+
+    public void updateEntityFromRequest(ItemContentRequest request, ItemContent entity) {
+        entity.setInternalMetadataId(request.internalMetadataId());
+        entity.setReferenceCount(request.referenceCount());
+        entity.setEdition(request.edition());
+        entity.setAttributes(request.attributes());
+        entity.setMaxRevisions(request.maxRevisions());
     }
 }

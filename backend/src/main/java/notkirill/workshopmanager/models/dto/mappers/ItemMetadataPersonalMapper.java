@@ -5,7 +5,7 @@ import notkirill.workshopmanager.models.dto.ItemMetadataPersonalRequest;
 import notkirill.workshopmanager.models.dto.ItemMetadataPersonalResponse;
 
 public class ItemMetadataPersonalMapper {
-    public ItemMetadataPersonalResponse fromEntity(ItemMetadataPersonal entity) {
+    public ItemMetadataPersonalResponse entityToResponse(ItemMetadataPersonal entity) {
         return new ItemMetadataPersonalResponse(entity.getId(),
                 entity.getUserId(),
                 entity.getInternalMetadataId(),
@@ -16,7 +16,7 @@ public class ItemMetadataPersonalMapper {
                 entity.isContentImport());
     }
 
-    public ItemMetadataPersonal toEntity(ItemMetadataPersonalRequest request) {
+    public ItemMetadataPersonal requestToEntity(ItemMetadataPersonalRequest request) {
         return new ItemMetadataPersonal(request.userId(),
                 request.internalMetadataId(),
                 request.title(),
@@ -24,5 +24,15 @@ public class ItemMetadataPersonalMapper {
                 request.userCommentary(),
                 request.metadataOnly(),
                 request.contentImport());
+    }
+
+    public void updateEntityFromRequest(ItemMetadataPersonalRequest request, ItemMetadataPersonal entity) {
+        entity.setUserId(request.userId());
+        entity.setInternalMetadataId(request.internalMetadataId());
+        entity.setTitle(request.title());
+        entity.setDescription(request.description());
+        entity.setUserCommentary(request.userCommentary());
+        entity.setMetadataOnly(request.metadataOnly());
+        entity.setContentImport(request.contentImport());
     }
 }

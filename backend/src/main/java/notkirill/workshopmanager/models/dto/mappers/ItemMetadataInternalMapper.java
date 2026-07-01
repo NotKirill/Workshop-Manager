@@ -5,7 +5,7 @@ import notkirill.workshopmanager.models.dto.ItemMetadataInternalRequest;
 import notkirill.workshopmanager.models.dto.ItemMetadataInternalResponse;
 
 public class ItemMetadataInternalMapper {
-    public ItemMetadataInternalResponse fromEntity(ItemMetadataInternal entity) {
+    public ItemMetadataInternalResponse entityToResponse(ItemMetadataInternal entity) {
         return new ItemMetadataInternalResponse(entity.getId(),
                 entity.getSourceModspace(),
                 entity.getGameId(),
@@ -14,11 +14,19 @@ public class ItemMetadataInternalMapper {
                 entity.getTimeUpdated());
     }
 
-    public ItemMetadataInternal toEntity(ItemMetadataInternalRequest request) {
+    public ItemMetadataInternal requestToEntity(ItemMetadataInternalRequest request) {
         return new ItemMetadataInternal(request.sourceModspace(),
                 request.gameId(),
                 request.originalId(),
                 request.timeRegistered(),
                 request.timeUpdated());
+    }
+
+    public void updateEntityFromRequest(ItemMetadataInternalRequest request, ItemMetadataInternal entity) {
+        entity.setSourceModspace(request.sourceModspace());
+        entity.setGameId(request.gameId());
+        entity.setOriginalId(request.originalId());
+        entity.setTimeRegistered(request.timeRegistered());
+        entity.setTimeUpdated(request.timeUpdated());
     }
 }
