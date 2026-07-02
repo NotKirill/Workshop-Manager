@@ -5,6 +5,7 @@ import notkirill.workshopmanager.models.controllers.exception.NoSuchEntityExcept
 import notkirill.workshopmanager.models.dto.ItemContentRevisionRequest;
 import notkirill.workshopmanager.models.dto.ItemContentRevisionResponse;
 import notkirill.workshopmanager.models.dto.mappers.ItemContentRevisionMapper;
+import notkirill.workshopmanager.models.idClasses.ItemContentRevisionComplexKey;
 import notkirill.workshopmanager.models.repositories.ItemContentRevisionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,7 +29,7 @@ public class ItemContentRevisionService {
                 .toList();
     }
 
-    public ItemContentRevisionResponse getById(Long id) {
+    public ItemContentRevisionResponse getById(ItemContentRevisionComplexKey id) {
         return repository.findById(id)
                 .map(mapper::entityToResponse)
                 .orElseThrow(NoSuchEntityException::new);
@@ -39,7 +40,7 @@ public class ItemContentRevisionService {
         ItemContentRevision saved = repository.save(entity);
     }
 
-    public void update(Long id, ItemContentRevisionRequest request) {
+    public void update(ItemContentRevisionComplexKey id, ItemContentRevisionRequest request) {
         ItemContentRevision entity = repository.findById(id)
                 .orElseThrow(NoSuchEntityException::new);
 
@@ -47,7 +48,7 @@ public class ItemContentRevisionService {
         ItemContentRevision saved = repository.save(entity);
     }
 
-    public void delete(Long id) {
+    public void delete(ItemContentRevisionComplexKey id) {
         if (!repository.existsById(id)) throw new NoSuchEntityException();
         repository.deleteById(id);
     }

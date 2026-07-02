@@ -3,6 +3,7 @@ package notkirill.workshopmanager.models.controllers;
 import jakarta.validation.Valid;
 import notkirill.workshopmanager.models.dto.ItemContentRevisionRequest;
 import notkirill.workshopmanager.models.dto.ItemContentRevisionResponse;
+import notkirill.workshopmanager.models.idClasses.ItemContentRevisionComplexKey;
 import notkirill.workshopmanager.models.services.ItemContentRevisionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -24,8 +25,10 @@ public class ItemContentRevisionController {
         return service.getAll();
     }
 
-    @GetMapping("/{id}")
-    public ItemContentRevisionResponse getById(@PathVariable Long id) {
+    @GetMapping
+    public ItemContentRevisionResponse getById(@RequestParam Long itemContentId,
+                                               @RequestParam Long revision) {
+        ItemContentRevisionComplexKey id = new ItemContentRevisionComplexKey(itemContentId, revision);
         return service.getById(id);
     }
 
@@ -34,14 +37,18 @@ public class ItemContentRevisionController {
         service.create(request);
     }
 
-    @PutMapping("/{id}")
-    public void update(@PathVariable Long id,
+    @PutMapping
+    public void update(@RequestParam Long itemContentId,
+                       @RequestParam Long revision,
                        @Valid @RequestBody ItemContentRevisionRequest request) {
+        ItemContentRevisionComplexKey id = new ItemContentRevisionComplexKey(itemContentId, revision);
         service.update(id, request);
     }
 
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    @DeleteMapping
+    public void delete(@RequestParam Long itemContentId,
+                       @RequestParam Long revision) {
+        ItemContentRevisionComplexKey id = new ItemContentRevisionComplexKey(itemContentId, revision);
         service.delete(id);
     }
 }
