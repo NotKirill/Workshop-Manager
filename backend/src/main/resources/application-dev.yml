@@ -10,3 +10,6 @@ spring:
     compose:
       enabled: true
       file: compose.dev.yaml
+  jpa:
+    hibernate:
+      ddl-auto: validate
