@@ -4,9 +4,8 @@ import jakarta.validation.constraints.NotNull;
 
 import java.time.OffsetDateTime;
 
+// TODO close auth data
 public record UserRequest(
-        @NotNull String login,
-        String email,
         @NotNull String passwordHash,
         @NotNull OffsetDateTime timeCreated,
         @NotNull String name,

@@ -1,0 +1,97 @@
+databaseChangeLog:
+  - changeSet:
+      id: 010
+      author: NotKirill
+      changes:
+        - dropColumn:
+            tableName: users
+            columns:
+              - column:
+                  name: login
+              - column:
+                  name: email
+        - sql:
+            dbms: postgresql
+            sql: CREATE TYPE auth_provider AS ENUM ('LOCAL_LOGIN', 'LOCAL_EMAIL', 'STEAM')
+            rollback:
+              - sql:
+                  dbms: postgresql
+                  sql: DROP TYPE auth_provider;
+        - createTable:
+            tableName: user_identities
+            columns:
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_user_identity_by_provider
+                    nullable: false
+              - column:
+                  name: provider
+                  type: auth_provider
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_user_identity_by_provider
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: uk_user_identity_by_provider
+              - column:
+                  name: provider_key
+                  type: TEXT
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: uk_user_identity_by_provider
+        - createTable:
+            tableName: refresh_tokens
+            columns:
+                - column:
+                    name: id
+                    type: UUID
+                    defaultValueComputed: gen_random_uuid()
+                    constraints:
+                      primaryKey: true
+                      primaryKeyName: pk_refresh_token
+                      nullable: false
+                - column:
+                    name: user_id
+                    type: BIGINT
+                    constraints:
+                      nullable: false
+                - column:
+                    name: token_hash
+                    type: TEXT
+                    constraints:
+                      nullable: false
+                      unique: true
+                      uniqueConstraintName: uk_user_identity
+                - column:
+                    name: expires_at
+                    type: TIMESTAMPTZ
+                    constraints:
+                      nullable: false
+                - column:
+                    name: created_at
+                    type: TIMESTAMPTZ
+                    constraints:
+                      nullable: false
+                - column:
+                    name: revoked_at
+                    type: TIMESTAMPTZ
+                    constraints:
+                      nullable: true
+                - column:
+                    name: replaced_by
+                    type: UUID
+                    constraints:
+                      nullable: true
+                - column:
+                    name: device_name
+                    type: TEXT
+                - column:
+                    name: ip_address
+                    type: INET
+                - column:
+                    name: user_agent
+                    type: TEXT

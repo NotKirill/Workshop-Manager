@@ -2,10 +2,9 @@ package notkirill.workshopmanager.models.dto;
 
 import java.time.OffsetDateTime;
 
+// TODO close auth data
 public record UserResponse(
         Long id,
-        String login,
-        String email,
         String passwordHash,
         OffsetDateTime timeCreated,
         String name,

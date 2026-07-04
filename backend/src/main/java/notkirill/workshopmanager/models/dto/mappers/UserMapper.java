@@ -9,8 +9,6 @@ import org.springframework.stereotype.Component;
 public class UserMapper {
     public UserResponse entityToResponse(User entity) {
         return new UserResponse(entity.getId(),
-                entity.getLogin(),
-                entity.getEmail(),
                 entity.getPasswordHash(),
                 entity.getTimeCreated(),
                 entity.getName(),
@@ -18,8 +16,7 @@ public class UserMapper {
     }
 
     public User requestToEntity(UserRequest request) {
-        return new User(request.login(),
-                request.email(),
+        return new User(
                 request.passwordHash(),
                 request.timeCreated(),
                 request.name(),
@@ -27,8 +24,6 @@ public class UserMapper {
     }
 
     public void updateEntityFromRequest(UserRequest request, User entity) {
-        entity.setLogin(request.login());
-        entity.setEmail(request.email());
         entity.setPasswordHash(request.passwordHash());
         entity.setTimeCreated(request.timeCreated());
         entity.setName(request.name());

@@ -20,13 +20,6 @@ public class User {
     private long id;
 
     @NotNull
-    @Column(name = "login", nullable = false)
-    private String login;
-
-    @Column(name = "email")
-    private String email;
-
-    @NotNull
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 
@@ -46,9 +39,7 @@ public class User {
         // Required by JPA
     }
 
-    public User(String login, String email, String passwordHash, OffsetDateTime timeCreated, String name, short[] permissionsIds) {
-        this.login = login;
-        this.email = email;
+    public User(String passwordHash, OffsetDateTime timeCreated, String name, short[] permissionsIds) {
         this.passwordHash = passwordHash;
         this.timeCreated = timeCreated;
         this.name = name;
@@ -61,22 +52,6 @@ public class User {
 
     public void setId(long id) {
         this.id = id;
-    }
-
-    public String getLogin() {
-        return login;
-    }
-
-    public void setLogin(String login) {
-        this.login = login;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 
     public String getPasswordHash() {
@@ -115,8 +90,6 @@ public class User {
     public String toString() {
         return "User{" +
                 "id=" + id +
-                ", login='" + login + '\'' +
-                ", email='" + email + '\'' +
                 ", passwordHash='" + passwordHash + '\'' +
                 ", timeCreated=" + timeCreated +
                 ", name='" + name + '\'' +
