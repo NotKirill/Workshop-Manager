@@ -25,7 +25,7 @@ public class MediaLinkOverrideController {
         return service.getAll();
     }
 
-    @GetMapping
+    @GetMapping(params = {"linkId", "userId"})
     public MediaLinkOverrideResponse getById(@RequestParam Long linkId,
                                              @RequestParam Long userId) {
         MediaLinkOverrideComplexKey id = new MediaLinkOverrideComplexKey(linkId, userId);

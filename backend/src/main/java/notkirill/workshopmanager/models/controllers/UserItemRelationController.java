@@ -26,7 +26,7 @@ public class UserItemRelationController {
         return service.getAll();
     }
 
-    @GetMapping
+    @GetMapping(params = {"sourceItemPersonalMetadataId", "targetItemPersonalMetadataId", "relation"})
     public UserItemRelationResponse getById(@RequestParam Long sourceItemPersonalMetadataId,
                                             @RequestParam Long targetItemPersonalMetadataId,
                                             @RequestParam RelationType relation) {

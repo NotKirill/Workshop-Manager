@@ -25,7 +25,7 @@ public class SteamWorkshopItemTagController {
         return service.getAll();
     }
 
-    @GetMapping
+    @GetMapping(params = {"internalId", "tagId"})
     public SteamWorkshopItemTagResponse getById(@RequestParam Long internalId,
                                                 @RequestParam Long tagId) {
         SteamWorkshopItemTagComplexKey id = new SteamWorkshopItemTagComplexKey(internalId, tagId);

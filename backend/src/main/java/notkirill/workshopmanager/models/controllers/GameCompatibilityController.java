@@ -26,7 +26,7 @@ public class GameCompatibilityController {
         return service.getAll();
     }
 
-    @GetMapping
+    @GetMapping(params = {"sourceGameId", "targetGameId"})
     public GameCompatibilityResponse getById(@RequestParam Long sourceGameId,
                                              @RequestParam Long targetGameId) {
         GameCompatibilityComplexKey id = new GameCompatibilityComplexKey(sourceGameId, targetGameId);

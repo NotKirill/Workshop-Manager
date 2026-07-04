@@ -25,7 +25,7 @@ public class UserRatingController {
         return service.getAll();
     }
 
-    @GetMapping
+    @GetMapping(params = {"userId", "itemPersonalMetadataId"})
     public UserRatingResponse getById(@RequestParam Long userId,
                                       @RequestParam Long itemPersonalMetadataId) {
         UserRatingComplexKey id = new UserRatingComplexKey(userId, itemPersonalMetadataId);

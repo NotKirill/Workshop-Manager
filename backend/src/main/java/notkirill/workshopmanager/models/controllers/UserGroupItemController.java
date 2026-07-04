@@ -25,7 +25,7 @@ public class UserGroupItemController {
         return service.getAll();
     }
 
-    @GetMapping
+    @GetMapping(params = {"userGroupId", "itemPersonalMetadataId"})
     public UserGroupItemResponse getById(@RequestParam Long userGroupId,
                                          @RequestParam Long itemPersonalMetadataId) {
         UserGroupItemComplexKey id = new UserGroupItemComplexKey(userGroupId, itemPersonalMetadataId);

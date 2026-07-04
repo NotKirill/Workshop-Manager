@@ -25,7 +25,7 @@ public class ItemContentRevisionController {
         return service.getAll();
     }
 
-    @GetMapping
+    @GetMapping(params = {"itemContentId", "revision"})
     public ItemContentRevisionResponse getById(@RequestParam Long itemContentId,
                                                @RequestParam Long revision) {
         ItemContentRevisionComplexKey id = new ItemContentRevisionComplexKey(itemContentId, revision);

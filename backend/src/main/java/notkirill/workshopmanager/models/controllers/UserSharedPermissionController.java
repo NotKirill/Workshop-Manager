@@ -25,7 +25,7 @@ public class UserSharedPermissionController {
         return service.getAll();
     }
 
-    @GetMapping
+    @GetMapping(params = {"userProviderId", "userConsumerId", "permissionId"})
     public UserSharedPermissionResponse getById(@RequestParam Long userProviderId,
                                                 @RequestParam Long userConsumerId,
                                                 @RequestParam Short permissionId) {

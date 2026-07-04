@@ -25,7 +25,7 @@ public class UserItemTagController {
         return service.getAll();
     }
 
-    @GetMapping
+    @GetMapping(params = {"tagId", "itemPersonalMetadataId"})
     public UserItemTagResponse getById(@RequestParam Long tagId,
                                        @RequestParam Long itemPersonalMetadataId) {
         UserItemTagComplexKey id = new UserItemTagComplexKey(tagId, itemPersonalMetadataId);
