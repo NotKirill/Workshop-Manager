@@ -3,7 +3,9 @@ package notkirill.workshopmanager.models.dto.mappers;
 import notkirill.workshopmanager.models.ItemContent;
 import notkirill.workshopmanager.models.dto.ItemContentRequest;
 import notkirill.workshopmanager.models.dto.ItemContentResponse;
+import org.springframework.stereotype.Component;
 
+@Component
 public class ItemContentMapper {
     public ItemContentResponse entityToResponse(ItemContent entity) {
         return new ItemContentResponse(entity.getId(),

@@ -3,7 +3,9 @@ package notkirill.workshopmanager.models.dto.mappers;
 import notkirill.workshopmanager.models.ItemMetadataPersonal;
 import notkirill.workshopmanager.models.dto.ItemMetadataPersonalRequest;
 import notkirill.workshopmanager.models.dto.ItemMetadataPersonalResponse;
+import org.springframework.stereotype.Component;
 
+@Component
 public class ItemMetadataPersonalMapper {
     public ItemMetadataPersonalResponse entityToResponse(ItemMetadataPersonal entity) {
         return new ItemMetadataPersonalResponse(entity.getId(),

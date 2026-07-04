@@ -3,7 +3,9 @@ package notkirill.workshopmanager.models.dto.mappers;
 import notkirill.workshopmanager.models.SteamWorkshopVoteData;
 import notkirill.workshopmanager.models.dto.SteamWorkshopVoteDataRequest;
 import notkirill.workshopmanager.models.dto.SteamWorkshopVoteDataResponse;
+import org.springframework.stereotype.Component;
 
+@Component
 public class SteamWorkshopVoteDataMapper {
     public SteamWorkshopVoteDataResponse entityToResponse(SteamWorkshopVoteData entity) {
         return new SteamWorkshopVoteDataResponse(entity.getInternalId(),

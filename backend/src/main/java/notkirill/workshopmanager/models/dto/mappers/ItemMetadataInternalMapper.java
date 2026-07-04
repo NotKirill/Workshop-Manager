@@ -3,7 +3,9 @@ package notkirill.workshopmanager.models.dto.mappers;
 import notkirill.workshopmanager.models.ItemMetadataInternal;
 import notkirill.workshopmanager.models.dto.ItemMetadataInternalRequest;
 import notkirill.workshopmanager.models.dto.ItemMetadataInternalResponse;
+import org.springframework.stereotype.Component;
 
+@Component
 public class ItemMetadataInternalMapper {
     public ItemMetadataInternalResponse entityToResponse(ItemMetadataInternal entity) {
         return new ItemMetadataInternalResponse(entity.getId(),

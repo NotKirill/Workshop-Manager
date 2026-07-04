@@ -3,7 +3,9 @@ package notkirill.workshopmanager.models.dto.mappers;
 import notkirill.workshopmanager.models.UserGroup;
 import notkirill.workshopmanager.models.dto.UserGroupRequest;
 import notkirill.workshopmanager.models.dto.UserGroupResponse;
+import org.springframework.stereotype.Component;
 
+@Component
 public class UserGroupMapper {
     public UserGroupResponse entityToResponse(UserGroup entity) {
         return new UserGroupResponse(entity.getId(),

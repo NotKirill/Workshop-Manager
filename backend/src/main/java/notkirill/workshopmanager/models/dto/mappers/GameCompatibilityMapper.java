@@ -3,7 +3,9 @@ package notkirill.workshopmanager.models.dto.mappers;
 import notkirill.workshopmanager.models.GameCompatibility;
 import notkirill.workshopmanager.models.dto.GameCompatibilityRequest;
 import notkirill.workshopmanager.models.dto.GameCompatibilityResponse;
+import org.springframework.stereotype.Component;
 
+@Component
 public class GameCompatibilityMapper {
     public GameCompatibilityResponse entityToResponse(GameCompatibility entity) {
         return new GameCompatibilityResponse(entity.getSourceGameId(),

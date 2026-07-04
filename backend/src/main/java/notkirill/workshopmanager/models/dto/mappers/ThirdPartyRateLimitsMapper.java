@@ -3,7 +3,9 @@ package notkirill.workshopmanager.models.dto.mappers;
 import notkirill.workshopmanager.models.ThirdPartyRateLimits;
 import notkirill.workshopmanager.models.dto.ThirdPartyRateLimitsRequest;
 import notkirill.workshopmanager.models.dto.ThirdPartyRateLimitsResponse;
+import org.springframework.stereotype.Component;
 
+@Component
 public class ThirdPartyRateLimitsMapper {
     public ThirdPartyRateLimitsResponse entityToResponse(ThirdPartyRateLimits entity) {
         return new ThirdPartyRateLimitsResponse(entity.getServiceName(),

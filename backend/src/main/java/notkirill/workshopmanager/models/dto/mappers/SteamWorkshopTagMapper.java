@@ -3,7 +3,9 @@ package notkirill.workshopmanager.models.dto.mappers;
 import notkirill.workshopmanager.models.SteamWorkshopTag;
 import notkirill.workshopmanager.models.dto.SteamWorkshopTagRequest;
 import notkirill.workshopmanager.models.dto.SteamWorkshopTagResponse;
+import org.springframework.stereotype.Component;
 
+@Component
 public class SteamWorkshopTagMapper {
     public SteamWorkshopTagResponse entityToResponse(SteamWorkshopTag entity) {
         return new SteamWorkshopTagResponse(entity.getTagId(),

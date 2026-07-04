@@ -3,7 +3,9 @@ package notkirill.workshopmanager.models.dto.mappers;
 import notkirill.workshopmanager.models.Permission;
 import notkirill.workshopmanager.models.dto.PermissionRequest;
 import notkirill.workshopmanager.models.dto.PermissionResponse;
+import org.springframework.stereotype.Component;
 
+@Component
 public class PermissionMapper {
     public PermissionResponse entityToResponse(Permission entity) {
         return new PermissionResponse(entity.getId(),

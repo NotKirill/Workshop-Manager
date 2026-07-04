@@ -3,7 +3,9 @@ package notkirill.workshopmanager.models.dto.mappers;
 import notkirill.workshopmanager.models.ItemContentRevision;
 import notkirill.workshopmanager.models.dto.ItemContentRevisionRequest;
 import notkirill.workshopmanager.models.dto.ItemContentRevisionResponse;
+import org.springframework.stereotype.Component;
 
+@Component
 public class ItemContentRevisionMapper {
     public ItemContentRevisionResponse entityToResponse(ItemContentRevision entity) {
         return new ItemContentRevisionResponse(entity.getItemContentId(),

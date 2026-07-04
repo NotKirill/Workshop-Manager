@@ -3,7 +3,9 @@ package notkirill.workshopmanager.models.dto.mappers;
 import notkirill.workshopmanager.models.UserSharedPermission;
 import notkirill.workshopmanager.models.dto.UserSharedPermissionRequest;
 import notkirill.workshopmanager.models.dto.UserSharedPermissionResponse;
+import org.springframework.stereotype.Component;
 
+@Component
 public class UserSharedPermissionMapper {
     public UserSharedPermissionResponse entityToResponse(UserSharedPermission entity) {
         return new UserSharedPermissionResponse(entity.getUserProviderId(),

@@ -3,7 +3,9 @@ package notkirill.workshopmanager.models.dto.mappers;
 import notkirill.workshopmanager.models.MediaFile;
 import notkirill.workshopmanager.models.dto.MediaFileRequest;
 import notkirill.workshopmanager.models.dto.MediaFileResponse;
+import org.springframework.stereotype.Component;
 
+@Component
 public class MediaFileMapper {
     public MediaFileResponse entityToResponse(MediaFile entity) {
         return new MediaFileResponse(entity.getMediaItemId(),

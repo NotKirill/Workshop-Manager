@@ -3,7 +3,9 @@ package notkirill.workshopmanager.models.dto.mappers;
 import notkirill.workshopmanager.models.UserItemRelation;
 import notkirill.workshopmanager.models.dto.UserItemRelationRequest;
 import notkirill.workshopmanager.models.dto.UserItemRelationResponse;
+import org.springframework.stereotype.Component;
 
+@Component
 public class UserItemRelationMapper {
     public UserItemRelationResponse entityToResponse(UserItemRelation entity) {
         return new UserItemRelationResponse(entity.getSourceItemPersonalMetadataId(),

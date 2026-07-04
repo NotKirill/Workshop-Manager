@@ -3,7 +3,9 @@ package notkirill.workshopmanager.models.dto.mappers;
 import notkirill.workshopmanager.models.UserRating;
 import notkirill.workshopmanager.models.dto.UserRatingRequest;
 import notkirill.workshopmanager.models.dto.UserRatingResponse;
+import org.springframework.stereotype.Component;
 
+@Component
 public class UserRatingMapper {
     public UserRatingResponse entityToResponse(UserRating entity) {
         return new UserRatingResponse(entity.getUserId(),

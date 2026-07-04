@@ -3,7 +3,9 @@ package notkirill.workshopmanager.models.dto.mappers;
 import notkirill.workshopmanager.models.MediaEmbed;
 import notkirill.workshopmanager.models.dto.MediaEmbedRequest;
 import notkirill.workshopmanager.models.dto.MediaEmbedResponse;
+import org.springframework.stereotype.Component;
 
+@Component
 public class MediaEmbedMapper {
     public MediaEmbedResponse entityToResponse(MediaEmbed entity) {
         return new MediaEmbedResponse(entity.getMediaItemId(),

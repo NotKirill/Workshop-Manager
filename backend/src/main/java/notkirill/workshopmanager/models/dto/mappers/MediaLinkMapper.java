@@ -3,7 +3,9 @@ package notkirill.workshopmanager.models.dto.mappers;
 import notkirill.workshopmanager.models.MediaLink;
 import notkirill.workshopmanager.models.dto.MediaLinkRequest;
 import notkirill.workshopmanager.models.dto.MediaLinkResponse;
+import org.springframework.stereotype.Component;
 
+@Component
 public class MediaLinkMapper {
     public MediaLinkResponse entityToResponse(MediaLink entity) {
         return new MediaLinkResponse(entity.getId(),

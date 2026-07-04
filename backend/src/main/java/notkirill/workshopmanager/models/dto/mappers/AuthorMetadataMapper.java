@@ -3,7 +3,9 @@ package notkirill.workshopmanager.models.dto.mappers;
 import notkirill.workshopmanager.models.AuthorMetadata;
 import notkirill.workshopmanager.models.dto.AuthorMetadataRequest;
 import notkirill.workshopmanager.models.dto.AuthorMetadataResponse;
+import org.springframework.stereotype.Component;
 
+@Component
 public class AuthorMetadataMapper {
     public AuthorMetadataResponse entityToResponse(AuthorMetadata entity) {
         return new AuthorMetadataResponse(entity.getId(),

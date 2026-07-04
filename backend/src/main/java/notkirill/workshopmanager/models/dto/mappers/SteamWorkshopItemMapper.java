@@ -3,7 +3,9 @@ package notkirill.workshopmanager.models.dto.mappers;
 import notkirill.workshopmanager.models.SteamWorkshopItem;
 import notkirill.workshopmanager.models.dto.SteamWorkshopItemRequest;
 import notkirill.workshopmanager.models.dto.SteamWorkshopItemResponse;
+import org.springframework.stereotype.Component;
 
+@Component
 public class SteamWorkshopItemMapper {
     public SteamWorkshopItemResponse entityToResponse(SteamWorkshopItem entity) {
         return new SteamWorkshopItemResponse(entity.getInternalId(),

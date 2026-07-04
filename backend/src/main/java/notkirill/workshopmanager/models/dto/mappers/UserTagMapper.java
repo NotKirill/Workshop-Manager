@@ -3,7 +3,9 @@ package notkirill.workshopmanager.models.dto.mappers;
 import notkirill.workshopmanager.models.UserTag;
 import notkirill.workshopmanager.models.dto.UserTagRequest;
 import notkirill.workshopmanager.models.dto.UserTagResponse;
+import org.springframework.stereotype.Component;
 
+@Component
 public class UserTagMapper {
     public UserTagResponse entityToResponse(UserTag entity) {
         return new UserTagResponse(entity.getId(),

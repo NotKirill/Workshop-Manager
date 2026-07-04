@@ -3,7 +3,9 @@ package notkirill.workshopmanager.models.dto.mappers;
 import notkirill.workshopmanager.models.MediaLinkOverride;
 import notkirill.workshopmanager.models.dto.MediaLinkOverrideRequest;
 import notkirill.workshopmanager.models.dto.MediaLinkOverrideResponse;
+import org.springframework.stereotype.Component;
 
+@Component
 public class MediaLinkOverrideMapper {
     public MediaLinkOverrideResponse entityToResponse(MediaLinkOverride entity) {
         return new MediaLinkOverrideResponse(entity.getLinkId(),
