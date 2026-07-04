@@ -6,6 +6,10 @@ databaseChangeLog:
         - sql:
             dbms: postgresql
             sql: CREATE TYPE relation_type AS ENUM ('PARENT', 'ALTERNATE', 'DEPENDENCY')
+            rollback:
+              - sql:
+                  dbms: postgresql
+                  sql: DROP TYPE relation_type;
         - createTable:
             tableName: user_groups
             columns:

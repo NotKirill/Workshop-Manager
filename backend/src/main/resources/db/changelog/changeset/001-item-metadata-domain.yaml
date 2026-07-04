@@ -6,6 +6,10 @@ databaseChangeLog:
         - sql:
             dbms: postgresql
             sql: CREATE TYPE modspace_type AS ENUM ('LOCAL', 'UNKNOWN', 'STEAM')
+            rollback:
+              - sql:
+                  dbms: postgresql
+                  sql: DROP TYPE modspace_type;
         - createTable:
             tableName: item_metadata_internal
             columns:
