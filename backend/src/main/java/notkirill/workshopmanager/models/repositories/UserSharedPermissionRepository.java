@@ -1,12 +1,11 @@
 package notkirill.workshopmanager.models.repositories;
 
 import notkirill.workshopmanager.models.UserSharedPermission;
-import notkirill.workshopmanager.models.idClasses.UserSharedPermissionComplexKey;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface UserSharedPermissionRepository extends JpaRepository<UserSharedPermission, UserSharedPermissionComplexKey> {
+public interface UserSharedPermissionRepository extends JpaRepository<UserSharedPermission, UserSharedPermission.CompositeId> {
     List<UserSharedPermission> findByUserProviderId(long userProviderId);
 
     List<UserSharedPermission> findByUserConsumerId(long userConsumerId);

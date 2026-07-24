@@ -1,9 +1,9 @@
 package notkirill.workshopmanager.models.controllers;
 
 import jakarta.validation.Valid;
+import notkirill.workshopmanager.models.UserItemTag;
 import notkirill.workshopmanager.models.dto.UserItemTagRequest;
 import notkirill.workshopmanager.models.dto.UserItemTagResponse;
-import notkirill.workshopmanager.models.idClasses.UserItemTagComplexKey;
 import notkirill.workshopmanager.models.services.UserItemTagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +28,7 @@ public class UserItemTagController {
     @GetMapping(params = {"tagId", "itemPersonalMetadataId"})
     public UserItemTagResponse getById(@RequestParam Long tagId,
                                        @RequestParam Long itemPersonalMetadataId) {
-        UserItemTagComplexKey id = new UserItemTagComplexKey(tagId, itemPersonalMetadataId);
+        UserItemTag.CompositeId id = new UserItemTag.CompositeId(tagId, itemPersonalMetadataId);
         return service.getById(id);
     }
 
@@ -41,14 +41,14 @@ public class UserItemTagController {
     public void update(@RequestParam Long tagId,
                        @RequestParam Long itemPersonalMetadataId,
                        @Valid @RequestBody UserItemTagRequest request) {
-        UserItemTagComplexKey id = new UserItemTagComplexKey(tagId, itemPersonalMetadataId);
+        UserItemTag.CompositeId id = new UserItemTag.CompositeId(tagId, itemPersonalMetadataId);
         service.update(id, request);
     }
 
     @DeleteMapping
     public void delete(@RequestParam Long tagId,
                        @RequestParam Long itemPersonalMetadataId) {
-        UserItemTagComplexKey id = new UserItemTagComplexKey(tagId, itemPersonalMetadataId);
+        UserItemTag.CompositeId id = new UserItemTag.CompositeId(tagId, itemPersonalMetadataId);
         service.delete(id);
     }
 }

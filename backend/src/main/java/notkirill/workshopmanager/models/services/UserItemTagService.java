@@ -4,7 +4,6 @@ import notkirill.workshopmanager.models.UserItemTag;
 import notkirill.workshopmanager.models.dto.UserItemTagRequest;
 import notkirill.workshopmanager.models.dto.UserItemTagResponse;
 import notkirill.workshopmanager.models.dto.mappers.UserItemTagMapper;
-import notkirill.workshopmanager.models.idClasses.UserItemTagComplexKey;
 import notkirill.workshopmanager.models.repositories.UserItemTagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,7 +28,7 @@ public class UserItemTagService {
                 .toList();
     }
 
-    public UserItemTagResponse getById(UserItemTagComplexKey id) {
+    public UserItemTagResponse getById(UserItemTag.CompositeId id) {
         return repository.findById(id)
                 .map(mapper::entityToResponse)
                 .orElseThrow(NoSuchElementException::new);
@@ -40,7 +39,7 @@ public class UserItemTagService {
         UserItemTag saved = repository.save(entity);
     }
 
-    public void update(UserItemTagComplexKey id, UserItemTagRequest request) {
+    public void update(UserItemTag.CompositeId id, UserItemTagRequest request) {
         UserItemTag entity = repository.findById(id)
                 .orElseThrow(NoSuchElementException::new);
 
@@ -48,7 +47,7 @@ public class UserItemTagService {
         UserItemTag saved = repository.save(entity);
     }
 
-    public void delete(UserItemTagComplexKey id) {
+    public void delete(UserItemTag.CompositeId id) {
         if (!repository.existsById(id)) throw new NoSuchElementException();
         repository.deleteById(id);
     }

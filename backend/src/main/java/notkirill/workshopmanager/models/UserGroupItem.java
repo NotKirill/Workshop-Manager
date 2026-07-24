@@ -2,11 +2,13 @@ package notkirill.workshopmanager.models;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import notkirill.workshopmanager.models.idClasses.UserGroupItemComplexKey;
+
+import java.io.Serializable;
+import java.util.Objects;
 
 @Entity
 @Table(name = "user_group_items")
-@IdClass(UserGroupItemComplexKey.class)
+@IdClass(UserGroupItem.CompositeId.class)
 public class UserGroupItem {
     @Id
     @NotNull
@@ -49,5 +51,54 @@ public class UserGroupItem {
                 "userGroupId=" + userGroupId +
                 ", itemPersonalMetadataId=" + itemPersonalMetadataId +
                 '}';
+    }
+
+    public static class CompositeId implements Serializable {
+        private long userGroupId;
+        private long itemPersonalMetadataId;
+
+        protected CompositeId() {
+            // Required by JPA
+        }
+
+        public CompositeId(long userGroupId, long itemPersonalMetadataId) {
+            this.userGroupId = userGroupId;
+            this.itemPersonalMetadataId = itemPersonalMetadataId;
+        }
+
+        public long getUserGroupId() {
+            return userGroupId;
+        }
+
+        public void setUserGroupId(long userGroupId) {
+            this.userGroupId = userGroupId;
+        }
+
+        public long getItemPersonalMetadataId() {
+            return itemPersonalMetadataId;
+        }
+
+        public void setItemPersonalMetadataId(long itemPersonalMetadataId) {
+            this.itemPersonalMetadataId = itemPersonalMetadataId;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(userGroupId, itemPersonalMetadataId);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof CompositeId that)) return false;
+            return userGroupId == that.userGroupId && itemPersonalMetadataId == that.itemPersonalMetadataId;
+        }
+
+        @Override
+        public String toString() {
+            return "UserGroupItem.CompositeId{" +
+                    "userGroupId=" + userGroupId +
+                    ", itemPersonalMetadataId=" + itemPersonalMetadataId +
+                    '}';
+        }
     }
 }

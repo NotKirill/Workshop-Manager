@@ -4,7 +4,6 @@ import notkirill.workshopmanager.models.GameCompatibility;
 import notkirill.workshopmanager.models.dto.GameCompatibilityRequest;
 import notkirill.workshopmanager.models.dto.GameCompatibilityResponse;
 import notkirill.workshopmanager.models.dto.mappers.GameCompatibilityMapper;
-import notkirill.workshopmanager.models.idClasses.GameCompatibilityComplexKey;
 import notkirill.workshopmanager.models.repositories.GameCompatibilityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,7 +29,7 @@ public class GameCompatibilityService {
                 .toList();
     }
 
-    public GameCompatibilityResponse getById(GameCompatibilityComplexKey id) {
+    public GameCompatibilityResponse getById(GameCompatibility.CompositeId id) {
         return repository.findById(id)
                 .map(mapper::entityToResponse)
                 .orElseThrow(NoSuchElementException::new);
@@ -41,7 +40,7 @@ public class GameCompatibilityService {
         GameCompatibility saved = repository.save(entity);
     }
 
-    public void update(GameCompatibilityComplexKey id, GameCompatibilityRequest request) {
+    public void update(GameCompatibility.CompositeId id, GameCompatibilityRequest request) {
         GameCompatibility entity = repository.findById(id)
                 .orElseThrow(NoSuchElementException::new);
 
@@ -49,7 +48,7 @@ public class GameCompatibilityService {
         GameCompatibility saved = repository.save(entity);
     }
 
-    public void delete(GameCompatibilityComplexKey id) {
+    public void delete(GameCompatibility.CompositeId id) {
         if (!repository.existsById(id)) throw new NoSuchElementException();
         repository.deleteById(id);
     }

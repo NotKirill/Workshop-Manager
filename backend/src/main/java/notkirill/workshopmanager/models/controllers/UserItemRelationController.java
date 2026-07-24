@@ -1,10 +1,10 @@
 package notkirill.workshopmanager.models.controllers;
 
 import jakarta.validation.Valid;
+import notkirill.workshopmanager.models.UserItemRelation;
 import notkirill.workshopmanager.models.dto.UserItemRelationRequest;
 import notkirill.workshopmanager.models.dto.UserItemRelationResponse;
 import notkirill.workshopmanager.models.enums.RelationType;
-import notkirill.workshopmanager.models.idClasses.UserItemRelationComplexKey;
 import notkirill.workshopmanager.models.services.UserItemRelationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +30,8 @@ public class UserItemRelationController {
     public UserItemRelationResponse getById(@RequestParam Long sourceItemPersonalMetadataId,
                                             @RequestParam Long targetItemPersonalMetadataId,
                                             @RequestParam RelationType relation) {
-        UserItemRelationComplexKey id = new UserItemRelationComplexKey(sourceItemPersonalMetadataId, targetItemPersonalMetadataId, relation);
+        UserItemRelation.CompositeId id = new UserItemRelation.CompositeId(
+                sourceItemPersonalMetadataId, targetItemPersonalMetadataId, relation);
         return service.getById(id);
     }
 
@@ -44,7 +45,8 @@ public class UserItemRelationController {
                        @RequestParam Long targetItemPersonalMetadataId,
                        @RequestParam RelationType relation,
                        @Valid @RequestBody UserItemRelationRequest request) {
-        UserItemRelationComplexKey id = new UserItemRelationComplexKey(sourceItemPersonalMetadataId, targetItemPersonalMetadataId, relation);
+        UserItemRelation.CompositeId id = new UserItemRelation.CompositeId(
+                sourceItemPersonalMetadataId, targetItemPersonalMetadataId, relation);
         service.update(id, request);
     }
 
@@ -52,7 +54,8 @@ public class UserItemRelationController {
     public void delete(@RequestParam Long sourceItemPersonalMetadataId,
                        @RequestParam Long targetItemPersonalMetadataId,
                        @RequestParam RelationType relation) {
-        UserItemRelationComplexKey id = new UserItemRelationComplexKey(sourceItemPersonalMetadataId, targetItemPersonalMetadataId, relation);
+        UserItemRelation.CompositeId id = new UserItemRelation.CompositeId(
+                sourceItemPersonalMetadataId, targetItemPersonalMetadataId, relation);
         service.delete(id);
     }
 }

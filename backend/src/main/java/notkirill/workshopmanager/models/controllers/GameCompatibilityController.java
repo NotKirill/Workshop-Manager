@@ -1,9 +1,9 @@
 package notkirill.workshopmanager.models.controllers;
 
 import jakarta.validation.Valid;
+import notkirill.workshopmanager.models.GameCompatibility;
 import notkirill.workshopmanager.models.dto.GameCompatibilityRequest;
 import notkirill.workshopmanager.models.dto.GameCompatibilityResponse;
-import notkirill.workshopmanager.models.idClasses.GameCompatibilityComplexKey;
 import notkirill.workshopmanager.models.services.GameCompatibilityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +29,8 @@ public class GameCompatibilityController {
     @GetMapping(params = {"sourceGameId", "targetGameId"})
     public GameCompatibilityResponse getById(@RequestParam Long sourceGameId,
                                              @RequestParam Long targetGameId) {
-        GameCompatibilityComplexKey id = new GameCompatibilityComplexKey(sourceGameId, targetGameId);
+        GameCompatibility.CompositeId id = new GameCompatibility.CompositeId(
+                sourceGameId, targetGameId);
         return service.getById(id);
     }
 
@@ -42,14 +43,16 @@ public class GameCompatibilityController {
     public void update(@RequestParam Long sourceGameId,
                        @RequestParam Long targetGameId,
                        @Valid @RequestBody GameCompatibilityRequest request) {
-        GameCompatibilityComplexKey id = new GameCompatibilityComplexKey(sourceGameId, targetGameId);
+        GameCompatibility.CompositeId id = new GameCompatibility.CompositeId(
+                sourceGameId, targetGameId);
         service.update(id, request);
     }
 
     @DeleteMapping
     public void delete(@RequestParam Long sourceGameId,
                        @RequestParam Long targetGameId) {
-        GameCompatibilityComplexKey id = new GameCompatibilityComplexKey(sourceGameId, targetGameId);
+        GameCompatibility.CompositeId id = new GameCompatibility.CompositeId(
+                sourceGameId, targetGameId);
         service.delete(id);
     }
 }

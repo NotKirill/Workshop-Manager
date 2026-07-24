@@ -1,9 +1,9 @@
 package notkirill.workshopmanager.models.controllers;
 
 import jakarta.validation.Valid;
+import notkirill.workshopmanager.models.UserRating;
 import notkirill.workshopmanager.models.dto.UserRatingRequest;
 import notkirill.workshopmanager.models.dto.UserRatingResponse;
-import notkirill.workshopmanager.models.idClasses.UserRatingComplexKey;
 import notkirill.workshopmanager.models.services.UserRatingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +28,7 @@ public class UserRatingController {
     @GetMapping(params = {"userId", "itemPersonalMetadataId"})
     public UserRatingResponse getById(@RequestParam Long userId,
                                       @RequestParam Long itemPersonalMetadataId) {
-        UserRatingComplexKey id = new UserRatingComplexKey(userId, itemPersonalMetadataId);
+        UserRating.CompositeId id = new UserRating.CompositeId(userId, itemPersonalMetadataId);
         return service.getById(id);
     }
 
@@ -41,14 +41,14 @@ public class UserRatingController {
     public void update(@RequestParam Long userId,
                        @RequestParam Long itemPersonalMetadataId,
                        @Valid @RequestBody UserRatingRequest request) {
-        UserRatingComplexKey id = new UserRatingComplexKey(userId, itemPersonalMetadataId);
+        UserRating.CompositeId id = new UserRating.CompositeId(userId, itemPersonalMetadataId);
         service.update(id, request);
     }
 
     @DeleteMapping
     public void delete(@RequestParam Long userId,
                        @RequestParam Long itemPersonalMetadataId) {
-        UserRatingComplexKey id = new UserRatingComplexKey(userId, itemPersonalMetadataId);
+        UserRating.CompositeId id = new UserRating.CompositeId(userId, itemPersonalMetadataId);
         service.delete(id);
     }
 }

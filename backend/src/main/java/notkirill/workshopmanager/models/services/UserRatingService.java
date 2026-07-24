@@ -4,7 +4,6 @@ import notkirill.workshopmanager.models.UserRating;
 import notkirill.workshopmanager.models.dto.UserRatingRequest;
 import notkirill.workshopmanager.models.dto.UserRatingResponse;
 import notkirill.workshopmanager.models.dto.mappers.UserRatingMapper;
-import notkirill.workshopmanager.models.idClasses.UserRatingComplexKey;
 import notkirill.workshopmanager.models.repositories.UserRatingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,7 +28,7 @@ public class UserRatingService {
                 .toList();
     }
 
-    public UserRatingResponse getById(UserRatingComplexKey id) {
+    public UserRatingResponse getById(UserRating.CompositeId id) {
         return repository.findById(id)
                 .map(mapper::entityToResponse)
                 .orElseThrow(NoSuchElementException::new);
@@ -40,7 +39,7 @@ public class UserRatingService {
         UserRating saved = repository.save(entity);
     }
 
-    public void update(UserRatingComplexKey id, UserRatingRequest request) {
+    public void update(UserRating.CompositeId id, UserRatingRequest request) {
         UserRating entity = repository.findById(id)
                 .orElseThrow(NoSuchElementException::new);
 
@@ -48,7 +47,7 @@ public class UserRatingService {
         UserRating saved = repository.save(entity);
     }
 
-    public void delete(UserRatingComplexKey id) {
+    public void delete(UserRating.CompositeId id) {
         if (!repository.existsById(id)) throw new NoSuchElementException();
         repository.deleteById(id);
     }

@@ -2,13 +2,14 @@ package notkirill.workshopmanager.models;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import notkirill.workshopmanager.models.idClasses.ItemContentRevisionComplexKey;
 
+import java.io.Serializable;
 import java.time.OffsetDateTime;
+import java.util.Objects;
 
 @Entity
 @Table(name = "item_content_revisions")
-@IdClass(ItemContentRevisionComplexKey.class)
+@IdClass(ItemContentRevision.CompositeId.class)
 public class ItemContentRevision {
     @Id
     @NotNull
@@ -40,7 +41,8 @@ public class ItemContentRevision {
         // Required by JPA
     }
 
-    public ItemContentRevision(long itemContentId, long revision, String s3Key, String fileName, int fileSize, OffsetDateTime timeCreated) {
+    public ItemContentRevision(long itemContentId, long revision, String s3Key, String fileName, int fileSize,
+                               OffsetDateTime timeCreated) {
         this.itemContentId = itemContentId;
         this.revision = revision;
         this.s3Key = s3Key;
@@ -107,5 +109,54 @@ public class ItemContentRevision {
                 ", fileSize=" + fileSize +
                 ", timeCreated=" + timeCreated +
                 '}';
+    }
+
+    public static class CompositeId implements Serializable {
+        private long itemContentId;
+        private long revision;
+
+        protected CompositeId() {
+            // Required by JPA
+        }
+
+        public CompositeId(long itemContentId, long revision) {
+            this.itemContentId = itemContentId;
+            this.revision = revision;
+        }
+
+        public long getItemContentId() {
+            return itemContentId;
+        }
+
+        public void setItemContentId(long itemContentId) {
+            this.itemContentId = itemContentId;
+        }
+
+        public long getRevision() {
+            return revision;
+        }
+
+        public void setRevision(long revision) {
+            this.revision = revision;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(itemContentId, revision);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof CompositeId that)) return false;
+            return itemContentId == that.itemContentId && revision == that.revision;
+        }
+
+        @Override
+        public String toString() {
+            return "ItemContentRevision.CompositeId{" +
+                    "itemContentId=" + itemContentId +
+                    ", revision=" + revision +
+                    '}';
+        }
     }
 }

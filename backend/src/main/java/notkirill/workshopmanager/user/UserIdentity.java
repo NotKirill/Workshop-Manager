@@ -3,16 +3,17 @@ package notkirill.workshopmanager.models;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import notkirill.workshopmanager.models.enums.AuthProvider;
-import notkirill.workshopmanager.models.idClasses.UserIdentityComplexKey;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+
+import java.util.Objects;
 
 @Entity
 @Table(name = "user_identities",
         uniqueConstraints = {
                 @UniqueConstraint(name = "uk_user_email", columnNames = {"email"})
         })
-@IdClass(UserIdentityComplexKey.class)
+@IdClass(UserIdentity.CompositeId.class)
 public class UserIdentity {
     @Id
     @NotNull
@@ -71,5 +72,54 @@ public class UserIdentity {
                 ", provider=" + provider +
                 ", providerKey='" + providerKey + '\'' +
                 '}';
+    }
+
+    public static class CompositeId {
+        private long userId;
+        private AuthSource provider;
+
+        protected CompositeId() {
+            // Required by JPA
+        }
+
+        public CompositeId(long userId, AuthSource provider) {
+            this.userId = userId;
+            this.provider = provider;
+        }
+
+        public long getUserId() {
+            return userId;
+        }
+
+        public void setUserId(long userId) {
+            this.userId = userId;
+        }
+
+        public AuthSource getProvider() {
+            return provider;
+        }
+
+        public void setProvider(AuthSource provider) {
+            this.provider = provider;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(userId, provider);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof CompositeId that)) return false;
+            return userId == that.userId && provider == that.provider;
+        }
+
+        @Override
+        public String toString() {
+            return "UserIdentity.CompositeId{" +
+                    "userId=" + userId +
+                    ", provider=" + provider +
+                    '}';
+        }
     }
 }

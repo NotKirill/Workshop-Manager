@@ -4,7 +4,6 @@ import notkirill.workshopmanager.models.UserItemRelation;
 import notkirill.workshopmanager.models.dto.UserItemRelationRequest;
 import notkirill.workshopmanager.models.dto.UserItemRelationResponse;
 import notkirill.workshopmanager.models.dto.mappers.UserItemRelationMapper;
-import notkirill.workshopmanager.models.idClasses.UserItemRelationComplexKey;
 import notkirill.workshopmanager.models.repositories.UserItemRelationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,7 +28,7 @@ public class UserItemRelationService {
                 .toList();
     }
 
-    public UserItemRelationResponse getById(UserItemRelationComplexKey id) {
+    public UserItemRelationResponse getById(UserItemRelation.CompositeId id) {
         return repository.findById(id)
                 .map(mapper::entityToResponse)
                 .orElseThrow(NoSuchElementException::new);
@@ -40,7 +39,7 @@ public class UserItemRelationService {
         UserItemRelation saved = repository.save(entity);
     }
 
-    public void update(UserItemRelationComplexKey id, UserItemRelationRequest request) {
+    public void update(UserItemRelation.CompositeId id, UserItemRelationRequest request) {
         UserItemRelation entity = repository.findById(id)
                 .orElseThrow(NoSuchElementException::new);
 
@@ -48,7 +47,7 @@ public class UserItemRelationService {
         UserItemRelation saved = repository.save(entity);
     }
 
-    public void delete(UserItemRelationComplexKey id) {
+    public void delete(UserItemRelation.CompositeId id) {
         if (!repository.existsById(id)) throw new NoSuchElementException();
         repository.deleteById(id);
     }

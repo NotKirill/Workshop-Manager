@@ -1,9 +1,9 @@
 package notkirill.workshopmanager.models.controllers;
 
 import jakarta.validation.Valid;
+import notkirill.workshopmanager.models.UserSharedPermission;
 import notkirill.workshopmanager.models.dto.UserSharedPermissionRequest;
 import notkirill.workshopmanager.models.dto.UserSharedPermissionResponse;
-import notkirill.workshopmanager.models.idClasses.UserSharedPermissionComplexKey;
 import notkirill.workshopmanager.models.services.UserSharedPermissionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +29,8 @@ public class UserSharedPermissionController {
     public UserSharedPermissionResponse getById(@RequestParam Long userProviderId,
                                                 @RequestParam Long userConsumerId,
                                                 @RequestParam Short permissionId) {
-        UserSharedPermissionComplexKey id = new UserSharedPermissionComplexKey(userProviderId, userConsumerId, permissionId);
+        UserSharedPermission.CompositeId id = new UserSharedPermission.CompositeId(
+                userProviderId, userConsumerId, permissionId);
         return service.getById(id);
     }
 
@@ -43,7 +44,8 @@ public class UserSharedPermissionController {
                        @RequestParam Long userConsumerId,
                        @RequestParam Short permissionId,
                        @Valid @RequestBody UserSharedPermissionRequest request) {
-        UserSharedPermissionComplexKey id = new UserSharedPermissionComplexKey(userProviderId, userConsumerId, permissionId);
+        UserSharedPermission.CompositeId id = new UserSharedPermission.CompositeId(
+                userProviderId, userConsumerId, permissionId);
         service.update(id, request);
     }
 
@@ -51,7 +53,8 @@ public class UserSharedPermissionController {
     public void delete(@RequestParam Long userProviderId,
                        @RequestParam Long userConsumerId,
                        @RequestParam Short permissionId) {
-        UserSharedPermissionComplexKey id = new UserSharedPermissionComplexKey(userProviderId, userConsumerId, permissionId);
+        UserSharedPermission.CompositeId id = new UserSharedPermission.CompositeId(
+                userProviderId, userConsumerId, permissionId);
         service.delete(id);
     }
 }
