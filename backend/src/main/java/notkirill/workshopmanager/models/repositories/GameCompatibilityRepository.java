@@ -4,10 +4,10 @@ import notkirill.workshopmanager.models.GameCompatibility;
 import notkirill.workshopmanager.models.idClasses.GameCompatibilityComplexKey;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.Optional;
+import java.util.List;
 
 public interface GameCompatibilityRepository extends JpaRepository<GameCompatibility, GameCompatibilityComplexKey> {
-    Optional<GameCompatibility> findBySourceGameId(long sourceGameId);
+    List<GameCompatibility> findBySourceGameId(long sourceGameId);
 
-    Optional<GameCompatibility> findByTagetGameId(long tagetGameId);
+    List<GameCompatibility> findByTagetGameId(long tagetGameId);
 }

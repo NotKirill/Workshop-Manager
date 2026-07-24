@@ -4,10 +4,10 @@ import notkirill.workshopmanager.models.MediaLink;
 import notkirill.workshopmanager.models.enums.EntityType;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.Optional;
+import java.util.List;
 
 public interface MediaLinkRepository extends JpaRepository<MediaLink, Long> {
-    Optional<MediaLink> findByEntityAndEntityId(EntityType entity, long entityId);
+    List<MediaLink> findByEntityAndEntityId(EntityType entity, long entityId);
 
-    Optional<MediaLink> findByPurpose(String purpose);
+    List<MediaLink> findByPurpose(String purpose);
 }

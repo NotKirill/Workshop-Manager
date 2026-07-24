@@ -4,40 +4,41 @@ import notkirill.workshopmanager.models.SteamWorkshopItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Optional;
 
 public interface SteamWorkshopItemRepository extends JpaRepository<SteamWorkshopItem, Long> {
     Optional<SteamWorkshopItem> findByPublishedFileId(String publishedFileId);
 
-    Optional<SteamWorkshopItem> findByCreator(String creator);
+    List<SteamWorkshopItem> findByCreator(String creator);
 
-    Optional<SteamWorkshopItem> findByConsumerAppId(long consumerAppId);
+    List<SteamWorkshopItem> findByConsumerAppId(long consumerAppId);
 
-    Optional<SteamWorkshopItem> findByVisibility(short visibility);
+    List<SteamWorkshopItem> findByVisibility(short visibility);
 
-    Optional<SteamWorkshopItem> findByConsumerAppIdAndVisibility(long consumerAppId, short visibility);
+    List<SteamWorkshopItem> findByConsumerAppIdAndVisibility(long consumerAppId, short visibility);
 
-    Optional<SteamWorkshopItem> findByConsumerAppIdAndCreator(long consumerAppId, String creator);
+    List<SteamWorkshopItem> findByConsumerAppIdAndCreator(long consumerAppId, String creator);
 
-    Optional<SteamWorkshopItem> findByTimeCreatedBetween(OffsetDateTime timeCreatedStart, OffsetDateTime timeCreatedEnd);
+    List<SteamWorkshopItem> findByTimeCreatedBetween(OffsetDateTime timeCreatedStart, OffsetDateTime timeCreatedEnd);
 
-    Optional<SteamWorkshopItem> findByTimeCreatedLessThan(OffsetDateTime timeCreated);
+    List<SteamWorkshopItem> findByTimeCreatedLessThan(OffsetDateTime timeCreated);
 
-    Optional<SteamWorkshopItem> findByTimeCreatedLessThanEqual(OffsetDateTime timeCreated);
+    List<SteamWorkshopItem> findByTimeCreatedLessThanEqual(OffsetDateTime timeCreated);
 
-    Optional<SteamWorkshopItem> findByTimeCreatedGreaterThan(OffsetDateTime timeCreated);
+    List<SteamWorkshopItem> findByTimeCreatedGreaterThan(OffsetDateTime timeCreated);
 
-    Optional<SteamWorkshopItem> findByTimeCreatedGreaterThanEqual(OffsetDateTime timeCreated);
+    List<SteamWorkshopItem> findByTimeCreatedGreaterThanEqual(OffsetDateTime timeCreated);
 
-    Optional<SteamWorkshopItem> findByTimeUpdatedBetween(OffsetDateTime timeUpdatedStart, OffsetDateTime timeUpdatedEnd);
+    List<SteamWorkshopItem> findByTimeUpdatedBetween(OffsetDateTime timeUpdatedStart, OffsetDateTime timeUpdatedEnd);
 
-    Optional<SteamWorkshopItem> findByTimeUpdatedLessThan(OffsetDateTime timeUpdated);
+    List<SteamWorkshopItem> findByTimeUpdatedLessThan(OffsetDateTime timeUpdated);
 
-    Optional<SteamWorkshopItem> findByTimeUpdatedLessThanEqual(OffsetDateTime timeUpdated);
+    List<SteamWorkshopItem> findByTimeUpdatedLessThanEqual(OffsetDateTime timeUpdated);
 
-    Optional<SteamWorkshopItem> findByTimeUpdatedGreaterThan(OffsetDateTime timeUpdated);
+    List<SteamWorkshopItem> findByTimeUpdatedGreaterThan(OffsetDateTime timeUpdated);
 
-    Optional<SteamWorkshopItem> findByTimeUpdatedGreaterThanEqual(OffsetDateTime timeUpdated);
+    List<SteamWorkshopItem> findByTimeUpdatedGreaterThanEqual(OffsetDateTime timeUpdated);
 
 
 }
