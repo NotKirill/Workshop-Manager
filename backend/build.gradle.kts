@@ -27,7 +27,6 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
     implementation("org.mvnpm:playwright:1.60.0")
     implementation("software.amazon.awssdk:s3:2.46.3")
-    developmentOnly("org.springframework.boot:spring-boot-docker-compose")
     runtimeOnly("org.postgresql:postgresql")
     testImplementation("org.springframework.boot:spring-boot-starter-data-jdbc-test")
     testImplementation("org.springframework.boot:spring-boot-starter-jdbc-test")
@@ -49,4 +48,14 @@ tasks.bootRun {
 
 tasks.bootTestRun {
     systemProperty("spring.profiles.active", "dev")
+}
+
+tasks.register<Exec>("dockerComposeUp") {
+    group = "docker"
+    commandLine("docker", "compose", "-f", "compose.dev.yaml", "up", "-d")
+}
+
+tasks.register<Exec>("dockerComposeDown") {
+    group = "docker"
+    commandLine("docker", "compose", "-f", "compose.dev.yaml", "down")
 }

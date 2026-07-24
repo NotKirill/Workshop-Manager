@@ -2,14 +2,13 @@ spring:
   application:
     name: workshop-manager-backend-dev
   datasource:
+    url: jdbc:postgresql://localhost:5433/workshop_manager
+    username: dev
+    password: dev
     hikari:
       data-source-properties: stringtype=unspecified
-  Liquibase:
+  liquibase:
     enabled: true
-  docker:
-    compose:
-      enabled: true
-      file: compose.dev.yaml
   jpa:
     hibernate:
       ddl-auto: validate

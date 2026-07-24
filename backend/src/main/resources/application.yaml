@@ -2,13 +2,13 @@ spring:
   application:
     name: workshop-manager-backend
   datasource:
+    url: jdbc:postgresql://localhost:5432/workshop_manager
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
     hikari:
       data-source-properties: stringtype=unspecified
-  Liquibase:
+  liquibase:
     enabled: true
-  docker:
-    compose:
-      enabled: true
   jpa:
     hibernate:
       ddl-auto: validate
