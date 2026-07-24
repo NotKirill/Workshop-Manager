@@ -1,7 +1,6 @@
 package notkirill.workshopmanager.models.services;
 
 import notkirill.workshopmanager.models.MediaLink;
-import notkirill.workshopmanager.models.controllers.exception.NoSuchEntityException;
 import notkirill.workshopmanager.models.dto.MediaLinkRequest;
 import notkirill.workshopmanager.models.dto.MediaLinkResponse;
 import notkirill.workshopmanager.models.dto.mappers.MediaLinkMapper;
@@ -10,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class MediaLinkService {
@@ -31,7 +31,7 @@ public class MediaLinkService {
     public MediaLinkResponse getById(Long id) {
         return repository.findById(id)
                 .map(mapper::entityToResponse)
-                .orElseThrow(NoSuchEntityException::new);
+                .orElseThrow(NoSuchElementException::new);
     }
 
     public void create(MediaLinkRequest request) {
@@ -41,14 +41,14 @@ public class MediaLinkService {
 
     public void update(Long id, MediaLinkRequest request) {
         MediaLink entity = repository.findById(id)
-                .orElseThrow(NoSuchEntityException::new);
+                .orElseThrow(NoSuchElementException::new);
 
         mapper.updateEntityFromRequest(request, entity);
         MediaLink saved = repository.save(entity);
     }
 
     public void delete(Long id) {
-        if (!repository.existsById(id)) throw new NoSuchEntityException();
+        if (!repository.existsById(id)) throw new NoSuchElementException();
         repository.deleteById(id);
     }
 }

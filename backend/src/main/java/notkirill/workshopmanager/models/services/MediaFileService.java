@@ -1,7 +1,6 @@
 package notkirill.workshopmanager.models.services;
 
 import notkirill.workshopmanager.models.MediaFile;
-import notkirill.workshopmanager.models.controllers.exception.NoSuchEntityException;
 import notkirill.workshopmanager.models.dto.MediaFileRequest;
 import notkirill.workshopmanager.models.dto.MediaFileResponse;
 import notkirill.workshopmanager.models.dto.mappers.MediaFileMapper;
@@ -10,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class MediaFileService {
@@ -31,7 +31,7 @@ public class MediaFileService {
     public MediaFileResponse getById(Long id) {
         return repository.findById(id)
                 .map(mapper::entityToResponse)
-                .orElseThrow(NoSuchEntityException::new);
+                .orElseThrow(NoSuchElementException::new);
     }
 
     public void create(MediaFileRequest request) {
@@ -41,14 +41,14 @@ public class MediaFileService {
 
     public void update(Long id, MediaFileRequest request) {
         MediaFile entity = repository.findById(id)
-                .orElseThrow(NoSuchEntityException::new);
+                .orElseThrow(NoSuchElementException::new);
 
         mapper.updateEntityFromRequest(request, entity);
         MediaFile saved = repository.save(entity);
     }
 
     public void delete(Long id) {
-        if (!repository.existsById(id)) throw new NoSuchEntityException();
+        if (!repository.existsById(id)) throw new NoSuchElementException();
         repository.deleteById(id);
     }
 }

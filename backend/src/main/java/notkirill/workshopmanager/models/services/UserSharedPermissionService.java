@@ -1,7 +1,6 @@
 package notkirill.workshopmanager.models.services;
 
 import notkirill.workshopmanager.models.UserSharedPermission;
-import notkirill.workshopmanager.models.controllers.exception.NoSuchEntityException;
 import notkirill.workshopmanager.models.dto.UserSharedPermissionRequest;
 import notkirill.workshopmanager.models.dto.UserSharedPermissionResponse;
 import notkirill.workshopmanager.models.dto.mappers.UserSharedPermissionMapper;
@@ -11,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class UserSharedPermissionService {
@@ -32,7 +32,7 @@ public class UserSharedPermissionService {
     public UserSharedPermissionResponse getById(UserSharedPermissionComplexKey id) {
         return repository.findById(id)
                 .map(mapper::entityToResponse)
-                .orElseThrow(NoSuchEntityException::new);
+                .orElseThrow(NoSuchElementException::new);
     }
 
     public void create(UserSharedPermissionRequest request) {
@@ -42,14 +42,14 @@ public class UserSharedPermissionService {
 
     public void update(UserSharedPermissionComplexKey id, UserSharedPermissionRequest request) {
         UserSharedPermission entity = repository.findById(id)
-                .orElseThrow(NoSuchEntityException::new);
+                .orElseThrow(NoSuchElementException::new);
 
         mapper.updateEntityFromRequest(request, entity);
         UserSharedPermission saved = repository.save(entity);
     }
 
     public void delete(UserSharedPermissionComplexKey id) {
-        if (!repository.existsById(id)) throw new NoSuchEntityException();
+        if (!repository.existsById(id)) throw new NoSuchElementException();
         repository.deleteById(id);
     }
 }

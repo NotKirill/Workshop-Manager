@@ -1,7 +1,6 @@
 package notkirill.workshopmanager.models.services;
 
 import notkirill.workshopmanager.models.MediaEmbed;
-import notkirill.workshopmanager.models.controllers.exception.NoSuchEntityException;
 import notkirill.workshopmanager.models.dto.MediaEmbedRequest;
 import notkirill.workshopmanager.models.dto.MediaEmbedResponse;
 import notkirill.workshopmanager.models.dto.mappers.MediaEmbedMapper;
@@ -10,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class MediaEmbedService {
@@ -31,7 +31,7 @@ public class MediaEmbedService {
     public MediaEmbedResponse getById(Long id) {
         return repository.findById(id)
                 .map(mapper::entityToResponse)
-                .orElseThrow(NoSuchEntityException::new);
+                .orElseThrow(NoSuchElementException::new);
     }
 
     public void create(MediaEmbedRequest request) {
@@ -41,14 +41,14 @@ public class MediaEmbedService {
 
     public void update(Long id, MediaEmbedRequest request) {
         MediaEmbed entity = repository.findById(id)
-                .orElseThrow(NoSuchEntityException::new);
+                .orElseThrow(NoSuchElementException::new);
 
         mapper.updateEntityFromRequest(request, entity);
         MediaEmbed saved = repository.save(entity);
     }
 
     public void delete(Long id) {
-        if (!repository.existsById(id)) throw new NoSuchEntityException();
+        if (!repository.existsById(id)) throw new NoSuchElementException();
         repository.deleteById(id);
     }
 }

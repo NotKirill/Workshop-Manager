@@ -1,7 +1,6 @@
 package notkirill.workshopmanager.models.services;
 
 import notkirill.workshopmanager.models.AuthorMetadata;
-import notkirill.workshopmanager.models.controllers.exception.NoSuchEntityException;
 import notkirill.workshopmanager.models.dto.AuthorMetadataRequest;
 import notkirill.workshopmanager.models.dto.AuthorMetadataResponse;
 import notkirill.workshopmanager.models.dto.mappers.AuthorMetadataMapper;
@@ -10,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class AuthorMetadataService {
@@ -32,7 +32,7 @@ public class AuthorMetadataService {
     public AuthorMetadataResponse getById(Long id) {
         return repository.findById(id)
                 .map(mapper::entityToResponse)
-                .orElseThrow(NoSuchEntityException::new);
+                .orElseThrow(NoSuchElementException::new);
     }
 
     public void create(AuthorMetadataRequest request) {
@@ -42,14 +42,14 @@ public class AuthorMetadataService {
 
     public void update(Long id, AuthorMetadataRequest request) {
         AuthorMetadata entity = repository.findById(id)
-                .orElseThrow(NoSuchEntityException::new);
+                .orElseThrow(NoSuchElementException::new);
 
         mapper.updateEntityFromRequest(request, entity);
         AuthorMetadata saved = repository.save(entity);
     }
 
     public void delete(Long id) {
-        if (!repository.existsById(id)) throw new NoSuchEntityException();
+        if (!repository.existsById(id)) throw new NoSuchElementException();
         repository.deleteById(id);
     }
 }

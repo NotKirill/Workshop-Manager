@@ -1,7 +1,6 @@
 package notkirill.workshopmanager.models.services;
 
 import notkirill.workshopmanager.models.ItemMetadataPersonal;
-import notkirill.workshopmanager.models.controllers.exception.NoSuchEntityException;
 import notkirill.workshopmanager.models.dto.ItemMetadataPersonalRequest;
 import notkirill.workshopmanager.models.dto.ItemMetadataPersonalResponse;
 import notkirill.workshopmanager.models.dto.mappers.ItemMetadataPersonalMapper;
@@ -10,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class ItemMetadataPersonalService {
@@ -31,7 +31,7 @@ public class ItemMetadataPersonalService {
     public ItemMetadataPersonalResponse getById(Long id) {
         return repository.findById(id)
                 .map(mapper::entityToResponse)
-                .orElseThrow(NoSuchEntityException::new);
+                .orElseThrow(NoSuchElementException::new);
     }
 
     public void create(ItemMetadataPersonalRequest request) {
@@ -41,14 +41,14 @@ public class ItemMetadataPersonalService {
 
     public void update(Long id, ItemMetadataPersonalRequest request) {
         ItemMetadataPersonal entity = repository.findById(id)
-                .orElseThrow(NoSuchEntityException::new);
+                .orElseThrow(NoSuchElementException::new);
 
         mapper.updateEntityFromRequest(request, entity);
         ItemMetadataPersonal saved = repository.save(entity);
     }
 
     public void delete(Long id) {
-        if (!repository.existsById(id)) throw new NoSuchEntityException();
+        if (!repository.existsById(id)) throw new NoSuchElementException();
         repository.deleteById(id);
     }
 }

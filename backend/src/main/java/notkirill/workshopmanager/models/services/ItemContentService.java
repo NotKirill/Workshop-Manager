@@ -1,8 +1,6 @@
 package notkirill.workshopmanager.models.services;
 
 import notkirill.workshopmanager.models.ItemContent;
-import notkirill.workshopmanager.models.controllers.exception.NoSuchEntityException;
-import notkirill.workshopmanager.models.dto.AuthorMetadataResponse;
 import notkirill.workshopmanager.models.dto.ItemContentRequest;
 import notkirill.workshopmanager.models.dto.ItemContentResponse;
 import notkirill.workshopmanager.models.dto.mappers.ItemContentMapper;
@@ -11,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.NoSuchElementException;
 
 @Service
 public class ItemContentService {
@@ -34,7 +32,7 @@ public class ItemContentService {
     public ItemContentResponse getById(Long id) {
         return repository.findById(id)
                 .map(mapper::entityToResponse)
-                .orElseThrow(NoSuchEntityException::new);
+                .orElseThrow(NoSuchElementException::new);
     }
 
     public void create(ItemContentRequest request) {
@@ -45,7 +43,7 @@ public class ItemContentService {
     public void update(Long id,
                        ItemContentRequest request) {
         ItemContent entity = repository.findById(id)
-                .orElseThrow(NoSuchEntityException::new);
+                .orElseThrow(NoSuchElementException::new);
 
         mapper.updateEntityFromRequest(request, entity);
 
@@ -53,7 +51,7 @@ public class ItemContentService {
     }
 
     public void delete(Long id) {
-        if (!repository.existsById(id)) throw new NoSuchEntityException();
+        if (!repository.existsById(id)) throw new NoSuchElementException();
         repository.deleteById(id);
     }
 }

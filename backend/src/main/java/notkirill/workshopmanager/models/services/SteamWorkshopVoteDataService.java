@@ -1,7 +1,6 @@
 package notkirill.workshopmanager.models.services;
 
 import notkirill.workshopmanager.models.SteamWorkshopVoteData;
-import notkirill.workshopmanager.models.controllers.exception.NoSuchEntityException;
 import notkirill.workshopmanager.models.dto.SteamWorkshopVoteDataRequest;
 import notkirill.workshopmanager.models.dto.SteamWorkshopVoteDataResponse;
 import notkirill.workshopmanager.models.dto.mappers.SteamWorkshopVoteDataMapper;
@@ -10,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class SteamWorkshopVoteDataService {
@@ -17,7 +17,8 @@ public class SteamWorkshopVoteDataService {
     private final SteamWorkshopVoteDataMapper mapper;
 
     @Autowired
-    public SteamWorkshopVoteDataService(SteamWorkshopVoteDataRepository repository, SteamWorkshopVoteDataMapper mapper) {
+    public SteamWorkshopVoteDataService(SteamWorkshopVoteDataRepository repository,
+                                        SteamWorkshopVoteDataMapper mapper) {
         this.repository = repository;
         this.mapper = mapper;
     }
@@ -31,7 +32,7 @@ public class SteamWorkshopVoteDataService {
     public SteamWorkshopVoteDataResponse getById(Long id) {
         return repository.findById(id)
                 .map(mapper::entityToResponse)
-                .orElseThrow(NoSuchEntityException::new);
+                .orElseThrow(NoSuchElementException::new);
     }
 
     public void create(SteamWorkshopVoteDataRequest request) {
@@ -41,14 +42,14 @@ public class SteamWorkshopVoteDataService {
 
     public void update(Long id, SteamWorkshopVoteDataRequest request) {
         SteamWorkshopVoteData entity = repository.findById(id)
-                .orElseThrow(NoSuchEntityException::new);
+                .orElseThrow(NoSuchElementException::new);
 
         mapper.updateEntityFromRequest(request, entity);
         SteamWorkshopVoteData saved = repository.save(entity);
     }
 
     public void delete(Long id) {
-        if (!repository.existsById(id)) throw new NoSuchEntityException();
+        if (!repository.existsById(id)) throw new NoSuchElementException();
         repository.deleteById(id);
     }
 }

@@ -1,7 +1,6 @@
 package notkirill.workshopmanager.models.services;
 
 import notkirill.workshopmanager.models.GameToModspaceId;
-import notkirill.workshopmanager.models.controllers.exception.NoSuchEntityException;
 import notkirill.workshopmanager.models.dto.GameToModspaceIdRequest;
 import notkirill.workshopmanager.models.dto.GameToModspaceIdResponse;
 import notkirill.workshopmanager.models.dto.mappers.GameToModspaceIdMapper;
@@ -10,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class GameToModspaceIdService {
@@ -31,7 +31,7 @@ public class GameToModspaceIdService {
     public GameToModspaceIdResponse getById(Long id) {
         return repository.findById(id)
                 .map(mapper::entityToResponse)
-                .orElseThrow(NoSuchEntityException::new);
+                .orElseThrow(NoSuchElementException::new);
     }
 
     public void create(GameToModspaceIdRequest request) {
@@ -41,14 +41,14 @@ public class GameToModspaceIdService {
 
     public void update(Long id, GameToModspaceIdRequest request) {
         GameToModspaceId entity = repository.findById(id)
-                .orElseThrow(NoSuchEntityException::new);
+                .orElseThrow(NoSuchElementException::new);
 
         mapper.updateEntityFromRequest(request, entity);
         GameToModspaceId saved = repository.save(entity);
     }
 
     public void delete(Long id) {
-        if (!repository.existsById(id)) throw new NoSuchEntityException();
+        if (!repository.existsById(id)) throw new NoSuchElementException();
         repository.deleteById(id);
     }
 }

@@ -1,7 +1,6 @@
 package notkirill.workshopmanager.models.services;
 
 import notkirill.workshopmanager.models.SteamWorkshopItemTag;
-import notkirill.workshopmanager.models.controllers.exception.NoSuchEntityException;
 import notkirill.workshopmanager.models.dto.SteamWorkshopItemTagRequest;
 import notkirill.workshopmanager.models.dto.SteamWorkshopItemTagResponse;
 import notkirill.workshopmanager.models.dto.mappers.SteamWorkshopItemTagMapper;
@@ -11,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class SteamWorkshopItemTagService {
@@ -32,7 +32,7 @@ public class SteamWorkshopItemTagService {
     public SteamWorkshopItemTagResponse getById(SteamWorkshopItemTagComplexKey id) {
         return repository.findById(id)
                 .map(mapper::entityToResponse)
-                .orElseThrow(NoSuchEntityException::new);
+                .orElseThrow(NoSuchElementException::new);
     }
 
     public void create(SteamWorkshopItemTagRequest request) {
@@ -42,14 +42,14 @@ public class SteamWorkshopItemTagService {
 
     public void update(SteamWorkshopItemTagComplexKey id, SteamWorkshopItemTagRequest request) {
         SteamWorkshopItemTag entity = repository.findById(id)
-                .orElseThrow(NoSuchEntityException::new);
+                .orElseThrow(NoSuchElementException::new);
 
         mapper.updateEntityFromRequest(request, entity);
         SteamWorkshopItemTag saved = repository.save(entity);
     }
 
     public void delete(SteamWorkshopItemTagComplexKey id) {
-        if (!repository.existsById(id)) throw new NoSuchEntityException();
+        if (!repository.existsById(id)) throw new NoSuchElementException();
         repository.deleteById(id);
     }
 }
