@@ -1,8 +1,8 @@
-package notkirill.workshopmanager.models;
+package notkirill.workshopmanager.user;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import notkirill.workshopmanager.models.enums.AuthProvider;
+import notkirill.workshopmanager.security.auth.AuthSource;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -11,7 +11,7 @@ import java.util.Objects;
 @Entity
 @Table(name = "user_identities",
         uniqueConstraints = {
-                @UniqueConstraint(name = "uk_user_email", columnNames = {"email"})
+                @UniqueConstraint(name = "uk_user_identity_by_provider", columnNames = {"provider", "provider_key"})
         })
 @IdClass(UserIdentity.CompositeId.class)
 public class UserIdentity {
@@ -24,8 +24,8 @@ public class UserIdentity {
     @NotNull
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
-    @Column(name = "provider", columnDefinition = "auth_provider", nullable = false)
-    private AuthProvider provider;
+    @Column(name = "provider", columnDefinition = "auth_source", nullable = false)
+    private AuthSource provider;
 
     @NotNull
     @Column(name = "provider_key", nullable = false)
@@ -35,7 +35,7 @@ public class UserIdentity {
         // Required by JPA
     }
 
-    public UserIdentity(long userId, AuthProvider provider, String providerKey) {
+    public UserIdentity(long userId, AuthSource provider, String providerKey) {
         this.userId = userId;
         this.provider = provider;
         this.providerKey = providerKey;
@@ -45,16 +45,8 @@ public class UserIdentity {
         return userId;
     }
 
-    public void setUserId(long userId) {
-        this.userId = userId;
-    }
-
-    public AuthProvider getProvider() {
+    public AuthSource getProvider() {
         return provider;
-    }
-
-    public void setProvider(AuthProvider provider) {
-        this.provider = provider;
     }
 
     public String getProviderKey() {

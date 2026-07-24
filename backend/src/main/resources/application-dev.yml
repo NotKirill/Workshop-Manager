@@ -12,3 +12,10 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
+application:
+  security:
+    jwt:
+      secret-key: mBAEd2D1Ce1d6nwGMepFnhOIpJwxQPJskBhcwIcAyW2
+      expiration-seconds: 300
+    refresh-token:
+      expiration-seconds: 604800

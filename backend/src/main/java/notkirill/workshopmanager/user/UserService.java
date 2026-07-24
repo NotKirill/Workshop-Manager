@@ -1,10 +1,7 @@
-package notkirill.workshopmanager.models.services;
+package notkirill.workshopmanager.user;
 
-import notkirill.workshopmanager.models.User;
-import notkirill.workshopmanager.models.dto.UserRequest;
-import notkirill.workshopmanager.models.dto.UserResponse;
-import notkirill.workshopmanager.models.dto.mappers.UserMapper;
-import notkirill.workshopmanager.models.repositories.UserRepository;
+import notkirill.workshopmanager.security.auth.AuthSource;
+import notkirill.workshopmanager.user.dto.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,37 +11,42 @@ import java.util.NoSuchElementException;
 @Service
 public class UserService {
     private final UserRepository repository;
+    private final UserIdentityRepository identityRepo;
     private final UserMapper mapper;
 
     @Autowired
-    public UserService(UserRepository repository, UserMapper mapper) {
+    public UserService(UserRepository repository, UserIdentityRepository identityRepo, UserMapper mapper) {
         this.repository = repository;
+        this.identityRepo = identityRepo;
         this.mapper = mapper;
     }
 
-    public List<UserResponse> getAll() {
-        return repository.findAll().stream()
-                .map(mapper::entityToResponse)
-                .toList();
+    public List<User> getAll() {
+        return repository.findAll();
     }
 
-    public UserResponse getById(Long id) {
+    public User getById(Long id) {
         return repository.findById(id)
-                .map(mapper::entityToResponse)
                 .orElseThrow(NoSuchElementException::new);
     }
 
-    public void create(UserRequest request) {
-        User entity = mapper.requestToEntity(request);
-        User saved = repository.save(entity);
+    public User getByProvider(AuthSource provider, String key) {
+        UserIdentity identity = identityRepo.findByProviderAndProviderKey(provider, key)
+                .orElseThrow(NoSuchElementException::new);
+        return getById(identity.getUserId());
     }
 
-    public void update(Long id, UserRequest request) {
-        User entity = repository.findById(id)
+    public void create(User entity) {
+        repository.save(entity);
+    }
+
+    public void update(Long id, User newEntity) {
+        User oldEntity = repository.findById(id)
                 .orElseThrow(NoSuchElementException::new);
 
-        mapper.updateEntityFromRequest(request, entity);
-        User saved = repository.save(entity);
+        mapper.updateEntityFromEntity(oldEntity, newEntity);
+
+        repository.save(oldEntity);
     }
 
     public void delete(Long id) {

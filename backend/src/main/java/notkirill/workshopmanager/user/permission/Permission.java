@@ -1,4 +1,4 @@
-package notkirill.workshopmanager.models;
+package notkirill.workshopmanager.user.permission;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -33,10 +33,6 @@ public class Permission {
 
     public short getId() {
         return id;
-    }
-
-    public void setId(short id) {
-        this.id = id;
     }
 
     public String getName() {

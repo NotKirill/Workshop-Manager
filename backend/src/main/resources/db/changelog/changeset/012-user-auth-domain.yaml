@@ -1,0 +1,33 @@
+databaseChangeLog:
+  - changeSet:
+      id: 012
+      author: NotKirill
+      changes:
+        - addColumn:
+            tableName: users
+            columns:
+              - column:
+                  name: enabled
+                  type: BOOLEAN
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+              - column:
+                  name: account_non_locked
+                  type: BOOLEAN
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+        - addColumn:
+            tableName: refresh_tokens
+            columns:
+              - column:
+                  name: family_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+        - dropColumn:
+            tableName: refresh_tokens
+            columns:
+              - column:
+                  name: device_name

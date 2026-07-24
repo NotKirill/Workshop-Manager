@@ -1,10 +1,6 @@
-package notkirill.workshopmanager.models.services;
+package notkirill.workshopmanager.user.permission;
 
-import notkirill.workshopmanager.models.Permission;
-import notkirill.workshopmanager.models.dto.PermissionRequest;
-import notkirill.workshopmanager.models.dto.PermissionResponse;
-import notkirill.workshopmanager.models.dto.mappers.PermissionMapper;
-import notkirill.workshopmanager.models.repositories.PermissionRepository;
+import notkirill.workshopmanager.user.permission.dto.PermissionMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,29 +18,35 @@ public class PermissionService {
         this.mapper = mapper;
     }
 
-    public List<PermissionResponse> getAll() {
-        return repository.findAll().stream()
-                .map(mapper::entityToResponse)
-                .toList();
+    public List<Permission> getAll() {
+        return repository.findAll();
     }
 
-    public PermissionResponse getById(Short id) {
+    public List<Permission> getAllByIds(short[] ids) {
+        return repository.findAllByIds(ids);
+    }
+
+    public Permission getById(Short id) {
         return repository.findById(id)
-                .map(mapper::entityToResponse)
                 .orElseThrow(NoSuchElementException::new);
     }
 
-    public void create(PermissionRequest request) {
-        Permission entity = mapper.requestToEntity(request);
-        Permission saved = repository.save(entity);
+    public Permission getByName(String name) {
+        return repository.findByName(name)
+                .orElseThrow(NoSuchElementException::new);
     }
 
-    public void update(Short id, PermissionRequest request) {
-        Permission entity = repository.findById(id)
+    public void create(Permission entity) {
+        repository.save(entity);
+    }
+
+    public void update(Short id, Permission newEntity) {
+        Permission oldEntity = repository.findById(id)
                 .orElseThrow(NoSuchElementException::new);
 
-        mapper.updateEntityFromRequest(request, entity);
-        Permission saved = repository.save(entity);
+        mapper.updateEntityFromEntity(oldEntity, newEntity);
+
+        repository.save(oldEntity);
     }
 
     public void delete(Short id) {
