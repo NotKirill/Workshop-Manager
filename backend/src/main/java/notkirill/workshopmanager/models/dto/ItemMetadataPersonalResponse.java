@@ -1,5 +1,7 @@
 package notkirill.workshopmanager.models.dto;
 
+import notkirill.workshopmanager.models.enums.StoringStrategy;
+
 public record ItemMetadataPersonalResponse(
         Long id,
         Long userId,
@@ -7,7 +9,6 @@ public record ItemMetadataPersonalResponse(
         String title,
         String description,
         String userCommentary,
-        Boolean metadataOnly,
-        Boolean contentImport
+        StoringStrategy storingMode
 ) {
 }

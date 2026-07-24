@@ -8,17 +8,21 @@ import org.springframework.stereotype.Component;
 @Component
 public class GameCompatibilityMapper {
     public GameCompatibilityResponse entityToResponse(GameCompatibility entity) {
-        return new GameCompatibilityResponse(entity.getSourceGameId(),
-                entity.getTagetGameId());
+        return new GameCompatibilityResponse(
+                entity.getSourceGameId(),
+                entity.getTargetGameId()
+        );
     }
 
     public GameCompatibility requestToEntity(GameCompatibilityRequest request) {
-        return new GameCompatibility(request.sourceGameId(),
-                request.tagetGameId());
+        return new GameCompatibility(
+                request.sourceGameId(),
+                request.tagetGameId()
+        );
     }
 
     public void updateEntityFromRequest(GameCompatibilityRequest request, GameCompatibility entity) {
         entity.setSourceGameId(request.sourceGameId());
-        entity.setTagetGameId(request.tagetGameId());
+        entity.setTargetGameId(request.tagetGameId());
     }
 }

@@ -8,10 +8,9 @@ import jakarta.validation.constraints.NotNull;
 
 import java.time.OffsetDateTime;
 
-// TODO fix plural
 @Entity
 @Table(name = "third_party_rate_limits")
-public class ThirdPartyRateLimits {
+public class ThirdPartyRateLimit {
     @Id
     @NotNull
     @Column(name = "service_name", nullable = false)
@@ -29,11 +28,12 @@ public class ThirdPartyRateLimits {
     @Column(name = "last_request_at", nullable = false)
     private OffsetDateTime lastRequestAt;
 
-    protected ThirdPartyRateLimits() {
+    protected ThirdPartyRateLimit() {
         // Required by JPA
     }
 
-    public ThirdPartyRateLimits(String serviceName, int usedRequests, OffsetDateTime windowStartedAt, OffsetDateTime lastRequestAt) {
+    public ThirdPartyRateLimit(String serviceName, int usedRequests, OffsetDateTime windowStartedAt,
+                               OffsetDateTime lastRequestAt) {
         this.serviceName = serviceName;
         this.usedRequests = usedRequests;
         this.windowStartedAt = windowStartedAt;

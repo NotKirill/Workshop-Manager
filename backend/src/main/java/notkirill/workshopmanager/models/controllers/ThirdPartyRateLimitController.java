@@ -1,9 +1,9 @@
 package notkirill.workshopmanager.models.controllers;
 
 import jakarta.validation.Valid;
-import notkirill.workshopmanager.models.dto.ThirdPartyRateLimitsRequest;
-import notkirill.workshopmanager.models.dto.ThirdPartyRateLimitsResponse;
-import notkirill.workshopmanager.models.services.ThirdPartyRateLimitsService;
+import notkirill.workshopmanager.models.dto.ThirdPartyRateLimitRequest;
+import notkirill.workshopmanager.models.dto.ThirdPartyRateLimitResponse;
+import notkirill.workshopmanager.models.services.ThirdPartyRateLimitService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,32 +11,32 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/third-party-rate-limits")
-public class ThirdPartyRateLimitsController {
-    private final ThirdPartyRateLimitsService service;
+public class ThirdPartyRateLimitController {
+    private final ThirdPartyRateLimitService service;
 
     @Autowired
-    public ThirdPartyRateLimitsController(ThirdPartyRateLimitsService service) {
+    public ThirdPartyRateLimitController(ThirdPartyRateLimitService service) {
         this.service = service;
     }
 
     @GetMapping
-    public List<ThirdPartyRateLimitsResponse> getAll() {
+    public List<ThirdPartyRateLimitResponse> getAll() {
         return service.getAll();
     }
 
     @GetMapping("/{id}")
-    public ThirdPartyRateLimitsResponse getById(@PathVariable String id) {
+    public ThirdPartyRateLimitResponse getById(@PathVariable String id) {
         return service.getById(id);
     }
 
     @PostMapping
-    public void create(@Valid @RequestBody ThirdPartyRateLimitsRequest request) {
+    public void create(@Valid @RequestBody ThirdPartyRateLimitRequest request) {
         service.create(request);
     }
 
     @PutMapping("/{id}")
     public void update(@PathVariable String id,
-                       @Valid @RequestBody ThirdPartyRateLimitsRequest request) {
+                       @Valid @RequestBody ThirdPartyRateLimitRequest request) {
         service.update(id, request);
     }
 

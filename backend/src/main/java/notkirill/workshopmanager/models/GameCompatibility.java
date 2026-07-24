@@ -18,15 +18,15 @@ public class GameCompatibility {
     @Id
     @NotNull
     @Column(name = "target_game_id", nullable = false)
-    private long tagetGameId;
+    private long targetGameId;
 
     protected GameCompatibility() {
         // Required by JPA
     }
 
-    public GameCompatibility(long sourceGameId, long tagetGameId) {
+    public GameCompatibility(long sourceGameId, long targetGameId) {
         this.sourceGameId = sourceGameId;
-        this.tagetGameId = tagetGameId;
+        this.targetGameId = targetGameId;
     }
 
     public long getSourceGameId() {
@@ -37,19 +37,19 @@ public class GameCompatibility {
         this.sourceGameId = sourceGameId;
     }
 
-    public long getTagetGameId() {
-        return tagetGameId;
+    public long getTargetGameId() {
+        return targetGameId;
     }
 
-    public void setTagetGameId(long tagetGameId) {
-        this.tagetGameId = tagetGameId;
+    public void setTargetGameId(long targetGameId) {
+        this.targetGameId = targetGameId;
     }
 
     @Override
     public String toString() {
         return "GameCompatibility{" +
                 "sourceGameId=" + sourceGameId +
-                ", tagetGameId=" + tagetGameId +
+                ", targetGameId=" + targetGameId +
                 '}';
     }
 

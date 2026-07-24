@@ -34,7 +34,7 @@ public class MediaLink {
     @Column(name = "purpose", nullable = false)
     private String purpose;
 
-    // TODO relocate to metadata
+    // Long TODO relocate to metadata
     @Column(name = "sort_order")
     private int sortOrder;
 
@@ -46,7 +46,8 @@ public class MediaLink {
         // Required by JPA
     }
 
-    public MediaLink(long mediaItemId, EntityType entity, long entityId, String purpose, int sortOrder, JsonNode metadata) {
+    public MediaLink(long mediaItemId, EntityType entity, long entityId, String purpose, int sortOrder,
+                     JsonNode metadata) {
         this.mediaItemId = mediaItemId;
         this.entity = entity;
         this.entityId = entityId;

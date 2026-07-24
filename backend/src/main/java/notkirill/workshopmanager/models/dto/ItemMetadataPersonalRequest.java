@@ -1,6 +1,7 @@
 package notkirill.workshopmanager.models.dto;
 
 import jakarta.validation.constraints.NotNull;
+import notkirill.workshopmanager.models.enums.StoringStrategy;
 
 public record ItemMetadataPersonalRequest(
         @NotNull Long userId,
@@ -8,7 +9,6 @@ public record ItemMetadataPersonalRequest(
         String title,
         String description,
         String userCommentary,
-        @NotNull Boolean metadataOnly,
-        @NotNull Boolean contentImport
+        @NotNull StoringStrategy storingMode
 ) {
 }

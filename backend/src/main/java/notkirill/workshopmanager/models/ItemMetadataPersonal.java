@@ -2,6 +2,9 @@ package notkirill.workshopmanager.models;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import notkirill.workshopmanager.models.enums.StoringStrategy;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "item_metadata_personal",
@@ -32,28 +35,24 @@ public class ItemMetadataPersonal {
     @Column(name = "user_commentary")
     private String userCommentary;
 
-    // TODO rename
     @NotNull
-    @Column(name = "metadata_only", nullable = false)
-    private boolean metadataOnly = true;
-
-    // TODO rename
-    @NotNull
-    @Column(name = "content_import", nullable = false)
-    private boolean contentImport = false;
+    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(name = "storing_mode", columnDefinition = "storing_strategy", nullable = false)
+    private StoringStrategy storingMode = StoringStrategy.ONLY_METADATA;
 
     protected ItemMetadataPersonal() {
         // Required by JPA
     }
 
-    public ItemMetadataPersonal(long userId, long internalMetadataId, String title, String description, String userCommentary, boolean metadataOnly, boolean contentImport) {
+    public ItemMetadataPersonal(long userId, long internalMetadataId, String title, String description,
+                                String userCommentary, StoringStrategy storingMode) {
         this.userId = userId;
         this.internalMetadataId = internalMetadataId;
         this.title = title;
         this.description = description;
         this.userCommentary = userCommentary;
-        this.metadataOnly = metadataOnly;
-        this.contentImport = contentImport;
+        this.storingMode = storingMode;
     }
 
     public long getId() {
@@ -104,20 +103,12 @@ public class ItemMetadataPersonal {
         this.userCommentary = userCommentary;
     }
 
-    public boolean isMetadataOnly() {
-        return metadataOnly;
+    public StoringStrategy getStoringMode() {
+        return storingMode;
     }
 
-    public void setMetadataOnly(boolean metadataOnly) {
-        this.metadataOnly = metadataOnly;
-    }
-
-    public boolean isContentImport() {
-        return contentImport;
-    }
-
-    public void setContentImport(boolean contentImport) {
-        this.contentImport = contentImport;
+    public void setStoringMode(StoringStrategy storingMode) {
+        this.storingMode = storingMode;
     }
 
     @Override
@@ -129,8 +120,7 @@ public class ItemMetadataPersonal {
                 ", title='" + title + '\'' +
                 ", description='" + description + '\'' +
                 ", userCommentary='" + userCommentary + '\'' +
-                ", metadataOnly=" + metadataOnly +
-                ", contentImport=" + contentImport +
+                ", storingMode=" + storingMode +
                 '}';
     }
 }

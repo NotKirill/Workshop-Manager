@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface SteamWorkshopTagRepository extends JpaRepository<SteamWorkshopTag, Long> {
-    List<SteamWorkshopTag> findByTagAndConsumerAppId(String tag, long consumerAppId);
+    List<SteamWorkshopTag> findByTagKeyAndConsumerAppId(String tagKey, long consumerAppId);
 }

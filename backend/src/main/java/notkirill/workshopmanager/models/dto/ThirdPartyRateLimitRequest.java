@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.time.OffsetDateTime;
 
-public record ThirdPartyRateLimitsRequest(
+public record ThirdPartyRateLimitRequest(
         @NotNull String serviceName,
         @NotNull Integer usedRequests,
         @NotNull OffsetDateTime windowStartedAt,

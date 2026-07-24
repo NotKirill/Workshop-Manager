@@ -8,24 +8,26 @@ import org.springframework.stereotype.Component;
 @Component
 public class ItemMetadataPersonalMapper {
     public ItemMetadataPersonalResponse entityToResponse(ItemMetadataPersonal entity) {
-        return new ItemMetadataPersonalResponse(entity.getId(),
+        return new ItemMetadataPersonalResponse(
+                entity.getId(),
                 entity.getUserId(),
                 entity.getInternalMetadataId(),
                 entity.getTitle(),
                 entity.getDescription(),
                 entity.getUserCommentary(),
-                entity.isMetadataOnly(),
-                entity.isContentImport());
+                entity.getStoringMode()
+        );
     }
 
     public ItemMetadataPersonal requestToEntity(ItemMetadataPersonalRequest request) {
-        return new ItemMetadataPersonal(request.userId(),
+        return new ItemMetadataPersonal(
+                request.userId(),
                 request.internalMetadataId(),
                 request.title(),
                 request.description(),
                 request.userCommentary(),
-                request.metadataOnly(),
-                request.contentImport());
+                request.storingMode()
+        );
     }
 
     public void updateEntityFromRequest(ItemMetadataPersonalRequest request, ItemMetadataPersonal entity) {
@@ -34,7 +36,6 @@ public class ItemMetadataPersonalMapper {
         entity.setTitle(request.title());
         entity.setDescription(request.description());
         entity.setUserCommentary(request.userCommentary());
-        entity.setMetadataOnly(request.metadataOnly());
-        entity.setContentImport(request.contentImport());
+        entity.setStoringMode(request.storingMode());
     }
 }

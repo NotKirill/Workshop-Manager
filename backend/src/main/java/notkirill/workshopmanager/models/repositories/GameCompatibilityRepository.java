@@ -8,5 +8,5 @@ import java.util.List;
 public interface GameCompatibilityRepository extends JpaRepository<GameCompatibility, GameCompatibility.CompositeId> {
     List<GameCompatibility> findBySourceGameId(long sourceGameId);
 
-    List<GameCompatibility> findByTagetGameId(long tagetGameId);
+    List<GameCompatibility> findByTargetGameId(long targetGameId);
 }

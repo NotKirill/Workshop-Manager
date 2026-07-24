@@ -1,10 +1,10 @@
 package notkirill.workshopmanager.models.services;
 
-import notkirill.workshopmanager.models.ThirdPartyRateLimits;
-import notkirill.workshopmanager.models.dto.ThirdPartyRateLimitsRequest;
-import notkirill.workshopmanager.models.dto.ThirdPartyRateLimitsResponse;
-import notkirill.workshopmanager.models.dto.mappers.ThirdPartyRateLimitsMapper;
-import notkirill.workshopmanager.models.repositories.ThirdPartyRateLimitsRepository;
+import notkirill.workshopmanager.models.ThirdPartyRateLimit;
+import notkirill.workshopmanager.models.dto.ThirdPartyRateLimitRequest;
+import notkirill.workshopmanager.models.dto.ThirdPartyRateLimitResponse;
+import notkirill.workshopmanager.models.dto.mappers.ThirdPartyRateLimitMapper;
+import notkirill.workshopmanager.models.repositories.ThirdPartyRateLimitRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,39 +12,39 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
-public class ThirdPartyRateLimitsService {
-    private final ThirdPartyRateLimitsRepository repository;
-    private final ThirdPartyRateLimitsMapper mapper;
+public class ThirdPartyRateLimitService {
+    private final ThirdPartyRateLimitRepository repository;
+    private final ThirdPartyRateLimitMapper mapper;
 
     @Autowired
-    public ThirdPartyRateLimitsService(ThirdPartyRateLimitsRepository repository, ThirdPartyRateLimitsMapper mapper) {
+    public ThirdPartyRateLimitService(ThirdPartyRateLimitRepository repository, ThirdPartyRateLimitMapper mapper) {
         this.repository = repository;
         this.mapper = mapper;
     }
 
-    public List<ThirdPartyRateLimitsResponse> getAll() {
+    public List<ThirdPartyRateLimitResponse> getAll() {
         return repository.findAll().stream()
                 .map(mapper::entityToResponse)
                 .toList();
     }
 
-    public ThirdPartyRateLimitsResponse getById(String id) {
+    public ThirdPartyRateLimitResponse getById(String id) {
         return repository.findById(id)
                 .map(mapper::entityToResponse)
                 .orElseThrow(NoSuchElementException::new);
     }
 
-    public void create(ThirdPartyRateLimitsRequest request) {
-        ThirdPartyRateLimits entity = mapper.requestToEntity(request);
-        ThirdPartyRateLimits saved = repository.save(entity);
+    public void create(ThirdPartyRateLimitRequest request) {
+        ThirdPartyRateLimit entity = mapper.requestToEntity(request);
+        ThirdPartyRateLimit saved = repository.save(entity);
     }
 
-    public void update(String id, ThirdPartyRateLimitsRequest request) {
-        ThirdPartyRateLimits entity = repository.findById(id)
+    public void update(String id, ThirdPartyRateLimitRequest request) {
+        ThirdPartyRateLimit entity = repository.findById(id)
                 .orElseThrow(NoSuchElementException::new);
 
         mapper.updateEntityFromRequest(request, entity);
-        ThirdPartyRateLimits saved = repository.save(entity);
+        ThirdPartyRateLimit saved = repository.save(entity);
     }
 
     public void delete(String id) {

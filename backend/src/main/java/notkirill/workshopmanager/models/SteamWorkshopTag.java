@@ -6,10 +6,9 @@ import jakarta.validation.constraints.NotNull;
 @Entity
 @Table(name = "steam_workshop_tags",
         uniqueConstraints = {
-                @UniqueConstraint(name = "uk_steam_workshop_tag_identity", columnNames = {"tag", "consumer_app_id"})
+                @UniqueConstraint(name = "uk_steam_workshop_tag_identity", columnNames = {"tag_key", "consumer_app_id"})
         })
 public class SteamWorkshopTag {
-    // TODO rename
     @Id
     @NotNull
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,8 +16,8 @@ public class SteamWorkshopTag {
     private long tagId;
 
     @NotNull
-    @Column(name = "tag", nullable = false)
-    private String tag;
+    @Column(name = "tag_key", nullable = false)
+    private String tagKey;
 
     @Column(name = "display_name")
     private String displayName;
@@ -31,8 +30,8 @@ public class SteamWorkshopTag {
         // Required by JPA
     }
 
-    public SteamWorkshopTag(String tag, String displayName, long consumerAppId) {
-        this.tag = tag;
+    public SteamWorkshopTag(String tagKey, String displayName, long consumerAppId) {
+        this.tagKey = tagKey;
         this.displayName = displayName;
         this.consumerAppId = consumerAppId;
     }
@@ -45,12 +44,12 @@ public class SteamWorkshopTag {
         this.tagId = tagId;
     }
 
-    public String getTag() {
-        return tag;
+    public String getTagKey() {
+        return tagKey;
     }
 
-    public void setTag(String tag) {
-        this.tag = tag;
+    public void setTagKey(String tagKey) {
+        this.tagKey = tagKey;
     }
 
     public String getDisplayName() {
@@ -73,7 +72,7 @@ public class SteamWorkshopTag {
     public String toString() {
         return "SteamWorkshopTag{" +
                 "tagId=" + tagId +
-                ", tag='" + tag + '\'' +
+                ", tag='" + tagKey + '\'' +
                 ", displayName='" + displayName + '\'' +
                 ", consumerAppId=" + consumerAppId +
                 '}';

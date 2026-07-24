@@ -2,7 +2,7 @@ package notkirill.workshopmanager.models.dto;
 
 public record SteamWorkshopTagResponse(
         Long tagId,
-        String tag,
+        String tagKey,
         String displayName,
         Long consumerAppId
 ) {

@@ -1,0 +1,53 @@
+databaseChangeLog:
+  - changeSet:
+      id: 011
+      author: NotKirill
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: CREATE TYPE storing_strategy AS ENUM ('ONLY_METADATA', 'ALLOW_CONTENT_IMPORT', 'AUTO_CONTENT_IMPORT')
+            rollback:
+              - sql:
+                  dbms: postgresql
+                  sql: DROP TYPE storing_strategy;
+        - dropColumn:
+            tableName: item_metadata_personal
+            columns:
+              - column:
+                  name: content_import
+        - dropColumn:
+            tableName: item_metadata_personal
+            columns:
+              - column:
+                  name: metadata_only
+        - addColumn:
+            tableName: item_metadata_personal
+            columns:
+              - column:
+                  name: storing_mode
+                  type: storing_strategy
+                  defaultValueComputed: "'ONLY_METADATA'::storing_strategy"
+                  constraints:
+                    nullable: false
+        - sql:
+            dbms: postgresql
+            sql: ALTER TYPE auth_provider RENAME VALUE 'LOCAL_LOGIN' TO 'LOCAL_USERNAME';
+            rollback:
+              - sql:
+                  dbms: postgresql
+                  sql: ALTER TYPE auth_provider RENAME VALUE 'LOCAL_USERNAME' TO 'LOCAL_LOGIN';
+        - sql:
+            dbms: postgresql
+            sql: ALTER TYPE auth_provider RENAME TO auth_source;
+            rollback:
+              - sql:
+                  dbms: postgresql
+                  sql: ALTER TYPE auth_source RENAME TO auth_provider;
+        - renameColumn:
+            tableName: steam_workshop_tags
+            oldColumnName: tag
+            newColumnName: tag_key
+        - renameColumn:
+            tableName: users
+            oldColumnName: permissions_ids
+            newColumnName: permission_ids
