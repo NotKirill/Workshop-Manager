@@ -18,6 +18,23 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+  redis:
+    image: redis:8.8.0
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    ports:
+      - "6379:6379"
+    command: sh -c "redis-server --requirepass $$REDIS_PASSWORD"
+    healthcheck:
+      test: [ "CMD-SHELL", "redis-cli -a $$REDIS_PASSWORD ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
 volumes:
   postgres_data:
+  redis_data:

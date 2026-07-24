@@ -8,6 +8,7 @@ import notkirill.workshopmanager.user.permission.PermissionEnum;
 import notkirill.workshopmanager.user.permission.PermissionService;
 import notkirill.workshopmanager.user.permission.dto.PermissionMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -43,6 +44,8 @@ public class UserFacade {
         return userMapper.entityToSecurityDto(entity, getUserPermissions(entity));
     }
 
+    // Long TODO maybe to refactor for possible adding cache evict only using userId???
+    @Cacheable(value = "user_details", key = "#provider.name() + ':' + #key")
     public UserSecurityDto getForSecurityByProvider(AuthSource provider, String key) {
         User entity = userService.getByProvider(provider, key);
         return userMapper.entityToSecurityDto(entity, getUserPermissions(entity));

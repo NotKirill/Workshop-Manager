@@ -12,6 +12,13 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
+  cache:
+    type: redis
+  data:
+    redis:
+      host: localhost
+      port: 6380
+      password: devpass
 application:
   security:
     jwt:
