@@ -27,5 +27,15 @@ export default defineConfig([
         tsconfigRootDir: import.meta.dirname,
       },
     },
+    rules: {
+      "@typescript-eslint/no-misused-promises": [2, {
+        "checksVoidReturn": {
+          "attributes": false
+        }
+      }]
+    },
+    ignores: [
+      "src/components/ui/chakra/**/*",
+    ],
   },
 ])

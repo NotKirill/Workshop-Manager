@@ -1,0 +1,29 @@
+export interface AuthResponse {
+    access_token: string;
+    refresh_token: string;
+}
+
+export interface AuthRequest {
+    login: string;
+    password: string;
+}
+
+export interface RefreshRequest {
+    refresh_token: string;
+}
+
+export interface LogoutRequest {
+    refresh_token: string;
+}
+
+export interface MeResponse {
+    id: bigint;
+    name: string;
+    time_created: string;
+}
+
+export interface AuthProvider {
+    id: string;
+    name: string;
+    icon: string;
+}
