@@ -1,6 +1,6 @@
 import {z} from "zod";
 
-// TODO add to backend all validations
+
 export const usernameSchema = z.object({
     username: z
         .string()
@@ -14,10 +14,13 @@ export type Username = z.infer<typeof usernameSchema>;
 
 
 export const passwordSchema = z.object({
-    password: z
-        .string()
-        .min(6, "Password must be at least 6 characters")
-        .max(128, "Password must be at most 128 characters"),
+    password:
+        z.preprocess((val) =>
+                (typeof val === "string" ? val.normalize("NFC") : val),
+            z.string()
+                .min(6, "Password must be at least 6 characters")
+                .max(128, "Password must be at most 128 characters")
+        ),
 });
 export type Password = z.infer<typeof passwordSchema>;
 

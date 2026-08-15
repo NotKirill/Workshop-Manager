@@ -21,6 +21,8 @@ import java.util.Objects;
 
 @Service
 public class AuthService {
+    private final AuthNormalizer authNormalizer;
+    private final AuthValidator authValidator;
 
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
@@ -30,9 +32,12 @@ public class AuthService {
     private final UserDetailsServiceImpl userDetailsService;
 
     @Autowired
-    public AuthService(JwtService jwtService, RefreshTokenService refreshTokenService,
+    public AuthService(AuthNormalizer authNormalizer, AuthValidator authValidator, JwtService jwtService,
+                       RefreshTokenService refreshTokenService,
                        ClientInfoService clientInfoService,
                        AuthenticationManager authenticationManager, UserDetailsServiceImpl userDetailsService) {
+        this.authNormalizer = authNormalizer;
+        this.authValidator = authValidator;
         this.jwtService = jwtService;
         this.refreshTokenService = refreshTokenService;
         this.clientInfoService = clientInfoService;
@@ -42,10 +47,11 @@ public class AuthService {
 
     public AuthResponse authenticate(AuthRequest request) {
         HttpServletRequest servletRequest = SpringUtils.extractRequest();
+        AuthRequest normalized = normalizeAndValidateAuthRequest(request);
 
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-                request.login(),
-                request.password()
+                normalized.login(),
+                normalized.password()
         );
         Authentication authentication = authenticationManager.authenticate(token);
 
@@ -84,5 +90,27 @@ public class AuthService {
         refreshTokenService.validateToken(token);
 
         refreshTokenService.revokeAllByFamilyId(token.getFamilyId());
+    }
+
+    private AuthRequest normalizeAndValidateAuthRequest(AuthRequest request) {
+        AuthRequest normalized;
+
+        if (request.login().contains("@")) {
+            normalized = new AuthRequest(
+                    authNormalizer.normalizeEmail(request.login()),
+                    authNormalizer.normalizePassword(request.password())
+            );
+            authValidator.validateEmail(normalized.login());
+            authValidator.validatePassword(normalized.password());
+        } else {
+            normalized = new AuthRequest(
+                    authNormalizer.normalizeUsername(request.login()),
+                    authNormalizer.normalizePassword(request.password())
+            );
+            authValidator.validateUsername(normalized.login());
+            authValidator.validatePassword(normalized.password());
+        }
+
+        return normalized;
     }
 }

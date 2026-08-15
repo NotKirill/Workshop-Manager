@@ -21,13 +21,11 @@ const loginSchema = z.object({
     }),
     password: passwordSchema.shape.password,
 });
-
-type FormData = z.infer<typeof loginSchema>;
+type FormInput = z.input<typeof loginSchema>;
+type FormOutput = z.output<typeof loginSchema>;
 
 export const AuthenticationSection = () => {
-    // TODO remove authMethods constants and forms
-
-    const {register, handleSubmit, formState: {errors, isSubmitting}} = useForm<FormData>({
+    const {register, handleSubmit, formState: {errors, isSubmitting}} = useForm<FormInput, unknown, FormOutput>({
         defaultValues: {
             login: "",
             password: "",
@@ -41,7 +39,7 @@ export const AuthenticationSection = () => {
     const isPending = isEmailPending || isUsernamePending;
 
     // TODO server errors??? setError in useForm???????
-    const onSubmit = (data: FormData) => {
+    const onSubmit = (data: FormOutput) => {
         const request: AuthRequest = {
             login: data.login,
             password: data.password,
