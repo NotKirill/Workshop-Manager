@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import notkirill.workshopmanager.models.enums.ModspaceType;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.OffsetDateTime;
 
@@ -13,6 +15,7 @@ import java.time.OffsetDateTime;
         uniqueConstraints = {
                 @UniqueConstraint(name = "uk_item_metadata_internal_identity", columnNames = {"source_modspace", "game_id", "original_id"})
         })
+@EntityListeners(AuditingEntityListener.class)
 public class ItemMetadataInternal {
     @Id
     @NotNull
@@ -36,6 +39,7 @@ public class ItemMetadataInternal {
 
     @NotNull
     @Column(name = "time_registered", nullable = false)
+    @CreatedDate
     private OffsetDateTime timeRegistered;
 
     @NotNull
@@ -46,11 +50,11 @@ public class ItemMetadataInternal {
         // Required by JPA
     }
 
-    public ItemMetadataInternal(ModspaceType sourceModspace, long gameId, String originalId, OffsetDateTime timeRegistered, OffsetDateTime timeUpdated) {
+    public ItemMetadataInternal(ModspaceType sourceModspace, long gameId, String originalId,
+                                OffsetDateTime timeUpdated) {
         this.sourceModspace = sourceModspace;
         this.gameId = gameId;
         this.originalId = originalId;
-        this.timeRegistered = timeRegistered;
         this.timeUpdated = timeUpdated;
     }
 
@@ -88,10 +92,6 @@ public class ItemMetadataInternal {
 
     public OffsetDateTime getTimeRegistered() {
         return timeRegistered;
-    }
-
-    public void setTimeRegistered(OffsetDateTime timeRegistered) {
-        this.timeRegistered = timeRegistered;
     }
 
     public OffsetDateTime getTimeUpdated() {

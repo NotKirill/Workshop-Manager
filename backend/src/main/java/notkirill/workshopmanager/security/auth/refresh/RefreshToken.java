@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import notkirill.workshopmanager.user.ClientInfo;
 import org.hibernate.annotations.UuidGenerator;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -13,6 +15,7 @@ import java.util.UUID;
 @Table(name = "refresh_tokens", uniqueConstraints = {
         @UniqueConstraint(name = "uk_refresh_token", columnNames = {"token_hash"})
 })
+@EntityListeners(AuditingEntityListener.class)
 public class RefreshToken {
     @Id
     @NotNull
@@ -39,6 +42,7 @@ public class RefreshToken {
 
     @NotNull
     @Column(name = "created_at", nullable = false)
+    @CreatedDate
     private OffsetDateTime createdAt;
 
     @Nullable
@@ -57,13 +61,11 @@ public class RefreshToken {
         // Required by JPA
     }
 
-    public RefreshToken(long userId, UUID familyId, String tokenHash, OffsetDateTime expiresAt,
-                        OffsetDateTime createdAt, ClientInfo clientInfo) {
+    public RefreshToken(long userId, UUID familyId, String tokenHash, OffsetDateTime expiresAt, ClientInfo clientInfo) {
         this.userId = userId;
         this.familyId = familyId;
         this.tokenHash = tokenHash;
         this.expiresAt = expiresAt;
-        this.createdAt = createdAt;
         this.clientInfo = clientInfo;
     }
 
@@ -105,10 +107,6 @@ public class RefreshToken {
 
     public OffsetDateTime getCreatedAt() {
         return createdAt;
-    }
-
-    public void setCreatedAt(OffsetDateTime createdAt) {
-        this.createdAt = createdAt;
     }
 
     @Nullable

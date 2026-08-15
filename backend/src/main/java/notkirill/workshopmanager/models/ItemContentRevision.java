@@ -2,6 +2,8 @@ package notkirill.workshopmanager.models;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
 import java.time.OffsetDateTime;
@@ -10,6 +12,7 @@ import java.util.Objects;
 @Entity
 @Table(name = "item_content_revisions")
 @IdClass(ItemContentRevision.CompositeId.class)
+@EntityListeners(AuditingEntityListener.class)
 public class ItemContentRevision {
     @Id
     @NotNull
@@ -35,20 +38,19 @@ public class ItemContentRevision {
 
     @NotNull
     @Column(name = "time_created", nullable = false)
-    private OffsetDateTime timeCreated = OffsetDateTime.now();
+    @CreatedDate
+    private OffsetDateTime timeCreated;
 
     protected ItemContentRevision() {
         // Required by JPA
     }
 
-    public ItemContentRevision(long itemContentId, long revision, String s3Key, String fileName, int fileSize,
-                               OffsetDateTime timeCreated) {
+    public ItemContentRevision(long itemContentId, long revision, String s3Key, String fileName, int fileSize) {
         this.itemContentId = itemContentId;
         this.revision = revision;
         this.s3Key = s3Key;
         this.fileName = fileName;
         this.fileSize = fileSize;
-        this.timeCreated = timeCreated;
     }
 
     public long getItemContentId() {
@@ -93,10 +95,6 @@ public class ItemContentRevision {
 
     public OffsetDateTime getTimeCreated() {
         return timeCreated;
-    }
-
-    public void setTimeCreated(OffsetDateTime timeCreated) {
-        this.timeCreated = timeCreated;
     }
 
     @Override

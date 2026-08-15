@@ -6,11 +6,14 @@ import jakarta.validation.constraints.NotNull;
 import notkirill.workshopmanager.models.enums.MediaType;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "media_items")
+@EntityListeners(AuditingEntityListener.class)
 public class MediaItem {
     @Id
     @NotNull
@@ -24,9 +27,11 @@ public class MediaItem {
     @Column(name = "type", columnDefinition = "media_type", nullable = false)
     private MediaType type;
 
+    // Long TODO why 'uploaded' instead of 'created'?
     @NotNull
     @Column(name = "time_uploaded", nullable = false)
-    private OffsetDateTime timeUploaded = OffsetDateTime.now();
+    @CreatedDate
+    private OffsetDateTime timeUploaded;
 
     @Nullable
     @Column(name = "owner_user_id", nullable = true)
@@ -36,9 +41,8 @@ public class MediaItem {
         // Required by JPA
     }
 
-    public MediaItem(MediaType type, OffsetDateTime timeUploaded, @Nullable Long ownerUserId) {
+    public MediaItem(MediaType type, @Nullable Long ownerUserId) {
         this.type = type;
-        this.timeUploaded = timeUploaded;
         this.ownerUserId = ownerUserId;
     }
 
@@ -60,10 +64,6 @@ public class MediaItem {
 
     public OffsetDateTime getTimeUploaded() {
         return timeUploaded;
-    }
-
-    public void setTimeUploaded(OffsetDateTime timeUploaded) {
-        this.timeUploaded = timeUploaded;
     }
 
     @Nullable

@@ -60,8 +60,7 @@ public class RefreshTokenService {
 
         RefreshToken tokenEntity = new RefreshToken(
                 userId, familyId, tokenHash,
-                OffsetDateTime.now(clock).plusSeconds(properties.expirationSeconds()),
-                OffsetDateTime.now(clock), clientInfo
+                OffsetDateTime.now(clock).plusSeconds(properties.expirationSeconds()), clientInfo
         );
         repository.save(tokenEntity);
 

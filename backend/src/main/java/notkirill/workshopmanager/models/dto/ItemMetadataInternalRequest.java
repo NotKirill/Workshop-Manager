@@ -9,7 +9,6 @@ public record ItemMetadataInternalRequest(
         @NotNull ModspaceType sourceModspace,
         @NotNull Long gameId,
         @NotNull String originalId,
-        @NotNull OffsetDateTime timeRegistered,
         @NotNull OffsetDateTime timeUpdated
 ) {
 }
