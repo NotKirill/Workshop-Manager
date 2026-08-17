@@ -1,6 +1,6 @@
 databaseChangeLog:
   - includeAll:
-      path: changeset
+      path: application
       relativeToChangelogFile: true
       errorIfMissingOrEmpty: true
   - include:
