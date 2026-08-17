@@ -34,13 +34,28 @@ public class AuthValidator {
         }
     }
 
-    public void validatePassword(String password) {
+    public void validatePasswordSignIn(String password) {
         if (password == null) {
             throw new IllegalArgumentException("Password cannot be empty");
         }
 
-        if (password.length() < 6 || password.length() > 128) {
-            throw new IllegalArgumentException("Password must be between 6 and 128 characters");
+        if (password.length() < 8 || password.length() > 128) {
+            throw new IllegalArgumentException("Password must be between 8 and 128 characters");
+        }
+    }
+
+    public void validatePasswordSignUp(String password) {
+        if (password == null) {
+            throw new IllegalArgumentException("Password cannot be empty");
+        }
+
+        if (password.length() < 8 || password.length() > 128) {
+            throw new IllegalArgumentException("Password must be between 8 and 128 characters");
+        }
+
+        if (!password.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+}{';?>.<,]).*$")) {
+            throw new IllegalArgumentException(
+                    "Password must include uppercase, lowercase, a number, and a special character");
         }
     }
 }

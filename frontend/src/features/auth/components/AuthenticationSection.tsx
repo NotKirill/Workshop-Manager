@@ -3,7 +3,7 @@ import {Link as RouterLink} from "react-router"
 import {z} from "zod";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
-import {emailSchema, passwordSchema, usernameSchema} from "@/features/auth/schemas.ts";
+import {emailSchema, passwordSignInSchema, usernameSchema} from "@/features/auth/schemas.ts";
 import {useLoginByEmail, useLoginByUsername} from "@/features/auth/mutations.ts";
 import type {AuthRequest} from "@/features/auth/types.ts";
 
@@ -19,7 +19,7 @@ const loginSchema = z.object({
             });
         }
     }),
-    password: passwordSchema.shape.password,
+    password: passwordSignInSchema.shape.password,
 });
 type FormInput = z.input<typeof loginSchema>;
 type FormOutput = z.output<typeof loginSchema>;

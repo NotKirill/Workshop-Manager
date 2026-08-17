@@ -13,16 +13,29 @@ export const usernameSchema = z.object({
 export type Username = z.infer<typeof usernameSchema>;
 
 
-export const passwordSchema = z.object({
+export const passwordSignInSchema = z.object({
     password:
         z.preprocess((val) =>
                 (typeof val === "string" ? val.normalize("NFC") : val),
             z.string()
-                .min(6, "Password must be at least 6 characters")
+                .min(8, "Password must be at least 8 characters")
                 .max(128, "Password must be at most 128 characters")
         ),
 });
-export type Password = z.infer<typeof passwordSchema>;
+export type PasswordSignIn = z.infer<typeof passwordSignInSchema>;
+
+
+export const passwordSignUpSchema = z.object({
+    password:
+        z.preprocess((val) =>
+                (typeof val === "string" ? val.normalize("NFC") : val),
+            z.string()
+                .min(8, "Password must be at least 8 characters")
+                .max(128, "Password must be at most 128 characters")
+                .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+}{';?>.<,]).*$/, "Password must include uppercase, lowercase, a number, and a special character")
+        ),
+});
+export type PasswordSignUp = z.infer<typeof passwordSignUpSchema>;
 
 
 export const emailSchema = z.object({

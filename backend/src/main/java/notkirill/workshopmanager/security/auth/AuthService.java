@@ -101,14 +101,14 @@ public class AuthService {
                     authNormalizer.normalizePassword(request.password())
             );
             authValidator.validateEmail(normalized.login());
-            authValidator.validatePassword(normalized.password());
+            authValidator.validatePasswordSignIn(normalized.password());
         } else {
             normalized = new AuthRequest(
                     authNormalizer.normalizeUsername(request.login()),
                     authNormalizer.normalizePassword(request.password())
             );
             authValidator.validateUsername(normalized.login());
-            authValidator.validatePassword(normalized.password());
+            authValidator.validatePasswordSignIn(normalized.password());
         }
 
         return normalized;
