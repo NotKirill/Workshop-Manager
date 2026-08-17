@@ -28,7 +28,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         HttpServletRequest request = SpringUtils.extractRequest();
-        AuthSource authSource = getAuthProvider(request);
+        AuthSource authSource = getAuthSource(request);
 
         UserSecurityDto userDto;
         try {
@@ -42,7 +42,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         return new UserPrincipal(userDto);
     }
 
-    private AuthSource getAuthProvider(HttpServletRequest request) {
+    private AuthSource getAuthSource(HttpServletRequest request) {
         return (AuthSource) request.getAttribute("auth_source");
     }
 }

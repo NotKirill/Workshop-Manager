@@ -4,7 +4,7 @@ import {z} from "zod";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {emailSchema, passwordSignInSchema, usernameSchema} from "@/features/auth/schemas.ts";
-import {useLoginByEmail, useLoginByUsername} from "@/features/auth/mutations.ts";
+import {useLogin} from "@/features/auth/mutations.ts";
 import type {AuthRequest} from "@/features/auth/types.ts";
 
 const loginSchema = z.object({
@@ -33,10 +33,7 @@ export const AuthenticationSection = () => {
         resolver: zodResolver(loginSchema),
     });
 
-    const {mutate: loginByEmail, isPending: isEmailPending} = useLoginByEmail();
-    const {mutate: loginByUsername, isPending: isUsernamePending} = useLoginByUsername();
-
-    const isPending = isEmailPending || isUsernamePending;
+    const {mutate: login, isPending} = useLogin();
 
     // TODO server errors??? setError in useForm???????
     const onSubmit = (data: FormOutput) => {
@@ -45,11 +42,7 @@ export const AuthenticationSection = () => {
             password: data.password,
         };
 
-        const mutation = data.login.includes("@")
-            ? loginByEmail
-            : loginByUsername;
-
-        mutation(request);
+        login(request);
     };
 
     return (

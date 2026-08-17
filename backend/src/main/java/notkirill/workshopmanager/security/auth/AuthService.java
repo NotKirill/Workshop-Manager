@@ -47,7 +47,7 @@ public class AuthService {
 
     public AuthResponse authenticate(AuthRequest request) {
         HttpServletRequest servletRequest = SpringUtils.extractRequest();
-        AuthRequest normalized = normalizeAndValidateAuthRequest(request);
+        AuthRequest normalized = preProcessAuthRequest(request, servletRequest);
 
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
                 normalized.login(),
@@ -92,25 +92,22 @@ public class AuthService {
         refreshTokenService.revokeAllByFamilyId(token.getFamilyId());
     }
 
-    private AuthRequest normalizeAndValidateAuthRequest(AuthRequest request) {
-        AuthRequest normalized;
+    private AuthRequest preProcessAuthRequest(AuthRequest request, HttpServletRequest servletRequest) {
+        String login = request.login();
+        String password = authNormalizer.normalizePassword(request.password());
 
-        if (request.login().contains("@")) {
-            normalized = new AuthRequest(
-                    authNormalizer.normalizeEmail(request.login()),
-                    authNormalizer.normalizePassword(request.password())
-            );
-            authValidator.validateEmail(normalized.login());
-            authValidator.validatePasswordSignIn(normalized.password());
+        if (login.contains("@")) {
+            login = authNormalizer.normalizeEmail(login);
+            authValidator.validateEmail(login);
+            servletRequest.setAttribute("auth_source", AuthSource.LOCAL_EMAIL);
         } else {
-            normalized = new AuthRequest(
-                    authNormalizer.normalizeUsername(request.login()),
-                    authNormalizer.normalizePassword(request.password())
-            );
-            authValidator.validateUsername(normalized.login());
-            authValidator.validatePasswordSignIn(normalized.password());
+            login = authNormalizer.normalizeUsername(login);
+            authValidator.validateUsername(login);
+            servletRequest.setAttribute("auth_source", AuthSource.LOCAL_USERNAME);
         }
 
-        return normalized;
+        authValidator.validatePasswordSignIn(password);
+
+        return new AuthRequest(login, password);
     }
 }

@@ -3,17 +3,9 @@ import {privateApi, publicApi} from "@/app/axios.ts";
 
 
 export const authApi = {
-    loginByUsername: async (request: AuthRequest): Promise<AuthResponse> => {
+    login: async (request: AuthRequest): Promise<AuthResponse> => {
         const response = await publicApi.post<AuthResponse>(
-            "/auth/login/username", request
-        );
-
-        return response.data;
-    },
-
-    loginByEmail: async (request: AuthRequest): Promise<AuthResponse> => {
-        const response = await publicApi.post<AuthResponse>(
-            "/auth/login/email", request
+            "/auth/login", request
         );
 
         return response.data;

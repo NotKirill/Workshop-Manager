@@ -11,20 +11,10 @@ const clearOnUnauthorized = (error: unknown) => {
     }
 };
 
-export const useLoginByEmail = () =>
+export const useLogin = () =>
     useMutation({
         mutationFn: (request: AuthRequest) =>
-            authApi.loginByEmail(request),
-
-        onSuccess: authService.saveAuth,
-
-        onError: clearOnUnauthorized,
-    });
-
-export const useLoginByUsername = () =>
-    useMutation({
-        mutationFn: (request: AuthRequest) =>
-            authApi.loginByUsername(request),
+            authApi.login(request),
 
         onSuccess: authService.saveAuth,
 
