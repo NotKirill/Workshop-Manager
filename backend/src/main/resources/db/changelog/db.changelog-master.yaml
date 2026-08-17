@@ -3,3 +3,6 @@ databaseChangeLog:
       path: changeset
       relativeToChangelogFile: true
       errorIfMissingOrEmpty: true
+  - include:
+      file: infrastructure/db.changelog-infrastructure.yaml
+      relativeToChangelogFile: true

@@ -30,6 +30,7 @@ dependencies {
     implementation("software.amazon.awssdk:s3:2.46.3")
     implementation("io.jsonwebtoken:jjwt-api:0.13.0")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
+    implementation("org.springframework.boot:spring-boot-starter-quartz")
     runtimeOnly("org.postgresql:postgresql")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.13.0")
     // CVE fix in dependency manager
@@ -42,6 +43,7 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
     testImplementation("org.springframework.boot:spring-boot-starter-security-test")
     testImplementation("org.springframework.boot:spring-boot-starter-data-redis-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-quartz-test")
     testImplementation("org.mvnpm.at.playwright:test:1.60.0")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }

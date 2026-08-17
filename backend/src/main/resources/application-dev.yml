@@ -19,6 +19,23 @@ spring:
       host: localhost
       port: 6380
       password: devpass
+  quartz:
+    job-store-type: jdbc
+    jdbc:
+      initialize-schema: never
+    startup-delay: 5s
+    wait-for-jobs-to-complete-on-shutdown: true
+    overwrite-existing-jobs: true
+    properties:
+      org:
+        quartz:
+          scheduler:
+            instanceId: AUTO
+          jobStore:
+            driverDelegateClass: org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
+            isClustered: true
+          threadPool:
+            threadCount: 5
 application:
   security:
     jwt:
