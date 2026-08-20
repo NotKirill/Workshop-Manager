@@ -1,4 +1,4 @@
-package notkirill.workshopmanager;
+package notkirill.workshopmanager.scheduler;
 
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
@@ -9,18 +9,22 @@ import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Configuration
-public class QuartzSchedulerConfig implements SmartInitializingSingleton {
+public class SchedulerConfig implements SmartInitializingSingleton {
     private final Scheduler scheduler;
+    private final SchedulerProperties schedulerProperties;
+    private final List<JobDetail> activeJobDetails;
 
     @Autowired
-    public QuartzSchedulerConfig(Scheduler scheduler) {
+    public SchedulerConfig(Scheduler scheduler, SchedulerProperties schedulerProperties,
+                           List<JobDetail> activeJobDetails) {
         this.scheduler = scheduler;
+        this.schedulerProperties = schedulerProperties;
+        this.activeJobDetails = activeJobDetails;
     }
 
     @Override
@@ -29,38 +33,20 @@ public class QuartzSchedulerConfig implements SmartInitializingSingleton {
     }
 
     private void revalidateJobs() {
-        List<JobDetail> jobDetails = getAllJobDetails();
-        Set<JobKey> currentJobKeys = jobDetails.stream()
+        Set<JobKey> activeJobKeys = activeJobDetails.stream()
                 .map(JobDetail::getKey)
                 .collect(Collectors.toSet());
 
-        GroupMatcher<JobKey> groupMatcher = GroupMatcher.anyGroup();
+        GroupMatcher<JobKey> groupMatcher = GroupMatcher.jobGroupEquals(schedulerProperties.jobGroupName());
 
         try {
             for (JobKey existingKey : scheduler.getJobKeys(groupMatcher)) {
-                if (!currentJobKeys.contains(existingKey)) {
+                if (!activeJobKeys.contains(existingKey)) {
                     scheduler.deleteJob(existingKey);
                 }
             }
         } catch (SchedulerException e) {
             throw new RuntimeException("Failed to revalidate Quartz jobs", e);
         }
-    }
-
-    private List<JobDetail> getAllJobDetails() {
-        List<JobDetail> details = new ArrayList<>();
-
-        try {
-            for (JobKey jobKey : scheduler.getJobKeys(GroupMatcher.anyGroup())) {
-                JobDetail detail = scheduler.getJobDetail(jobKey);
-                if (detail != null) {
-                    details.add(detail);
-                }
-            }
-        } catch (SchedulerException e) {
-            throw new RuntimeException("Failed to get Quartz job details", e);
-        }
-
-        return details;
     }
 }

@@ -112,11 +112,6 @@ public class RefreshTokenService {
         repository.findByFamilyId(familyId).forEach(this::revokeToken);
     }
 
-    public void delete(UUID id) {
-        if (!repository.existsById(id)) throw new NoSuchElementException();
-        repository.deleteById(id);
-    }
-
     private String generateToken() {
         byte[] bytes = new byte[32];
         secureRandom.nextBytes(bytes);
