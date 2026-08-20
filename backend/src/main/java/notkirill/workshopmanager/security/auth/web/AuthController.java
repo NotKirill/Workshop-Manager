@@ -1,7 +1,8 @@
-package notkirill.workshopmanager.security.auth;
+package notkirill.workshopmanager.security.auth.web;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import notkirill.workshopmanager.security.auth.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

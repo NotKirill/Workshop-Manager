@@ -1,4 +1,4 @@
-package notkirill.workshopmanager.security.auth;
+package notkirill.workshopmanager.security.auth.web;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
