@@ -10,7 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Configuration
@@ -33,20 +35,43 @@ public class SchedulerConfig implements SmartInitializingSingleton {
     }
 
     private void revalidateJobs() {
-        Set<JobKey> activeJobKeys = activeJobDetails.stream()
-                .map(JobDetail::getKey)
-                .collect(Collectors.toSet());
+        Map<JobKey, JobDetail> activeJobs = activeJobDetails.stream().collect(
+                Collectors.toMap(JobDetail::getKey, Function.identity()));
 
         GroupMatcher<JobKey> groupMatcher = GroupMatcher.jobGroupEquals(schedulerProperties.jobGroupName());
 
         try {
             for (JobKey existingKey : scheduler.getJobKeys(groupMatcher)) {
-                if (!activeJobKeys.contains(existingKey)) {
+                if (!activeJobs.containsKey(existingKey)) {
                     scheduler.deleteJob(existingKey);
+                    continue;
+                }
+
+                JobDetail existingJob = scheduler.getJobDetail(existingKey);
+                JobDetail activeJob = activeJobs.get(existingKey);
+
+                if (!areJobDetailsEqual(existingJob, activeJob)) {
+                    // Long TODO make filtering for specific data
+                    activeJob.getJobDataMap().putAll(existingJob.getJobDataMap());
+                    scheduler.addJob(activeJob, true);
                 }
             }
         } catch (SchedulerException e) {
             throw new RuntimeException("Failed to revalidate Quartz jobs", e);
         }
+    }
+
+    private boolean areJobDetailsEqual(JobDetail jd1, JobDetail jd2) {
+        if (jd1 == null || jd2 == null) {
+            throw new IllegalArgumentException("Job Details must not be null");
+        }
+
+        return Objects.equals(jd1.getDescription(), jd2.getDescription()) &&
+                jd1.getJobClass() == jd2.getJobClass() &&
+                jd1.isDurable() == jd2.isDurable() &&
+                jd1.isPersistJobDataAfterExecution() == jd2.isPersistJobDataAfterExecution() &&
+                jd1.isConcurrentExecutionDisallowed() == jd2.isConcurrentExecutionDisallowed() &&
+                jd1.requestsRecovery() == jd2.requestsRecovery();
+
     }
 }

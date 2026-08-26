@@ -25,7 +25,7 @@ spring:
       initialize-schema: never
     startup-delay: 5s
     wait-for-jobs-to-complete-on-shutdown: true
-    overwrite-existing-jobs: true
+    overwrite-existing-jobs: false
     properties:
       org:
         quartz:
@@ -47,5 +47,5 @@ application:
       expiration-seconds: 604800
       cleaning-job:
         enabled: true
-        cron: "* * * * * ? *"
-        retention-days-after-expiration: 1
+        cron: "0 0 0 1 * ? *"
+        retention-days-after-expiration: 30

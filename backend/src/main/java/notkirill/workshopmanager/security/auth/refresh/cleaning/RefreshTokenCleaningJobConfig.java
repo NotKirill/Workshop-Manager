@@ -8,6 +8,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.TimeZone;
+
 @Configuration
 public class RefreshTokenCleaningJobConfig {
     private final SchedulerProperties schedulerProperties;
@@ -39,7 +41,8 @@ public class RefreshTokenCleaningJobConfig {
                 .withIdentity("refreshTokenCleaningJobTrigger", schedulerProperties.jobGroupName())
                 .withSchedule(CronScheduleBuilder
                                       .cronSchedule(refreshTokenProperties.cleaningJob().cron())
-                                      .withMisfireHandlingInstructionFireAndProceed())
+                                      .withMisfireHandlingInstructionFireAndProceed()
+                                      .inTimeZone(TimeZone.getTimeZone("UTC")))
                 .build();
     }
 }

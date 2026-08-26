@@ -22,8 +22,6 @@ public class RefreshTokenCleaningJob extends QuartzJobBean {
 
     @Override
     protected void executeInternal(@NonNull JobExecutionContext context) throws JobExecutionException {
-//        log.info(context.getTrigger().getPreviousFireTime().toString());
-//        log.info(context.getTrigger().getNextFireTime().toString());
         long deletedCount = cleaningService.clearOldExpiredTokens();
         log.info("Refresh token cleanup: deleted {} tokens past retention period", deletedCount);
     }
