@@ -4,6 +4,7 @@ import LoginPage from "@/features/auth/components/LoginPage.tsx";
 import ProtectedLayout from "@/app/routes/ProtectedLayout.tsx";
 import DashboardPage from "@/features/shared/DashboardPage.tsx";
 import ProfilePage from "@/features/shared/ProfilePage.tsx";
+import LoginSuccessCallback from "@/features/auth/components/LoginSuccessCallback.tsx";
 
 export const router =
     createBrowserRouter([
@@ -13,6 +14,10 @@ export const router =
                 {
                     path: "/login",
                     element: <LoginPage/>,
+                },
+                {
+                    path: "/login-success",
+                    element: <LoginSuccessCallback/>,
                 },
             ],
         },

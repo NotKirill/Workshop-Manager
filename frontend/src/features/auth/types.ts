@@ -1,3 +1,5 @@
+import type {UseMutationResult} from "@tanstack/react-query";
+
 export interface AuthResponse {
     access_token: string;
     refresh_token: string;
@@ -6,6 +8,10 @@ export interface AuthResponse {
 export interface AuthRequest {
     login: string;
     password: string;
+}
+
+export interface AuthSuccessRequest {
+    ott: string;
 }
 
 export interface RefreshRequest {
@@ -26,4 +32,5 @@ export interface AuthProvider {
     id: string;
     name: string;
     icon: string;
+    redirectHook: () => UseMutationResult<{ url: string }, Error, void, unknown>;
 }

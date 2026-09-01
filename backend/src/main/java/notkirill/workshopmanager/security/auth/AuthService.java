@@ -1,7 +1,6 @@
 package notkirill.workshopmanager.security.auth;
 
 import jakarta.servlet.http.HttpServletRequest;
-import notkirill.workshopmanager.SpringUtils;
 import notkirill.workshopmanager.security.UserDetailsServiceImpl;
 import notkirill.workshopmanager.security.auth.jwt.JwtService;
 import notkirill.workshopmanager.security.auth.refresh.NewRefreshTokenDto;
@@ -16,8 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -49,39 +46,33 @@ public class AuthService {
         this.userDetailsService = userDetailsService;
     }
 
-    public AuthResponse authenticate(AuthRequest request) {
-        HttpServletRequest servletRequest = SpringUtils.extractRequest();
+    public AuthResponse authenticateByAuthRequest(AuthRequest request, HttpServletRequest servletRequest) {
         AuthRequest normalized = preProcessAuthRequest(request, servletRequest);
 
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
                 normalized.login(),
                 normalized.password()
         );
-        Authentication authentication = authenticationManager.authenticate(token);
+        Authentication resolvedToken = authenticationManager.authenticate(token);
 
-        SecurityContext context = SecurityContextHolder.createEmptyContext();
-        context.setAuthentication(authentication);
-        SecurityContextHolder.setContext(context);
-
-        UserDetails user = (UserDetails) authentication.getPrincipal();
-
-        String jwt = jwtService.generateToken(Objects.requireNonNull(user));
-        NewRefreshTokenDto tokenData = refreshTokenService.create(
-                Long.valueOf(user.getUsername()),
-                clientInfoService.getClientInfo(servletRequest)
-        );
-        return new AuthResponse(jwt, tokenData.token());
+        UserDetails user = (UserDetails) resolvedToken.getPrincipal();
+        return approveAuthentication(servletRequest, Objects.requireNonNull(user));
     }
 
-    public AuthResponse refresh(RefreshRequest request) {
-        HttpServletRequest servletRequest = SpringUtils.extractRequest();
+    public AuthResponse resolveBySource(AuthSource provider, String providerKey, HttpServletRequest servletRequest) {
+        servletRequest.setAttribute("auth_source", provider);
 
+        UserDetails userDetails = userDetailsService.loadUserByUsername(providerKey);
+        return approveAuthentication(servletRequest, userDetails);
+    }
+
+    public AuthResponse refresh(RefreshRequest request, HttpServletRequest servletRequest) {
         RefreshToken token = refreshTokenService.getByToken(request.refreshToken());
         refreshTokenService.validateToken(token);
 
         UserDetails user = userDetailsService.loadUserByUsername(String.valueOf(token.getUserId()));
 
-        String jwt = jwtService.generateToken(Objects.requireNonNull(user));
+        String jwt = jwtService.generateToken(user);
         NewRefreshTokenDto newTokenData = refreshTokenService.rotateToken(
                 token,
                 clientInfoService.getClientInfo(servletRequest)
@@ -94,6 +85,15 @@ public class AuthService {
         refreshTokenService.validateToken(token);
 
         refreshTokenService.revokeAllByFamilyId(token.getFamilyId());
+    }
+
+    private AuthResponse approveAuthentication(HttpServletRequest servletRequest, UserDetails user) {
+        String jwt = jwtService.generateToken(user);
+        NewRefreshTokenDto tokenData = refreshTokenService.create(
+                Long.valueOf(user.getUsername()),
+                clientInfoService.getClientInfo(servletRequest)
+        );
+        return new AuthResponse(jwt, tokenData.token());
     }
 
     private AuthRequest preProcessAuthRequest(AuthRequest request, HttpServletRequest servletRequest) {

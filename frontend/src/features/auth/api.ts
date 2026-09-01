@@ -1,4 +1,11 @@
-import type {AuthRequest, AuthResponse, LogoutRequest, MeResponse, RefreshRequest} from "@/features/auth/types.ts";
+import type {
+    AuthRequest,
+    AuthResponse,
+    AuthSuccessRequest,
+    LogoutRequest,
+    MeResponse,
+    RefreshRequest
+} from "@/features/auth/types.ts";
 import {privateApi, publicApi} from "@/app/axios.ts";
 
 
@@ -11,7 +18,20 @@ export const authApi = {
         return response.data;
     },
 
-    // TODO loginBySteam
+    loginSuccess: async (request: AuthSuccessRequest): Promise<AuthResponse> => {
+        const response = await publicApi.post<AuthResponse>(
+            "/auth/login-success", request
+        );
+
+        return response.data;
+    },
+
+    // Long TODO maybe make an general type of redirection?
+    loginBySteam: async (): Promise<{ url: string }> => {
+        const response = await publicApi.get<{ url: string }>("/auth/steam");
+
+        return response.data;
+    },
 
     refresh: async (request: RefreshRequest): Promise<AuthResponse> => {
         const response = await publicApi.post<AuthResponse>(

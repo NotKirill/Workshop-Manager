@@ -37,6 +37,8 @@ spring:
           threadPool:
             threadCount: 5
 application:
+  frontend:
+    url: http://localhost:3000
   scheduler:
     job-group-name: WORKSHOP-MANAGER
   security:
