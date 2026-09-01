@@ -49,3 +49,5 @@ application:
         enabled: true
         cron: "0 0 0 1 * ? *"
         retention-days-after-expiration: 30
+  one-time-code:
+    ttl: 3m
