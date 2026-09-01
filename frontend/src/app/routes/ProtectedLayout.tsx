@@ -1,5 +1,6 @@
 import {Navigate, Outlet} from "react-router";
 import {useAppSelector} from "@/app/hooks.ts";
+import {AuthBootstrap} from "@/features/auth/components/AuthBootstrap.tsx";
 
 const ProtectedLayout = () => {
     const isAuthenticated = useAppSelector(
@@ -10,7 +11,12 @@ const ProtectedLayout = () => {
         return <Navigate to="/login" replace/>;
     }
 
-    return <Outlet/>;
+    return (
+        <>
+            <AuthBootstrap/>
+            <Outlet/>
+        </>
+    );
 
     // return (
     //     <>
