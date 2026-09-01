@@ -38,9 +38,9 @@ public class OpenIdNonceCleaningJobConfig {
     @Bean
     @Conditional(OpenIdNonceCleaningJobCondition.class)
     public Trigger openIdNonceCleaningJobTrigger(
-            @Qualifier("openIdNonceCleaningJobDetail") JobDetail openIdNonceCleaningJobDetail, Clock clock) {
+            @Qualifier("openIdNonceCleaningJobDetail") JobDetail jobDetail, Clock clock) {
         return TriggerBuilder.newTrigger()
-                .forJob(openIdNonceCleaningJobDetail)
+                .forJob(jobDetail)
                 .withIdentity("openIdNonceCleaningJobTrigger", schedulerProperties.jobGroupName())
                 .withSchedule(CronScheduleBuilder
                                       .cronSchedule(openIdProperties.nonce().cleaningJob().cron())

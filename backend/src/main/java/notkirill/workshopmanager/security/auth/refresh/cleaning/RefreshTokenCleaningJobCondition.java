@@ -9,6 +9,7 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
 
 public class RefreshTokenCleaningJobCondition implements Condition {
     @Override
+    @SuppressWarnings("java:S2259")
     public boolean matches(@NonNull ConditionContext context, @NonNull AnnotatedTypeMetadata metadata) {
         return Binder.get(context.getEnvironment())
                 .bind(RefreshTokenProperties.CONF_PATH, RefreshTokenProperties.class)

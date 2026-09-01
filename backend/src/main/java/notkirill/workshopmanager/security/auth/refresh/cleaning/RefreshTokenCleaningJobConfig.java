@@ -4,10 +4,12 @@ import notkirill.workshopmanager.scheduler.SchedulerProperties;
 import notkirill.workshopmanager.security.auth.refresh.RefreshTokenProperties;
 import org.quartz.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 
+import java.time.Clock;
 import java.util.TimeZone;
 
 @Configuration
@@ -35,14 +37,15 @@ public class RefreshTokenCleaningJobConfig {
 
     @Bean
     @Conditional(RefreshTokenCleaningJobCondition.class)
-    public Trigger refreshTokenCleaningTrigger(JobDetail refreshTokenCleaningJobDetail) {
+    public Trigger refreshTokenCleaningJobTrigger(
+            @Qualifier("refreshTokenCleaningJobDetail") JobDetail jobDetail, Clock clock) {
         return TriggerBuilder.newTrigger()
-                .forJob(refreshTokenCleaningJobDetail)
+                .forJob(jobDetail)
                 .withIdentity("refreshTokenCleaningJobTrigger", schedulerProperties.jobGroupName())
                 .withSchedule(CronScheduleBuilder
                                       .cronSchedule(refreshTokenProperties.cleaningJob().cron())
                                       .withMisfireHandlingInstructionFireAndProceed()
-                                      .inTimeZone(TimeZone.getTimeZone("UTC")))
+                                      .inTimeZone(TimeZone.getTimeZone(clock.getZone())))
                 .build();
     }
 }

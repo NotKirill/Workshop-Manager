@@ -1,11 +1,11 @@
 package notkirill.workshopmanager.security.auth;
 
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.text.Normalizer;
 import java.util.Locale;
 
-@Service
+@Component
 public class AuthNormalizer {
     public String normalizeEmail(String email) {
         if (email == null) return null;

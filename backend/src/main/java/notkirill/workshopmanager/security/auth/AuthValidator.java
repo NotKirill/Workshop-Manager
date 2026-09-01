@@ -1,8 +1,8 @@
 package notkirill.workshopmanager.security.auth;
 
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
-@Service
+@Component
 public class AuthValidator {
     public void validateEmail(String email) {
         if (email == null) {
