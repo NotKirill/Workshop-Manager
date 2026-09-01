@@ -49,5 +49,14 @@ application:
         enabled: true
         cron: "0 0 0 1 * ? *"
         retention-days-after-expiration: 30
+    openid:
+      nonce:
+        enable-persistence-validation: true
+        max-age-minutes: 5
+        allowed-future-skew-minutes: 5
+        cleaning-job:
+          enabled: true
+          cron: "0 0 0 1 * ? *"
+          retention-days: 30
   one-time-code:
     ttl: 3m
