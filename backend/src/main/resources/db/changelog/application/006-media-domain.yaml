@@ -1,29 +1,31 @@
 databaseChangeLog:
   - changeSet:
-      id: 006
+      id: "006-types"
       author: NotKirill
       changes:
         - sql:
             dbms: postgresql
             sql: CREATE TYPE media_provider AS ENUM ('UNKNOWN', 'YOUTUBE', 'SKETCHFAB')
-            rollback:
-              - sql:
-                  dbms: postgresql
-                  sql: DROP TYPE media_provider;
         - sql:
             dbms: postgresql
             sql: CREATE TYPE media_type AS ENUM ('FILE', 'EMBED')
-            rollback:
-              - sql:
-                  dbms: postgresql
-                  sql: DROP TYPE media_type;
         - sql:
             dbms: postgresql
             sql: CREATE TYPE entity_type AS ENUM ('ITEM', 'USER', 'GAME', 'AUTHOR')
-            rollback:
-              - sql:
-                  dbms: postgresql
-                  sql: DROP TYPE entity_type;
+      rollback:
+        - sql:
+            dbms: postgresql
+            sql: DROP TYPE entity_type
+        - sql:
+            dbms: postgresql
+            sql: DROP TYPE media_type
+        - sql:
+            dbms: postgresql
+            sql: DROP TYPE media_provider
+  - changeSet:
+      id: "006"
+      author: NotKirill
+      changes:
         - createTable:
             tableName: media_files
             columns:

@@ -1,15 +1,19 @@
 databaseChangeLog:
   - changeSet:
-      id: 001
+      id: "001-types"
       author: NotKirill
       changes:
         - sql:
             dbms: postgresql
             sql: CREATE TYPE modspace_type AS ENUM ('LOCAL', 'UNKNOWN', 'STEAM')
-            rollback:
-              - sql:
-                  dbms: postgresql
-                  sql: DROP TYPE modspace_type;
+      rollback:
+        - sql:
+            dbms: postgresql
+            sql: DROP TYPE modspace_type
+  - changeSet:
+      id: "001"
+      author: NotKirill
+      changes:
         - createTable:
             tableName: item_metadata_internal
             columns:

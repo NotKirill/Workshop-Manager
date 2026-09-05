@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: 010
+      id: "010-manual-rollback"
       author: NotKirill
       changes:
         - dropUniqueConstraint:
@@ -16,13 +16,38 @@ databaseChangeLog:
                   name: login
               - column:
                   name: email
+      rollback:
+        - addColumn:
+            tableName: users
+            columns:
+              - column:
+                  name: login
+                  type: TEXT
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: uk_user_login
+              - column:
+                  name: email
+                  type: TEXT
+                  constraints:
+                    unique: true
+                    uniqueConstraintName: uk_user_email
+  - changeSet:
+      id: "010-types"
+      author: NotKirill
+      changes:
         - sql:
             dbms: postgresql
             sql: CREATE TYPE auth_provider AS ENUM ('LOCAL_LOGIN', 'LOCAL_EMAIL', 'STEAM')
-            rollback:
-              - sql:
-                  dbms: postgresql
-                  sql: DROP TYPE auth_provider;
+      rollback:
+        - sql:
+            dbms: postgresql
+            sql: DROP TYPE auth_provider
+  - changeSet:
+      id: "010"
+      author: NotKirill
+      changes:
         - createTable:
             tableName: user_identities
             columns:
