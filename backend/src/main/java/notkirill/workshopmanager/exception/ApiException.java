@@ -1,5 +1,7 @@
 package notkirill.workshopmanager.exception;
 
+import org.springframework.http.HttpStatus;
+
 public abstract class ApiException extends RuntimeException {
 
     private final String code;
@@ -9,7 +11,14 @@ public abstract class ApiException extends RuntimeException {
         this.code = code;
     }
 
+    protected ApiException(String code, String message, Throwable cause) {
+        super(message, cause);
+        this.code = code;
+    }
+
     public String getCode() {
         return code;
     }
+
+    public abstract HttpStatus getStatus();
 }
