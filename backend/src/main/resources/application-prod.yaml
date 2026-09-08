@@ -1,0 +1,64 @@
+spring:
+  application:
+    name: workshop-manager-backend
+  datasource:
+    url: jdbc:postgresql://localhost:5432/workshop_manager
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    hikari:
+      data-source-properties: stringtype=unspecified
+  liquibase:
+    enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  cache:
+    type: redis
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: ${REDIS_PASSWORD}
+  quartz:
+    job-store-type: jdbc
+    jdbc:
+      initialize-schema: never
+    startup-delay: 5s
+    wait-for-jobs-to-complete-on-shutdown: true
+    overwrite-existing-jobs: false
+    properties:
+      org:
+        quartz:
+          scheduler:
+            instanceId: AUTO
+          jobStore:
+            driverDelegateClass: org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
+            isClustered: true
+          threadPool:
+            threadCount: 5
+application:
+  frontend:
+    url: ${FRONTEND_URL}
+  scheduler:
+    job-group-name: WORKSHOP-MANAGER
+  security:
+    jwt:
+      secret-key: ${JWT_SECRET_KEY}
+      expiration-seconds: 300
+    refresh-token:
+      expiration-seconds: 604800
+      cleaning-job:
+        enabled: true
+        cron: "0 0 0 1 * ? *"
+        retention-days-after-expiration: 30
+    openid:
+      nonce:
+        enable-persistence-validation: true
+        max-age-minutes: 5
+        allowed-future-skew-minutes: 5
+        cleaning-job:
+          enabled: true
+          cron: "0 0 0 1 * ? *"
+          retention-days: 30
+  one-time-code:
+    ttl: 3m
