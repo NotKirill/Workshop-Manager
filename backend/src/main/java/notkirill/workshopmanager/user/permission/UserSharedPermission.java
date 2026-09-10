@@ -1,7 +1,9 @@
-package notkirill.workshopmanager.models;
+package notkirill.workshopmanager.user.permission;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -22,17 +24,19 @@ public class UserSharedPermission {
 
     @Id
     @NotNull
-    @Column(name = "permission_id", nullable = false)
-    private short permissionId;
+    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(name = "permission", columnDefinition = "user_permission", nullable = false)
+    private PermissionEnum permission;
 
     protected UserSharedPermission() {
         // Required by JPA
     }
 
-    public UserSharedPermission(long userProviderId, long userConsumerId, short permissionId) {
+    public UserSharedPermission(long userProviderId, long userConsumerId, PermissionEnum permission) {
         this.userProviderId = userProviderId;
         this.userConsumerId = userConsumerId;
-        this.permissionId = permissionId;
+        this.permission = permission;
     }
 
     public long getUserProviderId() {
@@ -51,12 +55,12 @@ public class UserSharedPermission {
         this.userConsumerId = userConsumerId;
     }
 
-    public short getPermissionId() {
-        return permissionId;
+    public PermissionEnum getPermission() {
+        return permission;
     }
 
-    public void setPermissionId(short permissionId) {
-        this.permissionId = permissionId;
+    public void setPermission(PermissionEnum permission) {
+        this.permission = permission;
     }
 
     @Override
@@ -64,23 +68,23 @@ public class UserSharedPermission {
         return "UserSharedPermission{" +
                 "userProviderId=" + userProviderId +
                 ", userConsumerId=" + userConsumerId +
-                ", permissionId=" + permissionId +
+                ", permission=" + permission +
                 '}';
     }
 
     public static class CompositeId implements Serializable {
         private long userProviderId;
         private long userConsumerId;
-        private short permissionId;
+        private PermissionEnum permission;
 
         protected CompositeId() {
             // Required by JPA
         }
 
-        public CompositeId(long userProviderId, long userConsumerId, short permissionId) {
+        public CompositeId(long userProviderId, long userConsumerId, PermissionEnum permission) {
             this.userProviderId = userProviderId;
             this.userConsumerId = userConsumerId;
-            this.permissionId = permissionId;
+            this.permission = permission;
         }
 
         public long getUserProviderId() {
@@ -99,23 +103,23 @@ public class UserSharedPermission {
             this.userConsumerId = userConsumerId;
         }
 
-        public short getPermissionId() {
-            return permissionId;
+        public PermissionEnum getPermission() {
+            return permission;
         }
 
-        public void setPermissionId(short permissionId) {
-            this.permissionId = permissionId;
+        public void setPermission(PermissionEnum permission) {
+            this.permission = permission;
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(userProviderId, userConsumerId, permissionId);
+            return Objects.hash(userProviderId, userConsumerId, permission);
         }
 
         @Override
         public boolean equals(Object o) {
             if (!(o instanceof CompositeId that)) return false;
-            return userProviderId == that.userProviderId && userConsumerId == that.userConsumerId && permissionId == that.permissionId;
+            return userProviderId == that.userProviderId && userConsumerId == that.userConsumerId && permission == that.permission;
         }
 
         @Override
@@ -123,7 +127,7 @@ public class UserSharedPermission {
             return "UserSharedPermission.CompositeId{" +
                     "userProviderId=" + userProviderId +
                     ", userConsumerId=" + userConsumerId +
-                    ", permissionId=" + permissionId +
+                    ", permission=" + permission +
                     '}';
         }
     }

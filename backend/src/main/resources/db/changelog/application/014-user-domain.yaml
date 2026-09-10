@@ -1,0 +1,99 @@
+databaseChangeLog:
+  - changeSet:
+      id: "014-types"
+      author: NotKirill
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: >-
+              CREATE TYPE user_permission AS ENUM (
+                'ITEMS_READ', 'ITEMS_WRITE', 'ITEMS_REGISTER', 'CONTENT_IMPORT', 'MEDIA_UPLOAD',
+                'USERS_MANAGE', 'GAMES_MANAGE', 'CONTENT_MANAGE', 'MAINTENANCE_MANAGE')
+      rollback:
+        - sql:
+            dbms: postgresql
+            sql: DROP TYPE user_permission
+  - changeSet:
+      id: "014-manual-rollback"
+      author: NotKirill
+      changes:
+        - dropColumn:
+            tableName: users
+            columnName: permission_ids
+        - dropPrimaryKey:
+            tableName: user_shared_permissions
+            constraintName: pk_user_shared_permission
+        - dropColumn:
+            tableName: user_shared_permissions
+            columnName: permission_id
+        - dropTable:
+            tableName: permissions
+      rollback:
+        - createTable:
+            tableName: permissions
+            columns:
+              - column:
+                  name: id
+                  type: SMALLINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_permission
+                    nullable: false
+              - column:
+                  name: name
+                  type: TEXT
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: uk_permission_name
+              - column:
+                  name: description
+                  type: TEXT
+        - addColumn:
+            tableName: user_shared_permissions
+            columns:
+              - column:
+                  name: permission_id
+                  type: SMALLINT
+                  constraints:
+                    nullable: false
+        - addPrimaryKey:
+            tableName: user_shared_permissions
+            columnNames: user_provider_id, user_consumer_id, permission_id
+            constraintName: pk_user_shared_permission
+        - addColumn:
+            tableName: users
+            columns:
+              - column:
+                  name: permission_ids
+                  type: SMALLINT[]
+  - changeSet:
+      id: "014"
+      author: NotKirill
+      changes:
+        - dropNotNullConstraint:
+            tableName: users
+            columnName: password_hash
+            columnDataType: TEXT
+        - addColumn:
+            tableName: users
+            columns:
+              - column:
+                  name: permissions
+                  type: user_permission[]
+                  defaultValueComputed: "'{}'::user_permission[]"
+                  constraints:
+                    nullable: false
+        - addColumn:
+            tableName: user_shared_permissions
+            columns:
+              - column:
+                  name: permission
+                  type: user_permission
+                  constraints:
+                    nullable: false
+        - addPrimaryKey:
+            tableName: user_shared_permissions
+            columnNames: user_provider_id, user_consumer_id, permission
+            constraintName: pk_user_shared_permission

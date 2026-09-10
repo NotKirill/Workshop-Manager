@@ -1,5 +1,6 @@
 package notkirill.workshopmanager.user.dto;
 
+import notkirill.workshopmanager.user.User;
 import notkirill.workshopmanager.user.permission.PermissionEnum;
 
 import java.time.OffsetDateTime;
@@ -15,6 +16,18 @@ public record UserSecurityDto(
         Boolean enabled,
         Boolean accountNonLocked
 ) {
+    public static UserSecurityDto of(User user) {
+        return new UserSecurityDto(
+                user.getId(),
+                user.getPasswordHash(),
+                user.getTimeCreated(),
+                user.getName(),
+                user.getPermissions(),
+                user.isEnabled(),
+                user.isAccountNonLocked()
+        );
+    }
+
     @Override
     @SuppressWarnings({"java:S6878", "DeconstructionCanBeUsed"})
     public boolean equals(Object o) {
@@ -37,7 +50,7 @@ public record UserSecurityDto(
     public String toString() {
         return "UserSecurityDto{" +
                 "id=" + id +
-                ", passwordHash='" + passwordHash + '\'' +
+                ", passwordHash=" + (passwordHash == null ? "null" : "[hidden]") +
                 ", timeCreated=" + timeCreated +
                 ", name='" + name + '\'' +
                 ", permissions=" + Arrays.toString(permissions) +

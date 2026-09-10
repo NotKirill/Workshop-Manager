@@ -1,13 +1,17 @@
 package notkirill.workshopmanager.user;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import notkirill.workshopmanager.user.permission.PermissionEnum;
+import org.hibernate.annotations.ColumnTransformer;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.OffsetDateTime;
 import java.util.Arrays;
 
+// TODO move to UUID???
 @Entity
 @Table(name = "users")
 @EntityListeners(AuditingEntityListener.class)
@@ -18,8 +22,8 @@ public class User {
     @Column(name = "id", nullable = false)
     private long id;
 
-    @NotNull
-    @Column(name = "password_hash", nullable = false)
+    @Nullable
+    @Column(name = "password_hash", nullable = true)
     private String passwordHash;
 
     @NotNull
@@ -31,8 +35,11 @@ public class User {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "permission_ids", columnDefinition = "SMALLINT[]")
-    private short[] permissionIds;
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @ColumnTransformer(write = "cast(? as user_permission[])")
+    @Column(name = "permissions", columnDefinition = "user_permission[]", nullable = false)
+    private PermissionEnum[] permissions = new PermissionEnum[0];
 
     // Long TODO maybe integrate?
     @NotNull
@@ -48,10 +55,10 @@ public class User {
         // Required by JPA
     }
 
-    public User(String passwordHash, String name, short[] permissionIds) {
+    public User(String passwordHash, String name, PermissionEnum[] permissions) {
         this.passwordHash = passwordHash;
         this.name = name;
-        this.permissionIds = permissionIds;
+        this.permissions = permissions;
     }
 
     public long getId() {
@@ -78,12 +85,12 @@ public class User {
         this.name = name;
     }
 
-    public short[] getPermissionIds() {
-        return permissionIds;
+    public PermissionEnum[] getPermissions() {
+        return permissions;
     }
 
-    public void setPermissionIds(short[] permissionIds) {
-        this.permissionIds = permissionIds;
+    public void setPermissions(PermissionEnum[] permissions) {
+        this.permissions = permissions;
     }
 
     public boolean isEnabled() {
@@ -109,7 +116,7 @@ public class User {
                 ", passwordHash='" + passwordHash + '\'' +
                 ", timeCreated=" + timeCreated +
                 ", name='" + name + '\'' +
-                ", permissionIds=" + Arrays.toString(permissionIds) +
+                ", permissions=" + Arrays.toString(permissions) +
                 ", enabled=" + enabled +
                 ", accountNonLocked=" + accountNonLocked +
                 '}';

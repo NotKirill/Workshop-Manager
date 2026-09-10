@@ -1,6 +1,5 @@
-package notkirill.workshopmanager.models.repositories;
+package notkirill.workshopmanager.user.permission;
 
-import notkirill.workshopmanager.models.UserSharedPermission;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
