@@ -61,4 +61,4 @@ application:
           cron: "0 0 0 1 * ? *"
           retention-days: 30
   one-time-code:
-    ttl: 3m
+    default-ttl: 3m

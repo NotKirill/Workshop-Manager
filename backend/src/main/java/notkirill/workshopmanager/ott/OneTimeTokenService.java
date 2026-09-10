@@ -1,11 +1,13 @@
 package notkirill.workshopmanager.ott;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import notkirill.workshopmanager.exception.UnauthorizedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
+import java.time.Duration;
 import java.util.Base64;
 
 @Service
@@ -27,12 +29,16 @@ public class OneTimeTokenService {
     }
 
     public String generateToken(TokenPayload payload) {
+        return generateToken(payload, ottProperties.defaultTtl());
+    }
+
+    public String generateToken(TokenPayload payload, Duration ttl) {
         byte[] bytes = new byte[32];
         secureRandom.nextBytes(bytes);
         String token = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
 
         String redisKey = String.join(":", OTT_KEY_PREFIX, payload.getType(), token);
-        redisTemplate.opsForValue().set(redisKey, payload, ottProperties.ttl());
+        redisTemplate.opsForValue().set(redisKey, payload, ttl);
         return token;
     }
 
@@ -42,7 +48,7 @@ public class OneTimeTokenService {
         TokenPayload cachedPayload = redisTemplate.opsForValue().getAndDelete(redisKey);
 
         if (cachedPayload == null) {
-            throw new IllegalStateException(String.format("Token %s not found", token));
+            throw new UnauthorizedException("INVALID_ONE_TIME_TOKEN", "One-time token is unknown, used or expired");
         }
 
         return payloadClass.cast(cachedPayload);

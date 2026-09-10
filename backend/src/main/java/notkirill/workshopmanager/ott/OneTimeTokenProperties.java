@@ -9,11 +9,11 @@ import java.time.Duration;
 @ConfigurationProperties("application.one-time-code")
 @Validated
 public record OneTimeTokenProperties(
-        @Name("ttl") Duration ttl
+        @Name("default-ttl") Duration defaultTtl
 ) {
     public OneTimeTokenProperties {
-        if (ttl == null) {
-            ttl = Duration.ofMinutes(1);
+        if (defaultTtl == null) {
+            defaultTtl = Duration.ofMinutes(1);
         }
     }
 }
