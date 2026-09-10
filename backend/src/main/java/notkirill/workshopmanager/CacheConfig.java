@@ -60,6 +60,6 @@ public class CacheConfig {
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(
                         new JacksonJsonRedisSerializer<>(objectMapper, UserSecurityDto.class)));
 
-        return RedisCacheManager.builder(connectionFactory).cacheDefaults(conf).build();
+        return RedisCacheManager.builder(connectionFactory).cacheDefaults(conf).transactionAware().build();
     }
 }

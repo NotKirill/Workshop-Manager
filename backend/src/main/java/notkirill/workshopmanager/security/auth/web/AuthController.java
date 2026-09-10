@@ -2,25 +2,18 @@ package notkirill.workshopmanager.security.auth.web;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import notkirill.workshopmanager.ott.OneTimeTokenService;
-import notkirill.workshopmanager.security.auth.ApprovedAuthPayload;
 import notkirill.workshopmanager.security.auth.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
     private final AuthService authService;
-    private final OneTimeTokenService ottService;
 
     @Autowired
-    public AuthController(AuthService authService, OneTimeTokenService ottService) {
+    public AuthController(AuthService authService) {
         this.authService = authService;
-        this.ottService = ottService;
     }
 
     @PostMapping("/login")
@@ -30,8 +23,7 @@ public class AuthController {
 
     @PostMapping("/login-success")
     public AuthResponse loginSuccess(@RequestBody AuthSuccessRequest request, HttpServletRequest servletRequest) {
-        ApprovedAuthPayload payload = ottService.consumeToken(request.ott(), ApprovedAuthPayload.class);
-        return authService.resolveBySource(payload.provider(), payload.providerKey(), servletRequest);
+        return authService.authenticateBySignInToken(request.ott(), servletRequest);
     }
 
     @PostMapping("/refresh")

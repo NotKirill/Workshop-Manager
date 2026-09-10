@@ -1,8 +1,10 @@
 package notkirill.workshopmanager.security;
 
+import notkirill.workshopmanager.security.auth.AuthSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.security.authentication.AccountStatusUserDetailsChecker;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -38,8 +40,13 @@ public class SecurityConfig {
     @Bean
     public AuthenticationProvider authenticationProvider(UserDetailsServiceImpl userDetailsService,
                                                          BCryptPasswordEncoder passwordEncoder) {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(
+                login -> userDetailsService.loadByIdentity(AuthSource.ofLogin(login), login));
         provider.setPasswordEncoder(passwordEncoder);
+        provider.setPreAuthenticationChecks(user -> {
+            // nothing before the password: hides ACCOUNT_LOCKED / ACCOUNT_DISABLED
+        });
+        provider.setPostAuthenticationChecks(new AccountStatusUserDetailsChecker());
 
         return provider;
     }

@@ -1,7 +1,5 @@
 package notkirill.workshopmanager.security;
 
-import jakarta.servlet.http.HttpServletRequest;
-import notkirill.workshopmanager.SpringUtils;
 import notkirill.workshopmanager.security.auth.AuthSource;
 import notkirill.workshopmanager.user.UserFacade;
 import notkirill.workshopmanager.user.dto.UserSecurityDto;
@@ -13,6 +11,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
+import java.util.function.Supplier;
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
@@ -26,23 +25,19 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @NullMarked
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        HttpServletRequest request = SpringUtils.extractRequest();
-        AuthSource authSource = getAuthSource(request);
+    public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
+        return load(() -> userFacade.getForSecurityById(Long.valueOf(userId)));
+    }
 
-        UserSecurityDto userDto;
+    public UserDetails loadByIdentity(AuthSource source, String key) throws UsernameNotFoundException {
+        return load(() -> userFacade.getForSecurityByProvider(source, key));
+    }
+
+    private UserDetails load(Supplier<UserSecurityDto> lookup) {
         try {
-            userDto = authSource != null
-                    ? userFacade.getForSecurityByProvider(authSource, username)
-                    : userFacade.getForSecurityById(Long.valueOf(username));
+            return new UserPrincipal(lookup.get());
         } catch (NoSuchElementException _) {
             throw new UsernameNotFoundException("User not found");
         }
-
-        return new UserPrincipal(userDto);
-    }
-
-    private AuthSource getAuthSource(HttpServletRequest request) {
-        return (AuthSource) request.getAttribute("auth_source");
     }
 }
