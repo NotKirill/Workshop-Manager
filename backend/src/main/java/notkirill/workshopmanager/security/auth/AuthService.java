@@ -10,7 +10,7 @@ import notkirill.workshopmanager.security.auth.web.AuthRequest;
 import notkirill.workshopmanager.security.auth.web.AuthResponse;
 import notkirill.workshopmanager.security.auth.web.LogoutRequest;
 import notkirill.workshopmanager.security.auth.web.RefreshRequest;
-import notkirill.workshopmanager.user.ClientInfoService;
+import notkirill.workshopmanager.security.auth.refresh.ClientInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

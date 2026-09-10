@@ -19,4 +19,6 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, UUID
     List<RefreshToken> findByReplacedByNotNull();
 
     long deleteByExpiresAtLessThan(OffsetDateTime expiresAt);
+
+    long deleteByUserId(long userId);
 }

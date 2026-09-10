@@ -8,6 +8,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.Name;
 import org.springframework.validation.annotation.Validated;
 
+import java.time.Duration;
+
 import static notkirill.workshopmanager.security.auth.refresh.RefreshTokenProperties.CONF_PATH;
 
 @ConfigurationProperties(CONF_PATH)
@@ -26,21 +28,21 @@ public record RefreshTokenProperties(
     public record CleaningJob(
             @Name("enabled") Boolean enabled,
             @Name("cron") @ValidQuartzCron String cron,
-            @Name("retention-days-after-expiration") Integer retentionDaysAfterExpiration
+            @Name("retention-after-expiration") Duration retentionAfterExpiration
     ) {
         public CleaningJob {
             if (enabled == null) {
                 enabled = false;
                 cron = null;
-                retentionDaysAfterExpiration = null;
+                retentionAfterExpiration = null;
             }
 
             if (enabled) {
                 if (cron == null || cron.isBlank()) {
                     throw new IllegalArgumentException("Cron expression cannot be empty when job is enabled");
                 }
-                if (retentionDaysAfterExpiration == null) {
-                    throw new IllegalArgumentException("Retention days cannot be empty when job is enabled");
+                if (retentionAfterExpiration == null) {
+                    throw new IllegalArgumentException("Retention cannot be empty when job is enabled");
                 }
             }
         }

@@ -50,7 +50,7 @@ application:
       cleaning-job:
         enabled: true
         cron: "0 0 0 1 * ? *"
-        retention-days-after-expiration: 30
+        retention-after-expiration: 30d
     openid:
       nonce:
         enable-persistence-validation: true

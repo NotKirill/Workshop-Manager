@@ -1,4 +1,4 @@
-package notkirill.workshopmanager.user;
+package notkirill.workshopmanager.security.auth.refresh;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;

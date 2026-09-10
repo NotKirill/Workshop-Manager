@@ -8,7 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 import java.time.OffsetDateTime;
-import java.time.Period;
 
 @Service
 public class RefreshTokenCleaningService {
@@ -28,6 +27,6 @@ public class RefreshTokenCleaningService {
     @Transactional
     public long clearOldExpiredTokens() {
         return repository.deleteByExpiresAtLessThan(OffsetDateTime.now(clock).minus(
-                Period.ofDays(properties.cleaningJob().retentionDaysAfterExpiration())));
+                properties.cleaningJob().retentionAfterExpiration()));
     }
 }

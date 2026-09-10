@@ -1,9 +1,6 @@
 package notkirill.workshopmanager.security.auth.refresh;
 
-import notkirill.workshopmanager.security.auth.refresh.exception.RefreshTokenExpiredException;
-import notkirill.workshopmanager.security.auth.refresh.exception.RefreshTokenReusedException;
-import notkirill.workshopmanager.security.auth.refresh.exception.RefreshTokenRevokedException;
-import notkirill.workshopmanager.user.ClientInfo;
+import notkirill.workshopmanager.exception.UnauthorizedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,7 +43,7 @@ public class RefreshTokenService {
         String tokenHash = getTokenHash(token);
 
         return repository.findByTokenHash(tokenHash)
-                .orElseThrow(NoSuchElementException::new);
+                .orElseThrow(() -> new UnauthorizedException("REFRESH_TOKEN_UNKNOWN", "Unknown refresh token"));
     }
 
     @Transactional
@@ -73,17 +70,16 @@ public class RefreshTokenService {
         boolean reused = tokenEntity.getReplacedBy() != null;
 
         if (expired) {
-            throw new RefreshTokenExpiredException();
+            throw new UnauthorizedException("REFRESH_TOKEN_EXPIRED", "Refresh token has expired.");
         }
 
         if (revoked) {
             if (reused) {
-
                 revokeAllByFamilyId(tokenEntity.getFamilyId());
-                throw new RefreshTokenReusedException();
+                throw new UnauthorizedException("REFRESH_TOKEN_REUSED", "Refresh token has reused.");
             }
 
-            throw new RefreshTokenRevokedException();
+            throw new UnauthorizedException("REFRESH_TOKEN_REVOKED", "Refresh token has revoked.");
         }
     }
 
@@ -106,6 +102,20 @@ public class RefreshTokenService {
 
     public void revokeAllByUserId(long userId) {
         repository.findByUserId(userId).forEach(this::revokeToken);
+    }
+
+    public void revokeOtherSessions(long userId, String currentToken) {
+        UUID keptFamilyId = currentToken == null ? null : repository.findByTokenHash(getTokenHash(currentToken))
+                .filter(token -> token.getUserId() == userId)
+                .map(RefreshToken::getFamilyId)
+                .orElse(null);
+        repository.findByUserId(userId).stream()
+                .filter(token -> token.getRevokedAt() == null && !token.getFamilyId().equals(keptFamilyId))
+                .forEach(this::revokeToken);
+    }
+
+    public void deleteAllByUserId(long userId) {
+        repository.deleteByUserId(userId);
     }
 
     public void revokeAllByFamilyId(UUID familyId) {

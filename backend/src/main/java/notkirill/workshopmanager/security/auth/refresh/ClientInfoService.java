@@ -1,4 +1,4 @@
-package notkirill.workshopmanager.user;
+package notkirill.workshopmanager.security.auth.refresh;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
@@ -10,16 +10,7 @@ import java.net.UnknownHostException;
 public class ClientInfoService {
 
     public ClientInfo getClientInfo(HttpServletRequest request) {
-        return extractClientInfo(request);
-    }
-
-    private ClientInfo extractClientInfo(HttpServletRequest request) {
-        String ip = request.getHeader("X-Forwarded-For");
-        if (ip == null || ip.isBlank()) {
-            ip = request.getRemoteAddr();
-        } else {
-            ip = ip.split(",")[0].trim();
-        }
+        String ip = request.getRemoteAddr();
 
         InetAddress ipAddress;
         try {
