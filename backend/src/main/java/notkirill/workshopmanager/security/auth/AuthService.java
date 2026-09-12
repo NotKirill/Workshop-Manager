@@ -10,6 +10,7 @@ import notkirill.workshopmanager.security.auth.refresh.NewRefreshTokenDto;
 import notkirill.workshopmanager.security.auth.refresh.RefreshToken;
 import notkirill.workshopmanager.security.auth.refresh.RefreshTokenService;
 import notkirill.workshopmanager.security.auth.web.*;
+import notkirill.workshopmanager.user.UserAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.DisabledException;
@@ -34,12 +35,14 @@ public class AuthService {
 
     private final AuthenticationManager authenticationManager;
     private final UserDetailsServiceImpl userDetailsService;
+    private final UserAccountService accountService;
 
     @Autowired
     public AuthService(AuthNormalizer authNormalizer, AuthValidator authValidator, JwtService jwtService,
                        RefreshTokenService refreshTokenService,
                        ClientInfoService clientInfoService, OneTimeTokenService ottService,
-                       AuthenticationManager authenticationManager, UserDetailsServiceImpl userDetailsService) {
+                       AuthenticationManager authenticationManager, UserDetailsServiceImpl userDetailsService,
+                       UserAccountService accountService) {
         this.authNormalizer = authNormalizer;
         this.authValidator = authValidator;
         this.jwtService = jwtService;
@@ -48,11 +51,17 @@ public class AuthService {
         this.ottService = ottService;
         this.authenticationManager = authenticationManager;
         this.userDetailsService = userDetailsService;
+        this.accountService = accountService;
     }
 
     public AuthResponse authenticateByAuthRequest(AuthRequest request, HttpServletRequest servletRequest) {
         UserDetails user = authenticate(request);
         return approveAuthentication(servletRequest, user);
+    }
+
+    public void changePasswordBySignIn(PasswordChangeRequest request) {
+        UserDetails user = authenticate(new AuthRequest(request.login(), request.currentPassword()));
+        accountService.resetPassword(Long.parseLong(user.getUsername()), request.newPassword());
     }
 
     public AuthResponse authenticateBySignInToken(String ott, HttpServletRequest servletRequest) {
