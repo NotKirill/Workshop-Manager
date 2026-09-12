@@ -62,3 +62,9 @@ application:
           retention-days: 30
   one-time-code:
     default-ttl: 3m
+  bootstrap:
+    admin:
+      username: ${BOOTSTRAP_ADMIN_USERNAME:}
+      password: ${BOOTSTRAP_ADMIN_PASSWORD:}
+      name: Administrator
+      steam-id: ${BOOTSTRAP_ADMIN_STEAM_ID:}
