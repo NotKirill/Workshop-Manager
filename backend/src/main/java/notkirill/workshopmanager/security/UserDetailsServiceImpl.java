@@ -1,7 +1,7 @@
 package notkirill.workshopmanager.security;
 
 import notkirill.workshopmanager.security.auth.AuthSource;
-import notkirill.workshopmanager.user.UserFacade;
+import notkirill.workshopmanager.user.UserSecurityService;
 import notkirill.workshopmanager.user.dto.UserSecurityDto;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,21 +16,21 @@ import java.util.function.Supplier;
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-    private final UserFacade userFacade;
+    private final UserSecurityService userSecurityService;
 
     @Autowired
-    public UserDetailsServiceImpl(UserFacade userFacade) {
-        this.userFacade = userFacade;
+    public UserDetailsServiceImpl(UserSecurityService userSecurityService) {
+        this.userSecurityService = userSecurityService;
     }
 
     @NullMarked
     @Override
     public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
-        return load(() -> userFacade.getForSecurityById(Long.valueOf(userId)));
+        return load(() -> userSecurityService.getForSecurityById(Long.valueOf(userId)));
     }
 
     public UserDetails loadByIdentity(AuthSource source, String key) throws UsernameNotFoundException {
-        return load(() -> userFacade.getForSecurityByProvider(source, key));
+        return load(() -> userSecurityService.getForSecurityByProvider(source, key));
     }
 
     private UserDetails load(Supplier<UserSecurityDto> lookup) {
