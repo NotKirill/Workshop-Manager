@@ -19,6 +19,8 @@ spring:
       host: localhost
       port: 6380
       password: devpass
+      timeout: 1s
+      connect-timeout: 2s
   quartz:
     job-store-type: jdbc
     jdbc:
