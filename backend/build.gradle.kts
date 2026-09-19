@@ -31,6 +31,9 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt-api:0.13.0")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("org.springframework.boot:spring-boot-starter-quartz")
+    implementation("com.bucket4j:bucket4j_jdk17-core:8.20.0")
+    implementation("com.bucket4j:bucket4j_jdk17-redis-common:8.20.0")
+    implementation("com.bucket4j:bucket4j_jdk17-lettuce:8.20.0")
     runtimeOnly("org.postgresql:postgresql")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.13.0")
     // CVE fix in dependency manager

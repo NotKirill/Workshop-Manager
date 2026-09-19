@@ -2,6 +2,7 @@ package notkirill.workshopmanager.security.auth.provider.steam;
 
 import jakarta.servlet.http.HttpServletRequest;
 import notkirill.workshopmanager.ott.OneTimeTokenService;
+import notkirill.workshopmanager.ratelimit.ApiClientConfig;
 import notkirill.workshopmanager.security.auth.ApprovedAuthPayload;
 import notkirill.workshopmanager.security.auth.AuthSource;
 import notkirill.workshopmanager.security.auth.openid.OpenIdMode;
@@ -12,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -40,7 +42,8 @@ public class SteamOpenIdService {
 
     @Autowired
     public SteamOpenIdService(OpenIdNonceService nonceService, OpenIdValidator openIdValidator,
-                              OneTimeTokenService tokenService, RestClient restClient) {
+                              OneTimeTokenService tokenService,
+                              @Qualifier(ApiClientConfig.STEAM_COMMUNITY_API_CLIENT) RestClient restClient) {
         this.nonceService = nonceService;
         this.openIdValidator = openIdValidator;
         this.tokenService = tokenService;
