@@ -1,0 +1,33 @@
+databaseChangeLog:
+  - changeSet:
+      id: "015"
+      author: NotKirill
+      changes:
+        - dropTable:
+            tableName: third_party_rate_limits
+      rollback:
+        - createTable:
+            tableName: third_party_rate_limits
+            columns:
+              - column:
+                  name: service_name
+                  type: TEXT
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_third_party_rate_limit
+                    nullable: false
+              - column:
+                  name: used_requests
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+              - column:
+                  name: window_started_at
+                  type: TIMESTAMPTZ
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_request_at
+                  type: TIMESTAMPTZ
+                  constraints:
+                    nullable: false
