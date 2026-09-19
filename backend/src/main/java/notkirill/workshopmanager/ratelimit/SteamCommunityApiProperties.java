@@ -19,6 +19,7 @@ public record SteamCommunityApiProperties(
         profile = ApiProfile.builder()
                 .quota(QuotaProfile.builder().maxRequests(60).window(Duration.ofMinutes(1)).backgroundShare(
                         1.0).build())
+                .retry(RetryProfile.builder().maxAttempts(1).build())
                 .override(profile)
                 .build();
     }

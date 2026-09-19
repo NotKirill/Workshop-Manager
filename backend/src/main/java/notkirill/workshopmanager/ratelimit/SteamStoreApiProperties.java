@@ -18,6 +18,9 @@ public record SteamStoreApiProperties(
         profile = ApiProfile.builder()
                 .baseUrl(URI.create("https://store.steampowered.com"))
                 .quota(QuotaProfile.builder().maxRequests(150).window(Duration.ofMinutes(5)).build())
+                .circuitBreaker(CircuitBreakerProfile.builder()
+                                        .minimumCalls(3).windowSize(5).halfOpenCalls(1).openDuration(
+                                Duration.ofMinutes(10)).build())
                 .override(profile)
                 .build();
     }

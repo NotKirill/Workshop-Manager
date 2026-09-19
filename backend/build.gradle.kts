@@ -34,6 +34,8 @@ dependencies {
     implementation("com.bucket4j:bucket4j_jdk17-core:8.20.0")
     implementation("com.bucket4j:bucket4j_jdk17-redis-common:8.20.0")
     implementation("com.bucket4j:bucket4j_jdk17-lettuce:8.20.0")
+    implementation("io.github.resilience4j:resilience4j-retry:2.4.0")
+    implementation("io.github.resilience4j:resilience4j-circuitbreaker:2.4.0")
     runtimeOnly("org.postgresql:postgresql")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.13.0")
     // CVE fix in dependency manager

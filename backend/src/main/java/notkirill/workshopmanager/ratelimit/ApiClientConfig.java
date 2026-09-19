@@ -1,5 +1,7 @@
 package notkirill.workshopmanager.ratelimit;
 
+import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
+import io.github.resilience4j.retry.RetryRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,10 +17,15 @@ public class ApiClientConfig {
     public static final String STEAM_COMMUNITY_API_CLIENT = "steamCommunityApiRestClient";
 
     private final ThirdPartyRateLimitService rateLimitService;
+    private final CircuitBreakerRegistry circuitBreakerRegistry;
+    private final RetryRegistry retryRegistry;
 
     @Autowired
-    public ApiClientConfig(ThirdPartyRateLimitService rateLimitService) {
+    public ApiClientConfig(ThirdPartyRateLimitService rateLimitService, CircuitBreakerRegistry circuitBreakerRegistry,
+                           RetryRegistry retryRegistry) {
         this.rateLimitService = rateLimitService;
+        this.circuitBreakerRegistry = circuitBreakerRegistry;
+        this.retryRegistry = retryRegistry;
     }
 
     @Bean(STEAM_WEB_API_CLIENT)
@@ -49,7 +56,11 @@ public class ApiClientConfig {
         RestClient.Builder clientBuilder = RestClient.builder()
                 .requestFactory(requestFactory)
                 .defaultHeader("User-Agent", "WorkshopManager/1.0")
-                .requestInterceptor(new ThirdPartyInterceptor(api, rateLimitService));
+                .requestInterceptor(new ThirdPartyInterceptor(
+                        api, rateLimitService,
+                        profile.circuitBreakerProfile().create(circuitBreakerRegistry, api.getBeanName()),
+                        profile.retry().create(retryRegistry, api.getBeanName())
+                ));
         if (profile.baseUrl() != null) {
             clientBuilder.baseUrl(profile.baseUrl());
         }

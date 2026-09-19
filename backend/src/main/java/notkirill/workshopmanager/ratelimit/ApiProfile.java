@@ -10,7 +10,9 @@ public record ApiProfile(
         @Name("base-url") URI baseUrl,
         @Name("connect-timeout") Duration connectTimeout,
         @Name("read-timeout") Duration readTimeout,
-        @Name("quota") @Valid QuotaProfile quotaProfile
+        @Name("quota") @Valid QuotaProfile quotaProfile,
+        @Name("circuit-breaker") @Valid CircuitBreakerProfile circuitBreakerProfile,
+        @Name("retry") @Valid RetryProfile retry
 ) {
     public static ApiProfile.Builder builder() {
         return new ApiProfile.Builder();
@@ -21,6 +23,8 @@ public record ApiProfile(
         private Duration connectTimeout = Duration.ofSeconds(20);
         private Duration readTimeout = Duration.ofSeconds(20);
         private QuotaProfile quota = new QuotaProfile(null, null, null);
+        private CircuitBreakerProfile circuitBreakerProfile = CircuitBreakerProfile.builder().build();
+        private RetryProfile retry = RetryProfile.builder().build();
 
         private Builder() {
         }
@@ -53,6 +57,21 @@ public record ApiProfile(
             return this;
         }
 
+        public ApiProfile.Builder circuitBreaker(
+                CircuitBreakerProfile circuitBreakerProfile) {
+            if (circuitBreakerProfile != null) {
+                this.circuitBreakerProfile = circuitBreakerProfile;
+            }
+            return this;
+        }
+
+        public ApiProfile.Builder retry(RetryProfile retry) {
+            if (retry != null) {
+                this.retry = retry;
+            }
+            return this;
+        }
+
         public ApiProfile.Builder override(ApiProfile configured) {
             if (configured == null) {
                 return this;
@@ -60,11 +79,13 @@ public record ApiProfile(
             return baseUrl(configured.baseUrl())
                     .connectTimeout(configured.connectTimeout())
                     .readTimeout(configured.readTimeout())
-                    .quota(configured.quotaProfile());
+                    .quota(configured.quotaProfile())
+                    .circuitBreaker(configured.circuitBreakerProfile())
+                    .retry(configured.retry());
         }
 
         public ApiProfile build() {
-            return new ApiProfile(baseUrl, connectTimeout, readTimeout, quota);
+            return new ApiProfile(baseUrl, connectTimeout, readTimeout, quota, circuitBreakerProfile, retry);
         }
     }
 }
