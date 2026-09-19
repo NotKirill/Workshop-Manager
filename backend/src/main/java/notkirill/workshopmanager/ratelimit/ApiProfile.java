@@ -79,9 +79,10 @@ public record ApiProfile(
             return baseUrl(configured.baseUrl())
                     .connectTimeout(configured.connectTimeout())
                     .readTimeout(configured.readTimeout())
-                    .quota(configured.quotaProfile())
-                    .circuitBreaker(configured.circuitBreakerProfile())
-                    .retry(configured.retry());
+                    .quota(quota.toBuilder().override(configured.quotaProfile()).build())
+                    .circuitBreaker(circuitBreakerProfile.toBuilder()
+                            .override(configured.circuitBreakerProfile()).build())
+                    .retry(retry.toBuilder().override(configured.retry()).build());
         }
 
         public ApiProfile build() {
