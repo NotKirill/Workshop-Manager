@@ -133,6 +133,30 @@ class ThirdPartyInterceptorTest {
         assertThat(circuitBreaker.getMetrics().getNumberOfFailedCalls()).isZero();
     }
 
+    @Test
+    void callMarkedNoRetryIsSentOnceAndTakesOneQuotaToken() {
+        setUp(10, RETRY);
+        server.expect(once(), requestTo(URL)).andRespond(withStatus(HttpStatus.BAD_GATEWAY));
+
+        assertThatThrownBy(() -> client.post().uri(URL).attribute(ThirdPartyInterceptor.NO_RETRY, true)
+                .retrieve().body(String.class)).isInstanceOf(HttpServerErrorException.class);
+
+        server.verify();
+        assertThat(rateLimitService.getBucketStatuses().getFirst().availableTokens()).isEqualTo(9);
+        assertThat(circuitBreaker.getMetrics().getNumberOfFailedCalls()).isEqualTo(1);
+    }
+
+    @Test
+    void timeoutOfCallMarkedNoRetryIsNotRepeated() {
+        setUp(10, RETRY);
+        server.expect(once(), requestTo(URL)).andRespond(withException(new SocketTimeoutException("timeout")));
+
+        assertThatThrownBy(() -> client.post().uri(URL).attribute(ThirdPartyInterceptor.NO_RETRY, true)
+                .retrieve().body(String.class)).isInstanceOf(ResourceAccessException.class);
+
+        server.verify();
+    }
+
     private String get() {
         return client.get().uri(URL).retrieve().body(String.class);
     }

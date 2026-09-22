@@ -4,6 +4,7 @@ import notkirill.workshopmanager.FrontendProperties;
 import notkirill.workshopmanager.exception.BadRequestException;
 import notkirill.workshopmanager.exception.ExternalServiceException;
 import notkirill.workshopmanager.ott.OneTimeTokenService;
+import notkirill.workshopmanager.ratelimit.ThirdPartyInterceptor;
 import notkirill.workshopmanager.ratelimit.exception.RateLimitExceededException;
 import notkirill.workshopmanager.security.auth.ApprovedAuthPayload;
 import notkirill.workshopmanager.security.auth.AuthSource;
@@ -145,6 +146,16 @@ class SteamOpenIdServiceTest {
         assertThatThrownBy(() -> service.authenticateLogin(validCallback()))
                 .isInstanceOf(IllegalArgumentException.class);
         verifyNoInteractions(tokenService);
+    }
+
+    @Test
+    void checkWithSteamIsMarkedNoRetry() {
+        when(steamResponse.body(String.class)).thenThrow(new HttpServerErrorException(HttpStatus.SERVICE_UNAVAILABLE));
+
+        assertThatThrownBy(() -> service.authenticateLogin(validCallback()))
+                .isInstanceOf(ExternalServiceException.class);
+        verify(steamRequest).attribute(ThirdPartyInterceptor.NO_RETRY, true);
+        verify(steamResponse, times(1)).body(String.class);
     }
 
     @Test

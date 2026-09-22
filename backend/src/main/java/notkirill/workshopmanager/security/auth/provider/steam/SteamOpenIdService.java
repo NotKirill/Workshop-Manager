@@ -5,6 +5,7 @@ import notkirill.workshopmanager.exception.BadRequestException;
 import notkirill.workshopmanager.exception.ExternalServiceException;
 import notkirill.workshopmanager.ott.OneTimeTokenService;
 import notkirill.workshopmanager.ratelimit.ApiClientConfig;
+import notkirill.workshopmanager.ratelimit.ThirdPartyInterceptor;
 import notkirill.workshopmanager.security.auth.ApprovedAuthPayload;
 import notkirill.workshopmanager.security.auth.AuthSource;
 import notkirill.workshopmanager.security.auth.openid.OpenIdMode;
@@ -239,6 +240,7 @@ public class SteamOpenIdService {
         try {
             return restClient.post()
                     .uri(STEAM_OPENID_ENDPOINT + "/login")
+                    .attribute(ThirdPartyInterceptor.NO_RETRY, true)
                     .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                     .body(form)
                     .retrieve()

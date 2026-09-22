@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 public class ThirdPartyInterceptor implements ClientHttpRequestInterceptor {
+    public static final String NO_RETRY = "third-party.no-retry";
+
     private final ThirdPartyApi api;
     private final ThirdPartyRateLimitService rateLimitService;
     private final CircuitBreaker circuitBreaker;
@@ -40,8 +42,11 @@ public class ThirdPartyInterceptor implements ClientHttpRequestInterceptor {
 
         long start = System.nanoTime();
         ClientHttpResponse response;
+        boolean once = Boolean.TRUE.equals(request.getAttributes().get(NO_RETRY));
         try {
-            response = retry.executeCheckedSupplier(() -> send(request, body, execution));
+            response = once
+                    ? send(request, body, execution)
+                    : retry.executeCheckedSupplier(() -> send(request, body, execution));
         } catch (RateLimitExceededException | ServiceUnavailableException e) {
             circuitBreaker.releasePermission();
             throw e;
