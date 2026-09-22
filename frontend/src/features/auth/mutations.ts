@@ -37,7 +37,7 @@ export const useLoginSuccess = () =>
 export const useSteamLogin = () =>
     useMutation({
         mutationFn: () =>
-            authApi.loginBySteam(),
+            authApi.loginBySteam(steamOpenIdService.createLoginState()),
 
         onSuccess: (data) => steamOpenIdService.redirectToSteamLogin(data.url),
     });

@@ -8,7 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 import java.time.OffsetDateTime;
-import java.time.Period;
 
 @Service
 public class OpenIdNonceCleaningService {
@@ -28,6 +27,6 @@ public class OpenIdNonceCleaningService {
     @Transactional
     public long clearOldNonce() {
         return repository.deleteByRegisteredAtLessThan(OffsetDateTime.now(clock).minus(
-                Period.ofDays(properties.nonce().cleaningJob().retentionDays())));
+                properties.nonce().cleaningJob().retention()));
     }
 }

@@ -55,13 +55,12 @@ application:
         retention-after-expiration: 30d
     openid:
       nonce:
-        enable-persistence-validation: true
         max-age-minutes: 5
         allowed-future-skew-minutes: 5
         cleaning-job:
           enabled: true
           cron: "0 0 0 1 * ? *"
-          retention-days: 30
+          retention: 30d
   one-time-code:
     default-ttl: 3m
   bootstrap:

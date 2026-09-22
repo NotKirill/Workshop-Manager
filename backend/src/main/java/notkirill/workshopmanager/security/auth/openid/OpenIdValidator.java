@@ -2,7 +2,6 @@ package notkirill.workshopmanager.security.auth.openid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.time.Clock;
@@ -43,18 +42,19 @@ public class OpenIdValidator {
         }
     }
 
-    public void validateReturnTo(String returnTo) {
+    public void validateReturnTo(String returnTo, String expectedReturnTo) {
         if (returnTo == null || returnTo.isBlank()) {
             throw new IllegalArgumentException("OpenID 'return_to' cannot be empty");
         }
 
-        URI actualUri = ServletUriComponentsBuilder.fromCurrentRequestUri()
-                .replaceQuery(null)
-                .fragment(null)
-                .build().toUri();
-        URI expectedUri = URI.create(returnTo);
+        URI actualUri;
+        try {
+            actualUri = URI.create(returnTo);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid OpenID 'return_to': " + returnTo, e);
+        }
 
-        if (!expectedUri.equals(actualUri)) {
+        if (!URI.create(expectedReturnTo).equals(actualUri)) {
             throw new IllegalArgumentException("Invalid OpenID 'return_to': " + returnTo);
         }
     }

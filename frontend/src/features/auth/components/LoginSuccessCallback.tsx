@@ -1,6 +1,7 @@
 import {useEffect, useRef} from "react";
 import {useNavigate, useSearchParams} from "react-router";
 import {useLoginSuccess} from "@/features/auth/mutations.ts";
+import steamOpenIdService from "@/features/auth/providers/steam/service.ts";
 
 function LoginSuccessCallback() {
     const navigate = useNavigate();
@@ -18,6 +19,11 @@ function LoginSuccessCallback() {
         if (!token) {
             // TODO
             void navigate("/login?error=missing_token", {replace: true});
+            return;
+        }
+
+        if (!steamOpenIdService.consumeLoginState(searchParams.get("state"))) {
+            void navigate("/login?error=foreign_flow", {replace: true});
             return;
         }
 

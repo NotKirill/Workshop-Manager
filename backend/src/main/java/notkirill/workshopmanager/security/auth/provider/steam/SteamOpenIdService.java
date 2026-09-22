@@ -1,6 +1,8 @@
 package notkirill.workshopmanager.security.auth.provider.steam;
 
-import jakarta.servlet.http.HttpServletRequest;
+import notkirill.workshopmanager.FrontendProperties;
+import notkirill.workshopmanager.exception.BadRequestException;
+import notkirill.workshopmanager.exception.ExternalServiceException;
 import notkirill.workshopmanager.ott.OneTimeTokenService;
 import notkirill.workshopmanager.ratelimit.ApiClientConfig;
 import notkirill.workshopmanager.security.auth.ApprovedAuthPayload;
@@ -9,17 +11,19 @@ import notkirill.workshopmanager.security.auth.openid.OpenIdMode;
 import notkirill.workshopmanager.security.auth.openid.OpenIdNonceService;
 import notkirill.workshopmanager.security.auth.openid.OpenIdValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,41 +31,61 @@ import java.util.regex.Pattern;
 // Maybe TODO we can abstract it to OpenID 2.0 workflow with a discovery feature, but we don't need that right now
 @Service
 public class SteamOpenIdService {
+    public static final String BASE_PATH = "/api/auth/steam";
+    public static final String LOGIN_CALLBACK = "/login-callback";
+
     private static final String OPENID_NAMESPACE = "http://specs.openid.net/auth/2.0";
     private static final String OPENID_IDENTIFIER_SELECT = OPENID_NAMESPACE + "/identifier_select";
 
     private static final String STEAM_OPENID_ENDPOINT = "https://steamcommunity.com/openid";
     private static final Pattern STEAM_CLAIMED_ID_PATTERN =
             Pattern.compile("^https://steamcommunity\\.com/openid/id/(\\d+)$");
+    private static final Pattern LOGIN_STATE_PATTERN = Pattern.compile("^[A-Za-z0-9_-]{16,128}$");
+    private static final Set<String> REQUIRED_SIGNED_FIELDS = Set.of(
+            "op_endpoint", "claimed_id", "identity", "return_to", "response_nonce", "assoc_handle");
 
     private final OpenIdNonceService nonceService;
     private final OpenIdValidator openIdValidator;
     private final OneTimeTokenService tokenService;
-
+    private final FrontendProperties frontendProperties;
     private final RestClient restClient;
 
     @Autowired
     public SteamOpenIdService(OpenIdNonceService nonceService, OpenIdValidator openIdValidator,
-                              OneTimeTokenService tokenService,
+                              OneTimeTokenService tokenService, FrontendProperties frontendProperties,
                               @Qualifier(ApiClientConfig.STEAM_COMMUNITY_API_CLIENT) RestClient restClient) {
         this.nonceService = nonceService;
         this.openIdValidator = openIdValidator;
         this.tokenService = tokenService;
+        this.frontendProperties = frontendProperties;
         this.restClient = restClient;
     }
 
-    public String constructRedirect(String callbackPath) {
-        String realm = ServletUriComponentsBuilder.fromCurrentContextPath()
-                .replacePath(null)
-                .toUriString();
-        String returnUrl = realm + callbackPath;
+    private static void validateLoginState(String state) {
+        if (state == null || !LOGIN_STATE_PATTERN.matcher(state).matches()) {
+            throw new BadRequestException("INVALID_SIGN_IN_STATE", "Invalid sign-in state");
+        }
+    }
 
+    public String constructLoginRedirect(String clientState) {
+        validateLoginState(clientState);
+        return constructRedirect(loginCallbackUrl(clientState));
+    }
+
+    public String authenticateLogin(MultiValueMap<String, String> params) {
+        String state = params.getFirst("state");
+        validateLoginState(state);
+        String steamId = verify(params, loginCallbackUrl(state));
+        return tokenService.generateToken(new ApprovedAuthPayload(AuthSource.STEAM, steamId));
+    }
+
+    private String constructRedirect(String returnUrl) {
         return UriComponentsBuilder
                 .fromUriString(STEAM_OPENID_ENDPOINT + "/login")
                 .queryParam("openid.ns", OPENID_NAMESPACE)
                 .queryParam("openid.mode", OpenIdMode.CHECKID_SETUP.getValue())
                 .queryParam("openid.return_to", returnUrl)
-                .queryParam("openid.realm", realm)
+                .queryParam("openid.realm", realm())
                 .queryParam(
                         "openid.identity",
                         OPENID_IDENTIFIER_SELECT
@@ -70,47 +94,57 @@ public class SteamOpenIdService {
                         "openid.claimed_id",
                         OPENID_IDENTIFIER_SELECT
                 )
+                .encode()
                 .build()
                 .toUriString();
     }
 
-    public String authenticate(HttpServletRequest servletRequest) {
-        validateOpenIdResponse(servletRequest);
-
-        String steamId = extractSteamId(servletRequest.getParameter("openid.claimed_id"));
-        validateNonceAsFull(servletRequest.getParameter("openid.response_nonce"));
-        verifyWithSteam(servletRequest);
-
-        return tokenService.generateToken(new ApprovedAuthPayload(AuthSource.STEAM, steamId));
-    }
-
-    private void validateOpenIdResponse(HttpServletRequest request) {
-        openIdValidator.validateNamespace(request.getParameter("openid.ns"), OPENID_NAMESPACE);
-        openIdValidator.validateMode(request.getParameter("openid.mode"));
-        openIdValidator.validateReturnTo(request.getParameter("openid.return_to"));
+    private String verify(MultiValueMap<String, String> params, String expectedReturnTo) {
+        openIdValidator.validateNamespace(params.getFirst("openid.ns"), OPENID_NAMESPACE);
+        openIdValidator.validateMode(params.getFirst("openid.mode"));
         openIdValidator.validateEndpoint(
-                request.getParameter("openid.op_endpoint"),
+                params.getFirst("openid.op_endpoint"),
                 STEAM_OPENID_ENDPOINT + "/login"
         );
-//        String mode = request.getParameter("openid.mode");
-//
-//        if ("cancel".equals(mode)) {
-////            return "redirect:/login?error=cancelled";
-//        }
-//
-//        if (!"id_res".equals(mode)) {
-////            return "redirect:/login?error=invalid_response";
-//        }
-    }
+        openIdValidator.validateReturnTo(params.getFirst("openid.return_to"), expectedReturnTo);
+        validateSignedFields(params.getFirst("openid.signed"));
 
-    private void validateNonceAsFull(String nonce) {
+        String claimedId = params.getFirst("openid.claimed_id");
+        if (!Objects.equals(claimedId, params.getFirst("openid.identity"))) {
+            throw new IllegalArgumentException("OpenID 'claimed_id' and 'identity' differ");
+        }
+        String steamId = extractSteamId(claimedId);
+
+        String nonce = params.getFirst("openid.response_nonce");
         openIdValidator.validateNonceAsBasic(nonce);
-
         if (nonceService.existByNonce(nonce, STEAM_OPENID_ENDPOINT)) {
             throw new IllegalArgumentException("OpenID nonce already used");
         }
 
-        nonceService.create(nonce, STEAM_OPENID_ENDPOINT);
+        verifyWithSteam(params);
+
+        if (!nonceService.tryRegister(nonce, STEAM_OPENID_ENDPOINT)) {
+            throw new IllegalArgumentException("OpenID nonce already used");
+        }
+        return steamId;
+    }
+
+    private void validateSignedFields(String signed) {
+        if (signed == null || signed.isBlank()) {
+            throw new IllegalArgumentException("OpenID 'signed' cannot be empty");
+        }
+        Set<String> signedFields = Set.of(signed.split(","));
+        if (!signedFields.containsAll(REQUIRED_SIGNED_FIELDS)) {
+            throw new IllegalArgumentException("OpenID signature does not cover all identity fields: " + signed);
+        }
+    }
+
+    private String realm() {
+        return frontendProperties.url().toString();
+    }
+
+    private String loginCallbackUrl(String state) {
+        return realm() + BASE_PATH + LOGIN_CALLBACK + "?state=" + state;
     }
 
     private String extractSteamId(String claimedId) {
@@ -127,8 +161,8 @@ public class SteamOpenIdService {
         return matcher.group(1);
     }
 
-    private void verifyWithSteam(HttpServletRequest request) {
-        String response = sendAssertionToSteam(request);
+    private void verifyWithSteam(MultiValueMap<String, String> params) {
+        String response = sendAssertionToSteam(params);
 
         if (response == null || response.isBlank()) {
             throw new IllegalArgumentException("OpenID response cannot be empty");
@@ -161,28 +195,32 @@ public class SteamOpenIdService {
         }
     }
 
-    private String sendAssertionToSteam(HttpServletRequest request) {
+    private String sendAssertionToSteam(MultiValueMap<String, String> params) {
         MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
 
-        request.getParameterMap().forEach((name, values) -> {
+        params.forEach((name, values) -> {
             if (!name.startsWith("openid.")) {
                 return;
             }
 
-            if (values.length != 1) {
+            if (values.size() != 1) {
                 throw new IllegalArgumentException("Duplicate OpenID parameter: " + name);
             }
 
-            form.add(name, values[0]);
+            form.add(name, values.getFirst());
         });
 
         form.set("openid.mode", "check_authentication");
 
-        return restClient.post()
-                .uri(STEAM_OPENID_ENDPOINT + "/login")
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .body(form)
-                .retrieve()
-                .body(String.class);
+        try {
+            return restClient.post()
+                    .uri(STEAM_OPENID_ENDPOINT + "/login")
+                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                    .body(form)
+                    .retrieve()
+                    .body(String.class);
+        } catch (RestClientException e) {
+            throw ExternalServiceException.of("STEAM_OPENID_ERROR", "Steam OpenID check failed", e);
+        }
     }
 }

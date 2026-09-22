@@ -27,8 +27,8 @@ export const authApi = {
     },
 
     // Long TODO maybe make an general type of redirection?
-    loginBySteam: async (): Promise<{ url: string }> => {
-        const response = await publicApi.get<{ url: string }>("/auth/steam");
+    loginBySteam: async (state: string): Promise<{ url: string }> => {
+        const response = await publicApi.get<{ url: string }>("/auth/steam", {params: {state}});
 
         return response.data;
     },

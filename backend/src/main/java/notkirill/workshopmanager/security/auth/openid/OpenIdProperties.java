@@ -8,6 +8,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.Name;
 import org.springframework.validation.annotation.Validated;
 
+import java.time.Duration;
+
 @ConfigurationProperties(OpenIdProperties.CONF_PATH)
 @Validated
 public record OpenIdProperties(
@@ -36,21 +38,21 @@ public record OpenIdProperties(
         public record CleaningJob(
                 @Name("enabled") Boolean enabled,
                 @Name("cron") @ValidQuartzCron String cron,
-                @Name("retention-days") Integer retentionDays
+                @Name("retention") Duration retention
         ) {
             public CleaningJob {
                 if (enabled == null) {
                     enabled = false;
                     cron = null;
-                    retentionDays = null;
+                    retention = null;
                 }
 
                 if (enabled) {
                     if (cron == null || cron.isBlank()) {
                         throw new IllegalArgumentException("Cron expression cannot be empty when job is enabled");
                     }
-                    if (retentionDays == null) {
-                        throw new IllegalArgumentException("Retention days cannot be empty when job is enabled");
+                    if (retention == null) {
+                        throw new IllegalArgumentException("Retention cannot be empty when job is enabled");
                     }
                 }
             }
