@@ -23,6 +23,7 @@ import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
 
@@ -59,10 +60,10 @@ class SteamOpenIdServiceTest {
         when(restClient.post()).thenReturn(steamRequest);
         when(steamRequest.retrieve()).thenReturn(steamResponse);
         Clock clock = Clock.fixed(NOW, ZoneOffset.UTC);
-        OpenIdProperties openIdProperties = new OpenIdProperties(null);
+        OpenIdProperties openIdProperties = new OpenIdProperties(null, Duration.ofMinutes(15));
         service = new SteamOpenIdService(
                 nonceService, new OpenIdValidator(clock, openIdProperties),
-                tokenService, new FrontendProperties(URI.create("https://wm.example")), restClient
+                tokenService, new FrontendProperties(URI.create("https://wm.example")), openIdProperties, restClient
         );
 
         when(nonceService.existByNonce(anyString(), anyString())).thenReturn(false);

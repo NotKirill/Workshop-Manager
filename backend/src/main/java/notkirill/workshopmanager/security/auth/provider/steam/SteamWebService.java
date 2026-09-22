@@ -55,6 +55,19 @@ public class SteamWebService {
         }
     }
 
+    public String finishLink(MultiValueMap<String, String> params) {
+        if (isCancelled(params)) {
+            return frontendUrl("/profile", Map.of("error", "steam_cancelled"));
+        }
+        try {
+            String token = steamOpenIdService.authenticateLink(params);
+            return frontendUrl("/profile/link-steam", Map.of("ott", token));
+        } catch (RuntimeException e) {
+            log.warn("Steam OpenID link failed: {}", e.getMessage());
+            return frontendUrl("/profile", Map.of("error", errorCode(e)));
+        }
+    }
+
     private String frontendUrl(String path, Map<String, String> params) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromUri(frontendProperties.url()).path(path);
         params.forEach(builder::queryParam);

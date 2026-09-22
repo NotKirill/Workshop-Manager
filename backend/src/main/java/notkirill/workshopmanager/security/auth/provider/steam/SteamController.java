@@ -31,4 +31,10 @@ public class SteamController {
             throws IOException {
         servletResponse.sendRedirect(steamWebService.finishLogin(params));
     }
+
+    @GetMapping(SteamOpenIdService.LINK_CALLBACK)
+    public void linkCallback(@RequestParam MultiValueMap<String, String> params,
+                             HttpServletResponse servletResponse) throws IOException {
+        servletResponse.sendRedirect(steamWebService.finishLink(params));
+    }
 }

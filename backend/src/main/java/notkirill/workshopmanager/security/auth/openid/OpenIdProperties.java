@@ -13,7 +13,8 @@ import java.time.Duration;
 @ConfigurationProperties(OpenIdProperties.CONF_PATH)
 @Validated
 public record OpenIdProperties(
-        @Name("nonce") @Valid Nonce nonce
+        @Name("nonce") @Valid Nonce nonce,
+        @Name("link-token-ttl") @NotNull Duration linkTokenTtl
 ) {
     public static final String CONF_PATH = "application.security.openid";
 

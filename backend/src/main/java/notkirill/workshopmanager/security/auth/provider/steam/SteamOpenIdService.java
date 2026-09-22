@@ -9,6 +9,7 @@ import notkirill.workshopmanager.security.auth.ApprovedAuthPayload;
 import notkirill.workshopmanager.security.auth.AuthSource;
 import notkirill.workshopmanager.security.auth.openid.OpenIdMode;
 import notkirill.workshopmanager.security.auth.openid.OpenIdNonceService;
+import notkirill.workshopmanager.security.auth.openid.OpenIdProperties;
 import notkirill.workshopmanager.security.auth.openid.OpenIdValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -33,6 +34,7 @@ import java.util.regex.Pattern;
 public class SteamOpenIdService {
     public static final String BASE_PATH = "/api/auth/steam";
     public static final String LOGIN_CALLBACK = "/login-callback";
+    public static final String LINK_CALLBACK = "/link-callback";
 
     private static final String OPENID_NAMESPACE = "http://specs.openid.net/auth/2.0";
     private static final String OPENID_IDENTIFIER_SELECT = OPENID_NAMESPACE + "/identifier_select";
@@ -48,15 +50,18 @@ public class SteamOpenIdService {
     private final OpenIdValidator openIdValidator;
     private final OneTimeTokenService tokenService;
     private final FrontendProperties frontendProperties;
+    private final OpenIdProperties openIdProperties;
     private final RestClient restClient;
 
     @Autowired
     public SteamOpenIdService(OpenIdNonceService nonceService, OpenIdValidator openIdValidator,
                               OneTimeTokenService tokenService, FrontendProperties frontendProperties,
+                              OpenIdProperties openIdProperties,
                               @Qualifier(ApiClientConfig.STEAM_COMMUNITY_API_CLIENT) RestClient restClient) {
         this.nonceService = nonceService;
         this.openIdValidator = openIdValidator;
         this.tokenService = tokenService;
+        this.openIdProperties = openIdProperties;
         this.frontendProperties = frontendProperties;
         this.restClient = restClient;
     }
@@ -72,11 +77,26 @@ public class SteamOpenIdService {
         return constructRedirect(loginCallbackUrl(clientState));
     }
 
+    public String constructLinkRedirect(long userId) {
+        String linkToken = tokenService.generateToken(
+                new SteamLinkRequestPayload(userId),
+                openIdProperties.linkTokenTtl()
+        );
+        return constructRedirect(linkCallbackUrl(linkToken));
+    }
+
     public String authenticateLogin(MultiValueMap<String, String> params) {
         String state = params.getFirst("state");
         validateLoginState(state);
         String steamId = verify(params, loginCallbackUrl(state));
         return tokenService.generateToken(new ApprovedAuthPayload(AuthSource.STEAM, steamId));
+    }
+
+    public String authenticateLink(MultiValueMap<String, String> params) {
+        String linkToken = params.getFirst("link_token");
+        SteamLinkRequestPayload linkRequest = tokenService.consumeToken(linkToken, SteamLinkRequestPayload.class);
+        String steamId = verify(params, linkCallbackUrl(linkToken));
+        return tokenService.generateToken(new ApprovedSteamLinkPayload(linkRequest.userId(), steamId));
     }
 
     private String constructRedirect(String returnUrl) {
@@ -145,6 +165,10 @@ public class SteamOpenIdService {
 
     private String loginCallbackUrl(String state) {
         return realm() + BASE_PATH + LOGIN_CALLBACK + "?state=" + state;
+    }
+
+    private String linkCallbackUrl(String linkToken) {
+        return realm() + BASE_PATH + LINK_CALLBACK + "?link_token=" + linkToken;
     }
 
     private String extractSteamId(String claimedId) {

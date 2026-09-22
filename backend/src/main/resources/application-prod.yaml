@@ -54,6 +54,7 @@ application:
         cron: "0 0 0 1 * ? *"
         retention-after-expiration: 30d
     openid:
+      link-token-ttl: 15m
       nonce:
         max-age-minutes: 5
         allowed-future-skew-minutes: 5
