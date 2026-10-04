@@ -1,0 +1,5 @@
+name: apiKeys
+variables:
+  - secret: true
+    name: webCommunityApiKey
+    description: ""

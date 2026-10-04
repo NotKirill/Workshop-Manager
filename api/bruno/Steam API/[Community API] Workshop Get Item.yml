@@ -1,0 +1,153 @@
+info:
+  name: "[Community API] Workshop Get Item"
+  type: http
+  seq: 2
+
+http:
+  method: GET
+  url: https://api.steampowered.com/IPublishedFileService/GetDetails/v1/?key={{webCommunityApiKey}}&publishedfileids[0]=105982362&publishedfileids[1]=2795637227&publishedfileids[2]=175931428&publishedfileids[3]=180925247&publishedfileids[4]=2169435993&publishedfileids[5]=3644548946&publishedfileids[6]=1113677966&publishedfileids[7]=3473911205&publishedfileids[8]=3483273863&publishedfileids[9]=2870296319&includechildren=true&includekvtags=true&includevotes=true
+  params:
+    - name: key
+      value: "{{webCommunityApiKey}}"
+      type: query
+    - name: publishedfileids[0]
+      value: "105982362"
+      type: query
+    - name: publishedfileids[1]
+      value: "2795637227"
+      type: query
+    - name: publishedfileids[2]
+      value: "175931428"
+      type: query
+    - name: publishedfileids[3]
+      value: "180925247"
+      type: query
+    - name: publishedfileids[4]
+      value: "2169435993"
+      type: query
+    - name: publishedfileids[5]
+      value: "3644548946"
+      type: query
+    - name: publishedfileids[6]
+      value: "1113677966"
+      type: query
+    - name: publishedfileids[7]
+      value: "3473911205"
+      type: query
+    - name: publishedfileids[8]
+      value: "3483273863"
+      type: query
+    - name: publishedfileids[9]
+      value: "2870296319"
+      type: query
+    - name: includechildren
+      value: "true"
+      type: query
+    - name: includekvtags
+      value: "true"
+      type: query
+    - name: includevotes
+      value: "true"
+      type: query
+  body:
+    type: form-urlencoded
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("Status code is 200 OK", function() {
+          expect(res.getStatus()).to.equal(200);
+        });
+
+        test("Steam API returned all 10 requested items", function() {
+          const data = res.getBody().response;
+          expect(data.publishedfiledetails).to.be.an("array").with.lengthOf(10);
+        });
+
+        test("Verify all 10 items match documented properties and metadata", function() {
+          const details = res.getBody().response.publishedfiledetails;
+          expect(details).to.be.an("array").with.lengthOf(10);
+
+        const expectedCases = [
+            { id: "105982362", result: 1, consumer_appid: 4000, visibility: 0 },
+            { id: "2795637227", result: 1, consumer_appid: 4000, visibility: 3 },
+            { id: "175931428", result: 15 },
+            { id: "180925247", result: 1, consumer_appid: 550, visibility: 0 },
+            { id: "2169435993", result: 1, consumer_appid: 108600, visibility: 0 },
+            { id: "3644548946", result: 1, consumer_appid: 4000, visibility: 0, hasDescriptors: true },
+            { id: "1113677966", result: 1, consumer_appid: 4000, visibility: 0, hasDescriptors: true },
+            { id: "3473911205", result: 1, consumer_appid: 4000, visibility: 0, hasChildren: false },
+            { id: "3483273863", result: 1, consumer_appid: 4000, visibility: 0, hasChildren: true },
+            { id: "2870296319", result: 1, consumer_appid: 4000, visibility: 0, hasKvtags: true }
+          ];
+
+        expectedCases.forEach((expected, idx) => {
+            const item = details[idx];
+
+            expect(item.publishedfileid, `Index ${idx} file ID`).to.equal(expected.id);
+            expect(item.result, `Item ${expected.id} result status`).to.equal(expected.result);
+          
+            if (expected.consumer_appid !== undefined) {
+              expect(item.consumer_appid, `Item ${expected.id} consumer_appid`).to.equal(expected.consumer_appid);
+            }
+
+            if (expected.visibility !== undefined) {
+              expect(item.visibility, `Item ${expected.id} visibility`).to.equal(expected.visibility);
+            }
+
+            if (expected.hasChildren === true) {
+              expect(item.children, `Item ${expected.id} should have children`).to.be.an("array").that.is.not.empty;
+              expect(item.children[0]).to.be.an("object");
+            } else if (expected.hasChildren === false) {
+              expect(item.children, `Item ${expected.id} should not have children`).to.be.undefined;
+            }
+
+            if (expected.hasKvtags) {
+              expect(item.kvtags, `Item ${expected.id} should have kvtags`).to.be.an("array").that.is.not.empty;
+              expect(item.kvtags[0]).to.be.an("object");
+            } else if (expected.result === 1) {
+              expect(item.kvtags, `Item ${expected.id} should not have kvtags`).to.be.undefined;
+            }
+
+            if (expected.hasDescriptors) {
+              expect(item.content_descriptorids, `Item ${expected.id} should have content_descriptorids`).to.be.an("array").that.is.not.empty;
+            } else if (expected.result === 1) {
+              expect(item.content_descriptorids, `Item ${expected.id} should not have content_descriptorids`).to.be.undefined;
+            }
+          });
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+docs: |-
+  Bulk request of ids with testing cases:
+
+  - 105982362: available (Game ID: 4000) --- Must be available
+  - 2795637227: unlisted (Game ID: 4000) --- Must be available  
+    Reasoning: Community API can expose that
+  - 175931428: unavailable (Game ID: 4000) --- Must be unavailable (if it didn't restored)
+  - 180925247: available (Game ID: 550) --- Must be available  
+    Reasoning: we can use different games in one request
+  - 2169435993: available (Game ID: 108600) --- Must be available  
+    Reasoning: this game requires a license to use the Workshop, but that doesn't prevent you from getting information about the item
+  - 3644548946: restricted (Game ID: 4000) --- Must be available  
+    Reasoning: Community API can expose mature content. For example there: nudity
+  - 1113677966: restricted (Game ID: 4000) --- Must be available  
+    Reasoning: Community API can expose mature content. For example there: violence
+  - 3473911205: available (Game ID: 4000) --- Must be available  
+    Reasoning: this item have children, that we can't see in Community API. Just testing
+  - 3483273863: available (Game ID: 4000) --- Must be available  
+    Reasoning: this item have parent, Community API can expose that using "includechildren=true"
+  - 2870296319: available (Game ID: 4000) --- Must be available  
+    Reasoning: this item have link-tags for social media or sources (like youtube, sketchfab, reddit). Community API can expose that using "includekvtags=true"
+
+  Sources:
+
+  - [Community-based Steam API Docs (GetDetails)](https://steamapi.xpaw.me/IPublishedFileService#GetDetails)

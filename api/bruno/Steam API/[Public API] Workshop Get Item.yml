@@ -1,0 +1,111 @@
+info:
+  name: "[Public API] Workshop Get Item"
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/
+  body:
+    type: form-urlencoded
+    data:
+      - name: itemcount
+        value: "10"
+      - name: publishedfileids[0]
+        value: "105982362"
+      - name: publishedfileids[1]
+        value: "2795637227"
+      - name: publishedfileids[2]
+        value: "175931428"
+      - name: publishedfileids[3]
+        value: "180925247"
+      - name: publishedfileids[4]
+        value: "2169435993"
+      - name: publishedfileids[5]
+        value: "3644548946"
+      - name: publishedfileids[6]
+        value: "1113677966"
+      - name: publishedfileids[7]
+        value: "3473911205"
+      - name: publishedfileids[8]
+        value: "3483273863"
+      - name: publishedfileids[9]
+        value: "2870296319"
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("Status code is 200 OK", function() {
+          expect(res.getStatus()).to.equal(200);
+        });
+
+        test("Steam API returned all 10 requested items", function() {
+          const data = res.getBody().response;
+          expect(data.publishedfiledetails).to.be.an("array").with.lengthOf(10);
+        });
+
+        test("Verify all 10 items match documented availability", function() {
+          const details = res.getBody().response.publishedfiledetails;
+          expect(details).to.be.an("array").with.lengthOf(10);
+
+          const expectedCases = [
+            { id: "105982362", result: 1, appId: 4000 },
+            { id: "2795637227", result: 9 },
+            { id: "175931428", result: 9 },
+            { id: "180925247", result: 1, appId: 550 },
+            { id: "2169435993", result: 1, appId: 108600 },
+            { id: "3644548946", result: 1, appId: 4000 },
+            { id: "1113677966", result: 1, appId: 4000 },
+            { id: "3473911205", result: 1, appId: 4000 },
+            { id: "3483273863", result: 1, appId: 4000 },
+            { id: "2870296319", result: 1, appId: 4000 }
+          ];
+
+          expectedCases.forEach((expected, idx) => {
+            const item = details[idx];
+            expect(item.publishedfileid, `Index ${idx} file ID`).to.equal(expected.id);
+            expect(item.result, `Item ${expected.id} result status`).to.equal(expected.result);
+
+            if (expected.appId !== undefined) {
+              expect(item.consumer_app_id, `Item ${expected.id} app ID`).to.equal(expected.appId);
+            }
+          });
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+docs: |-
+  Bulk request of ids with testing cases:
+
+  - 105982362: available (Game ID: 4000) --- Must be available
+  - 2795637227: unlisted (Game ID: 4000) --- Must be unavailable  
+    Reasoning: Public API can't expose that
+  - 175931428: unavailable (Game ID: 4000) --- Must be unavailable (if it didn't restored)
+  - 180925247: available (Game ID: 550) --- Must be available  
+    Reasoning: we can use different games in one request
+  - 2169435993: available (Game ID: 108600) --- Must be available  
+    Reasoning: this game requires a license to use the Workshop, but that doesn't prevent you from getting information about the item
+  - 3644548946: restricted (Game ID: 4000) --- Dunno???  
+    Reasoning: Public API can expose mature content for some reason. For example there: nudity  
+    If this becomes unavailable at some point, check the reason why
+  - 1113677966: restricted (Game ID: 4000) --- Dunno???  
+    Reasoning: Public API can expose mature content for some reason. For example there: violence  
+    If this becomes unavailable at some point, check the reason why
+  - 3473911205: available (Game ID: 4000) --- Must be available  
+    Reasoning: this item have children, that we can't see in Public API. Just testing
+  - 3483273863: available (Game ID: 4000) --- Must be available  
+    Reasoning: this item have parent, Public API can't expose that for some reason
+  - 2870296319: available (Game ID: 4000) --- Must be available  
+    Reasoning: this item have link-tags for social media or sources (like youtube, sketchfab, reddit). Public API can't expose that
+
+  Sources:
+
+  - [Official Steam Partner API Docs (GetPublishedFileDetails)](https://partner.steamgames.com/doc/webapi/ISteamRemoteStorage#GetPublishedFileDetails)
+  - [Community-based Steam API Docs (GetPublishedFileDetails)](https://steamapi.xpaw.me/ISteamRemoteStorage#GetPublishedFileDetails)
