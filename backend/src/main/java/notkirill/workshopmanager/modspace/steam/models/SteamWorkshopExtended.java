@@ -1,4 +1,4 @@
-package notkirill.workshopmanager.models;
+package notkirill.workshopmanager.modspace.steam.models;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

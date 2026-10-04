@@ -1,6 +1,6 @@
-package notkirill.workshopmanager.models.repositories;
+package notkirill.workshopmanager.modspace.steam.repositories;
 
-import notkirill.workshopmanager.models.SteamWorkshopTag;
+import notkirill.workshopmanager.modspace.steam.models.SteamWorkshopTag;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

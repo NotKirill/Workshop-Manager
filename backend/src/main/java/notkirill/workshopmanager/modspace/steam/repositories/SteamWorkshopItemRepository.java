@@ -1,6 +1,6 @@
-package notkirill.workshopmanager.models.repositories;
+package notkirill.workshopmanager.modspace.steam.repositories;
 
-import notkirill.workshopmanager.models.SteamWorkshopItem;
+import notkirill.workshopmanager.modspace.steam.models.SteamWorkshopItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.OffsetDateTime;
