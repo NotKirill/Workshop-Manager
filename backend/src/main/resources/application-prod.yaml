@@ -64,6 +64,11 @@ application:
           retention: 30d
   one-time-code:
     default-ttl: 3m
+  modspace:
+    steam:
+      web-api-key: ${STEAM_WEB_API_KEY:}
+      batch-min-size: 70
+      batch-max-size: 100
   bootstrap:
     admin:
       username: ${BOOTSTRAP_ADMIN_USERNAME:}

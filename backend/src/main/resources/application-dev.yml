@@ -1,6 +1,8 @@
 spring:
   application:
     name: workshop-manager-backend-dev
+  config:
+    import: optional:file:.env[.properties]
   datasource:
     url: jdbc:postgresql://localhost:5433/workshop_manager
     username: dev
@@ -64,6 +66,11 @@ application:
           retention: 30d
   one-time-code:
     default-ttl: 3m
+  modspace:
+    steam:
+      web-api-key: ${STEAM_WEB_API_KEY:}
+      batch-min-size: 70
+      batch-max-size: 100
   bootstrap:
     admin:
       username: admin
