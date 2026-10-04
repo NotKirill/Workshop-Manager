@@ -14,8 +14,8 @@ public class SteamWorkshopItem {
     @Id
     @NotNull
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "internal_id", nullable = false)
-    private long internalId;
+    @Column(name = "local_id", nullable = false)
+    private long localId;
 
     @NotNull
     @Column(name = "publishedfileid", nullable = false)
@@ -67,38 +67,16 @@ public class SteamWorkshopItem {
         // Required by JPA
     }
 
-    public SteamWorkshopItem(String publishedFileId, String creator, long creatorAppId, long consumerAppId, String fileSize, String previewUrl, String title, String description, OffsetDateTime timeCreated, OffsetDateTime timeUpdated, short visibility, int subscriptions, int favorited, int lifetimeSubscriptions, int lifetimeFavorited) {
+    public SteamWorkshopItem(String publishedFileId) {
         this.publishedFileId = publishedFileId;
-        this.creator = creator;
-        this.creatorAppId = creatorAppId;
-        this.consumerAppId = consumerAppId;
-        this.fileSize = fileSize;
-        this.previewUrl = previewUrl;
-        this.title = title;
-        this.description = description;
-        this.timeCreated = timeCreated;
-        this.timeUpdated = timeUpdated;
-        this.visibility = visibility;
-        this.subscriptions = subscriptions;
-        this.favorited = favorited;
-        this.lifetimeSubscriptions = lifetimeSubscriptions;
-        this.lifetimeFavorited = lifetimeFavorited;
     }
 
-    public long getInternalId() {
-        return internalId;
-    }
-
-    public void setInternalId(long internalId) {
-        this.internalId = internalId;
+    public long getLocalId() {
+        return localId;
     }
 
     public String getPublishedFileId() {
         return publishedFileId;
-    }
-
-    public void setPublishedFileId(String publishedFileId) {
-        this.publishedFileId = publishedFileId;
     }
 
     public String getCreator() {
@@ -216,22 +194,12 @@ public class SteamWorkshopItem {
     @Override
     public String toString() {
         return "SteamWorkshopItem{" +
-                "internalId=" + internalId +
+                "localId=" + localId +
                 ", publishedFileId='" + publishedFileId + '\'' +
-                ", creator='" + creator + '\'' +
-                ", creatorAppId=" + creatorAppId +
                 ", consumerAppId=" + consumerAppId +
-                ", fileSize='" + fileSize + '\'' +
-                ", previewUrl='" + previewUrl + '\'' +
                 ", title='" + title + '\'' +
-                ", description='" + description + '\'' +
-                ", timeCreated=" + timeCreated +
                 ", timeUpdated=" + timeUpdated +
                 ", visibility=" + visibility +
-                ", subscriptions=" + subscriptions +
-                ", favorited=" + favorited +
-                ", lifetimeSubscriptions=" + lifetimeSubscriptions +
-                ", lifetimeFavorited=" + lifetimeFavorited +
                 '}';
     }
 }

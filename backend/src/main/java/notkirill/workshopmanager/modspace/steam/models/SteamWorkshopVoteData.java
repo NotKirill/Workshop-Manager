@@ -11,8 +11,8 @@ import jakarta.validation.constraints.NotNull;
 public class SteamWorkshopVoteData {
     @Id
     @NotNull
-    @Column(name = "internal_id", nullable = false)
-    private long internalId;
+    @Column(name = "local_id", nullable = false)
+    private long localId;
 
     @Column(name = "score")
     private float score;
@@ -27,19 +27,19 @@ public class SteamWorkshopVoteData {
         // Required by JPA
     }
 
-    public SteamWorkshopVoteData(long internalId, float score, int votesUp, int votesDown) {
-        this.internalId = internalId;
+    public SteamWorkshopVoteData(long localId, float score, int votesUp, int votesDown) {
+        this.localId = localId;
         this.score = score;
         this.votesUp = votesUp;
         this.votesDown = votesDown;
     }
 
-    public long getInternalId() {
-        return internalId;
+    public long getLocalId() {
+        return localId;
     }
 
-    public void setInternalId(long internalId) {
-        this.internalId = internalId;
+    public void setLocalId(long localId) {
+        this.localId = localId;
     }
 
     public float getScore() {
@@ -69,7 +69,7 @@ public class SteamWorkshopVoteData {
     @Override
     public String toString() {
         return "SteamWorkshopVoteData{" +
-                "internalId=" + internalId +
+                "localId=" + localId +
                 ", score=" + score +
                 ", votesUp=" + votesUp +
                 ", votesDown=" + votesDown +

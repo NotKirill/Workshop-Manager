@@ -12,6 +12,8 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
+    properties:
+      hibernate.type.json_format_mapper: jackson3
   cache:
     type: redis
   data:

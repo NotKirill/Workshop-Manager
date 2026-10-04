@@ -4,11 +4,14 @@ import notkirill.workshopmanager.modspace.steam.models.SteamWorkshopItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.OffsetDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
 public interface SteamWorkshopItemRepository extends JpaRepository<SteamWorkshopItem, Long> {
     Optional<SteamWorkshopItem> findByPublishedFileId(String publishedFileId);
+
+    List<SteamWorkshopItem> findByPublishedFileIdIn(Collection<String> publishedFileIds);
 
     List<SteamWorkshopItem> findByCreator(String creator);
 
@@ -39,6 +42,4 @@ public interface SteamWorkshopItemRepository extends JpaRepository<SteamWorkshop
     List<SteamWorkshopItem> findByTimeUpdatedGreaterThan(OffsetDateTime timeUpdated);
 
     List<SteamWorkshopItem> findByTimeUpdatedGreaterThanEqual(OffsetDateTime timeUpdated);
-
-
 }

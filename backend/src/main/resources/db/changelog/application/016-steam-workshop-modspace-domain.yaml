@@ -1,0 +1,38 @@
+databaseChangeLog:
+  - changeSet:
+      id: "016"
+      author: NotKirill
+      changes:
+        - renameColumn:
+            tableName: steam_workshop_items
+            oldColumnName: internal_id
+            newColumnName: local_id
+        - renameColumn:
+            tableName: steam_workshop_item_tags
+            oldColumnName: internal_id
+            newColumnName: local_id
+        - renameColumn:
+            tableName: steam_workshop_extended
+            oldColumnName: internal_id
+            newColumnName: local_id
+        - renameColumn:
+            tableName: steam_workshop_vote_data
+            oldColumnName: internal_id
+            newColumnName: local_id
+        - addColumn:
+            tableName: steam_workshop_extended
+            columns:
+              - column:
+                  name: time_updated
+                  type: TIMESTAMPTZ
+  - changeSet:
+      id: "016-manual-rollback"
+      author: NotKirill
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: ALTER SEQUENCE steam_workshop_items_internal_id_seq RENAME TO steam_workshop_items_local_id_seq
+      rollback:
+        - sql:
+            dbms: postgresql
+            sql: ALTER SEQUENCE steam_workshop_items_local_id_seq RENAME TO steam_workshop_items_internal_id_seq

@@ -12,8 +12,8 @@ import java.util.Objects;
 public class SteamWorkshopItemTag {
     @Id
     @NotNull
-    @Column(name = "internal_id", nullable = false)
-    private long internalId;
+    @Column(name = "local_id", nullable = false)
+    private long localId;
 
     @Id
     @NotNull
@@ -24,17 +24,17 @@ public class SteamWorkshopItemTag {
         // Required by JPA
     }
 
-    public SteamWorkshopItemTag(long internalId, long tagId) {
-        this.internalId = internalId;
+    public SteamWorkshopItemTag(long localId, long tagId) {
+        this.localId = localId;
         this.tagId = tagId;
     }
 
-    public long getInternalId() {
-        return internalId;
+    public long getLocalId() {
+        return localId;
     }
 
-    public void setInternalId(long internalId) {
-        this.internalId = internalId;
+    public void setLocalId(long localId) {
+        this.localId = localId;
     }
 
     public long getTagId() {
@@ -48,30 +48,30 @@ public class SteamWorkshopItemTag {
     @Override
     public String toString() {
         return "SteamWorkshopItemTag{" +
-                "internalId=" + internalId +
+                "localId=" + localId +
                 ", tagId=" + tagId +
                 '}';
     }
 
     public static class CompositeId implements Serializable {
-        private long internalId;
+        private long localId;
         private long tagId;
 
         protected CompositeId() {
             // Required by JPA
         }
 
-        public CompositeId(long internalId, long tagId) {
-            this.internalId = internalId;
+        public CompositeId(long localId, long tagId) {
+            this.localId = localId;
             this.tagId = tagId;
         }
 
-        public long getInternalId() {
-            return internalId;
+        public long getLocalId() {
+            return localId;
         }
 
-        public void setInternalId(long internalId) {
-            this.internalId = internalId;
+        public void setLocalId(long localId) {
+            this.localId = localId;
         }
 
         public long getTagId() {
@@ -84,19 +84,19 @@ public class SteamWorkshopItemTag {
 
         @Override
         public int hashCode() {
-            return Objects.hash(internalId, tagId);
+            return Objects.hash(localId, tagId);
         }
 
         @Override
         public boolean equals(Object o) {
             if (!(o instanceof CompositeId that)) return false;
-            return internalId == that.internalId && tagId == that.tagId;
+            return localId == that.localId && tagId == that.tagId;
         }
 
         @Override
         public String toString() {
             return "SteamWorkshopItemTag.CompositeId{" +
-                    "internalId=" + internalId +
+                    "localId=" + localId +
                     ", tagId=" + tagId +
                     '}';
         }

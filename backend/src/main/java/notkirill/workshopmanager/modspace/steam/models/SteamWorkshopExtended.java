@@ -9,6 +9,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import tools.jackson.databind.JsonNode;
 
+import java.time.OffsetDateTime;
 import java.util.Arrays;
 
 @Entity
@@ -16,8 +17,8 @@ import java.util.Arrays;
 public class SteamWorkshopExtended {
     @Id
     @NotNull
-    @Column(name = "internal_id", nullable = false)
-    private long internalId;
+    @Column(name = "local_id", nullable = false)
+    private long localId;
 
     @Column(name = "preview_file_size")
     private String previewFileSize;
@@ -49,12 +50,18 @@ public class SteamWorkshopExtended {
     @Column(name = "content_descriptorids", columnDefinition = "SMALLINT[]")
     private short[] contentDescriptorIds;
 
+    /**
+     * Steam's update time of the item version these details were fetched at.
+     */
+    @Column(name = "time_updated")
+    private OffsetDateTime timeUpdated;
+
     protected SteamWorkshopExtended() {
         // Required by JPA
     }
 
-    public SteamWorkshopExtended(long internalId, String previewFileSize, String shortDescription, short numChildren, JsonNode previews, JsonNode children, JsonNode kvtags, boolean maybeInappropriateSex, boolean maybeInappropriateViolence, short[] contentDescriptorIds) {
-        this.internalId = internalId;
+    public SteamWorkshopExtended(long localId, String previewFileSize, String shortDescription, short numChildren, JsonNode previews, JsonNode children, JsonNode kvtags, boolean maybeInappropriateSex, boolean maybeInappropriateViolence, short[] contentDescriptorIds, OffsetDateTime timeUpdated) {
+        this.localId = localId;
         this.previewFileSize = previewFileSize;
         this.shortDescription = shortDescription;
         this.numChildren = numChildren;
@@ -64,14 +71,15 @@ public class SteamWorkshopExtended {
         this.maybeInappropriateSex = maybeInappropriateSex;
         this.maybeInappropriateViolence = maybeInappropriateViolence;
         this.contentDescriptorIds = contentDescriptorIds;
+        this.timeUpdated = timeUpdated;
     }
 
-    public long getInternalId() {
-        return internalId;
+    public long getLocalId() {
+        return localId;
     }
 
-    public void setInternalId(long internalId) {
-        this.internalId = internalId;
+    public void setLocalId(long localId) {
+        this.localId = localId;
     }
 
     public String getPreviewFileSize() {
@@ -146,10 +154,18 @@ public class SteamWorkshopExtended {
         this.contentDescriptorIds = contentDescriptorIds;
     }
 
+    public OffsetDateTime getTimeUpdated() {
+        return timeUpdated;
+    }
+
+    public void setTimeUpdated(OffsetDateTime timeUpdated) {
+        this.timeUpdated = timeUpdated;
+    }
+
     @Override
     public String toString() {
         return "SteamWorkshopExtended{" +
-                "internalId=" + internalId +
+                "localId=" + localId +
                 ", previewFileSize='" + previewFileSize + '\'' +
                 ", shortDescription='" + shortDescription + '\'' +
                 ", numChildren=" + numChildren +
@@ -159,6 +175,7 @@ public class SteamWorkshopExtended {
                 ", maybeInappropriateSex=" + maybeInappropriateSex +
                 ", maybeInappropriateViolence=" + maybeInappropriateViolence +
                 ", contentDescriptorIds=" + Arrays.toString(contentDescriptorIds) +
+                ", timeUpdated=" + timeUpdated +
                 '}';
     }
 }
