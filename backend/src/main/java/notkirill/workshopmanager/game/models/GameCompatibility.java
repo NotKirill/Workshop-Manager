@@ -1,4 +1,4 @@
-package notkirill.workshopmanager.models;
+package notkirill.workshopmanager.game.models;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;

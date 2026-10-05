@@ -1,0 +1,65 @@
+databaseChangeLog:
+  - changeSet:
+      id: "017-manual-rollback"
+      author: NotKirill
+      changes:
+        - dropPrimaryKey:
+            tableName: game_to_modspace_ids
+            constraintName: pk_game_to_modspace_id
+        - dropUniqueConstraint:
+            tableName: game_to_modspace_ids
+            constraintName: uk_game_to_modspace_id_identity
+      rollback:
+        - addUniqueConstraint:
+            tableName: game_to_modspace_ids
+            columnNames: source_modspace, external_id
+            constraintName: uk_game_to_modspace_id_identity
+        - addPrimaryKey:
+            tableName: game_to_modspace_ids
+            columnNames: game_id
+            constraintName: pk_game_to_modspace_id
+  - changeSet:
+      id: "017"
+      author: NotKirill
+      changes:
+        - addPrimaryKey:
+            tableName: game_to_modspace_ids
+            columnNames: source_modspace, external_id
+            constraintName: pk_game_to_modspace_id
+        - addColumn:
+            tableName: game_metadata
+            columns:
+              - column:
+                  name: slug
+                  type: TEXT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name_requested_at
+                  type: TIMESTAMPTZ
+        # Game of items whose source does not tell it (yet). The id is fixed in code
+        - insert:
+            tableName: game_metadata
+            columns:
+              - column:
+                  name: id
+                  valueNumeric: -1
+              - column:
+                  name: name
+                  value: Unknown game
+              - column:
+                  name: slug
+                  value: unknown
+      rollback:
+        - delete:
+            tableName: game_metadata
+            where: id = -1
+        - dropColumn:
+            tableName: game_metadata
+            columnName: name_requested_at
+        - dropColumn:
+            tableName: game_metadata
+            columnName: slug
+        - dropPrimaryKey:
+            tableName: game_to_modspace_ids
+            constraintName: pk_game_to_modspace_id

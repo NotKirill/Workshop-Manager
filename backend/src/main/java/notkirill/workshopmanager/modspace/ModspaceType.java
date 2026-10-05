@@ -1,4 +1,4 @@
-package notkirill.workshopmanager.models.enums;
+package notkirill.workshopmanager.modspace;
 
 public enum ModspaceType {
     LOCAL, UNKNOWN, STEAM;

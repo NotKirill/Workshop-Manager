@@ -2,7 +2,7 @@ package notkirill.workshopmanager.models;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import notkirill.workshopmanager.models.enums.ModspaceType;
+import notkirill.workshopmanager.modspace.ModspaceType;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 

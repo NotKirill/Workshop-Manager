@@ -1,7 +1,7 @@
 package notkirill.workshopmanager.models.repositories;
 
 import notkirill.workshopmanager.models.AuthorMetadata;
-import notkirill.workshopmanager.models.enums.ModspaceType;
+import notkirill.workshopmanager.modspace.ModspaceType;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
