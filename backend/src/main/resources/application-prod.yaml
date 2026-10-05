@@ -66,6 +66,12 @@ application:
           retention: 30d
   one-time-code:
     default-ttl: 3m
+  authors:
+    refresh:
+      enabled: true
+      cron: "0 45 * * * ? *"
+      stale-after: 7d
+      batch-size: 30
   modspace:
     steam:
       web-api-key: ${STEAM_WEB_API_KEY:}

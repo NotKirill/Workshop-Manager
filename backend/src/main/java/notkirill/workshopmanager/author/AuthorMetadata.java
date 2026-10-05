@@ -1,10 +1,12 @@
-package notkirill.workshopmanager.models;
+package notkirill.workshopmanager.author;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import notkirill.workshopmanager.modspace.ModspaceType;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+
+import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "author_metadata",
@@ -31,6 +33,12 @@ public class AuthorMetadata {
     @NotNull
     @Column(name = "name", nullable = false)
     private String name;
+
+    @Column(name = "time_synced")
+    private OffsetDateTime timeSynced;
+
+    @Column(name = "refresh_requested_at")
+    private OffsetDateTime refreshRequestedAt;
 
     protected AuthorMetadata() {
         // Required by JPA
@@ -76,6 +84,22 @@ public class AuthorMetadata {
         this.name = name;
     }
 
+    public OffsetDateTime getTimeSynced() {
+        return timeSynced;
+    }
+
+    public void setTimeSynced(OffsetDateTime timeSynced) {
+        this.timeSynced = timeSynced;
+    }
+
+    public OffsetDateTime getRefreshRequestedAt() {
+        return refreshRequestedAt;
+    }
+
+    public void setRefreshRequestedAt(OffsetDateTime refreshRequestedAt) {
+        this.refreshRequestedAt = refreshRequestedAt;
+    }
+
     @Override
     public String toString() {
         return "AuthorMetadata{" +
@@ -83,6 +107,8 @@ public class AuthorMetadata {
                 ", sourceModspace=" + sourceModspace +
                 ", originalId='" + originalId + '\'' +
                 ", name='" + name + '\'' +
+                ", timeSynced=" + timeSynced +
+                ", refreshRequestedAt=" + refreshRequestedAt +
                 '}';
     }
 }

@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: "018"
+      author: NotKirill
+      changes:
+        - addColumn:
+            tableName: author_metadata
+            columns:
+              - column:
+                  name: time_synced
+                  type: TIMESTAMPTZ
+              - column:
+                  name: refresh_requested_at
+                  type: TIMESTAMPTZ
