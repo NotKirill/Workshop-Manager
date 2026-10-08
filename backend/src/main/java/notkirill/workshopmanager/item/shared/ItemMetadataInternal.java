@@ -1,7 +1,10 @@
-package notkirill.workshopmanager.models;
+package notkirill.workshopmanager.item.shared;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import notkirill.workshopmanager.item.enums.ItemLifecycleState;
+import notkirill.workshopmanager.item.enums.ItemSourceStatus;
 import notkirill.workshopmanager.modspace.ModspaceType;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
@@ -42,20 +45,34 @@ public class ItemMetadataInternal {
     @CreatedDate
     private OffsetDateTime timeRegistered;
 
+    @Nullable
+    @Column(name = "time_updated", nullable = true)
+    private OffsetDateTime timeUpdated;
+
+    @Nullable
+    @Column(name = "time_synced", nullable = true)
+    private OffsetDateTime timeSynced;
+
     @NotNull
-    @Column(name = "time_updated", nullable = false)
-    private OffsetDateTime timeUpdated = OffsetDateTime.now();
+    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(name = "source_status", columnDefinition = "item_source_status", nullable = false)
+    private ItemSourceStatus sourceStatus = ItemSourceStatus.AVAILABLE;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(name = "lifecycle_state", columnDefinition = "item_lifecycle_state", nullable = false)
+    private ItemLifecycleState lifecycleState = ItemLifecycleState.ACTIVE;
 
     protected ItemMetadataInternal() {
         // Required by JPA
     }
 
-    public ItemMetadataInternal(ModspaceType sourceModspace, long gameId, String originalId,
-                                OffsetDateTime timeUpdated) {
+    public ItemMetadataInternal(ModspaceType sourceModspace, long gameId, String originalId) {
         this.sourceModspace = sourceModspace;
         this.gameId = gameId;
         this.originalId = originalId;
-        this.timeUpdated = timeUpdated;
     }
 
     public long getId() {
@@ -102,6 +119,30 @@ public class ItemMetadataInternal {
         this.timeUpdated = timeUpdated;
     }
 
+    public OffsetDateTime getTimeSynced() {
+        return timeSynced;
+    }
+
+    public void setTimeSynced(OffsetDateTime timeSynced) {
+        this.timeSynced = timeSynced;
+    }
+
+    public ItemSourceStatus getSourceStatus() {
+        return sourceStatus;
+    }
+
+    public void setSourceStatus(ItemSourceStatus sourceStatus) {
+        this.sourceStatus = sourceStatus;
+    }
+
+    public ItemLifecycleState getLifecycleState() {
+        return lifecycleState;
+    }
+
+    public void setLifecycleState(ItemLifecycleState lifecycleState) {
+        this.lifecycleState = lifecycleState;
+    }
+
     @Override
     public String toString() {
         return "ItemMetadataInternal{" +
@@ -111,6 +152,9 @@ public class ItemMetadataInternal {
                 ", originalId='" + originalId + '\'' +
                 ", timeRegistered=" + timeRegistered +
                 ", timeUpdated=" + timeUpdated +
+                ", timeSynced=" + timeSynced +
+                ", sourceStatus=" + sourceStatus +
+                ", lifecycleState=" + lifecycleState +
                 '}';
     }
 }

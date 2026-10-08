@@ -68,6 +68,9 @@ application:
           retention: 30d
   one-time-code:
     default-ttl: 3m
+  items:
+    max-dependency-depth: 3
+    max-dependency-items: 200
   authors:
     refresh:
       enabled: true

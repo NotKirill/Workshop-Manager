@@ -1,12 +1,15 @@
-package notkirill.workshopmanager.models;
+package notkirill.workshopmanager.item.personal;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import notkirill.workshopmanager.models.enums.StoringStrategy;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import java.time.OffsetDateTime;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "item_metadata_personal",
         uniqueConstraints = {
                 @UniqueConstraint(name = "uk_item_metadata_personal_identity", columnNames = {"user_id", "internal_metadata_id"})
@@ -36,23 +39,30 @@ public class ItemMetadataPersonal {
     private String userCommentary;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
-    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
-    @Column(name = "storing_mode", columnDefinition = "storing_strategy", nullable = false)
-    private StoringStrategy storingMode = StoringStrategy.ONLY_METADATA;
+    @Column(name = "auto_backup", nullable = false)
+    private boolean autoBackup;
+
+    @NotNull
+    @Column(name = "time_registered", nullable = false, updatable = false)
+    @CreatedDate
+    private OffsetDateTime timeRegistered;
+
+    @Nullable
+    @Column(name = "dependencies_need_review", nullable = true)
+    private Boolean dependenciesNeedReview;
 
     protected ItemMetadataPersonal() {
         // Required by JPA
     }
 
     public ItemMetadataPersonal(long userId, long internalMetadataId, String title, String description,
-                                String userCommentary, StoringStrategy storingMode) {
+                                String userCommentary, boolean autoBackup) {
         this.userId = userId;
         this.internalMetadataId = internalMetadataId;
         this.title = title;
         this.description = description;
         this.userCommentary = userCommentary;
-        this.storingMode = storingMode;
+        this.autoBackup = autoBackup;
     }
 
     public long getId() {
@@ -103,12 +113,24 @@ public class ItemMetadataPersonal {
         this.userCommentary = userCommentary;
     }
 
-    public StoringStrategy getStoringMode() {
-        return storingMode;
+    public OffsetDateTime getTimeRegistered() {
+        return timeRegistered;
     }
 
-    public void setStoringMode(StoringStrategy storingMode) {
-        this.storingMode = storingMode;
+    public boolean isAutoBackup() {
+        return autoBackup;
+    }
+
+    public void setAutoBackup(boolean autoBackup) {
+        this.autoBackup = autoBackup;
+    }
+
+    public Boolean getDependenciesNeedReview() {
+        return dependenciesNeedReview;
+    }
+
+    public void setDependenciesNeedReview(Boolean dependenciesNeedReview) {
+        this.dependenciesNeedReview = dependenciesNeedReview;
     }
 
     @Override
@@ -120,7 +142,9 @@ public class ItemMetadataPersonal {
                 ", title='" + title + '\'' +
                 ", description='" + description + '\'' +
                 ", userCommentary='" + userCommentary + '\'' +
-                ", storingMode=" + storingMode +
+                ", autoBackup=" + autoBackup +
+                ", timeRegistered=" + timeRegistered +
+                ", dependenciesNeedReview=" + dependenciesNeedReview +
                 '}';
     }
 }

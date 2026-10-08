@@ -1,0 +1,151 @@
+databaseChangeLog:
+  - changeSet:
+      id: "019-types"
+      author: NotKirill
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: CREATE TYPE item_lifecycle_state AS ENUM ('ACTIVE', 'ORPHANED', 'DELETING', 'FAILED')
+        - sql:
+            dbms: postgresql
+            sql: CREATE TYPE item_source_status AS ENUM ('AVAILABLE', 'UNAVAILABLE')
+      rollback:
+        - sql:
+            dbms: postgresql
+            sql: DROP TYPE item_source_status
+        - sql:
+            dbms: postgresql
+            sql: DROP TYPE item_lifecycle_state
+  - changeSet:
+      id: "019"
+      author: NotKirill
+      changes:
+        - addColumn:
+            tableName: item_metadata_internal
+            columns:
+              - column:
+                  name: lifecycle_state
+                  type: item_lifecycle_state
+                  defaultValue: ACTIVE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: time_synced
+                  type: TIMESTAMPTZ
+              - column:
+                  name: source_status
+                  type: item_source_status
+                  defaultValue: AVAILABLE
+                  constraints:
+                    nullable: false
+        - dropNotNullConstraint:
+            tableName: item_metadata_internal
+            columnName: time_updated
+            columnDataType: TIMESTAMPTZ
+        - addColumn:
+            tableName: item_metadata_personal
+            columns:
+              - column:
+                  name: time_registered
+                  type: TIMESTAMPTZ
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: dependencies_need_review
+                  type: BOOLEAN
+        - createTable:
+            tableName: item_metadata_projection
+            columns:
+              - column:
+                  name: internal_id
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_item_metadata_projection
+                    nullable: false
+              - column:
+                  name: title
+                  type: TEXT
+              - column:
+                  name: description
+                  type: TEXT
+              - column:
+                  name: author_id
+                  type: BIGINT
+              - column:
+                  name: file_size
+                  type: BIGINT
+              - column:
+                  name: source_time_created
+                  type: TIMESTAMPTZ
+        - createTable:
+            tableName: item_cleanups
+            columns:
+              - column:
+                  name: internal_metadata_id
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_item_cleanups
+                    nullable: false
+              - column:
+                  name: orphaned_at
+                  type: TIMESTAMPTZ
+                  constraints:
+                    nullable: false
+              - column:
+                  name: attempts
+                  type: SMALLINT
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: next_attempt_at
+                  type: TIMESTAMPTZ
+              - column:
+                  name: last_error
+                  type: TEXT
+  - changeSet:
+      id: "019-auto-backup"
+      author: NotKirill
+      changes:
+        - addColumn:
+            tableName: item_metadata_personal
+            columns:
+              - column:
+                  name: auto_backup
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+        - sql:
+            dbms: postgresql
+            sql: UPDATE item_metadata_personal SET auto_backup = (storing_mode = 'AUTO_CONTENT_IMPORT')
+        - dropColumn:
+            tableName: item_metadata_personal
+            columnName: storing_mode
+        - sql:
+            dbms: postgresql
+            sql: DROP TYPE storing_strategy
+      rollback:
+        - sql:
+            dbms: postgresql
+            sql: CREATE TYPE storing_strategy AS ENUM ('ONLY_METADATA', 'ALLOW_CONTENT_IMPORT', 'AUTO_CONTENT_IMPORT')
+        - addColumn:
+            tableName: item_metadata_personal
+            columns:
+              - column:
+                  name: storing_mode
+                  type: storing_strategy
+                  defaultValueComputed: "'ONLY_METADATA'::storing_strategy"
+                  constraints:
+                    nullable: false
+        - sql:
+            dbms: postgresql
+            sql: >-
+              UPDATE item_metadata_personal SET storing_mode = CASE WHEN auto_backup
+              THEN 'AUTO_CONTENT_IMPORT'::storing_strategy ELSE 'ONLY_METADATA'::storing_strategy END
+        - dropColumn:
+            tableName: item_metadata_personal
+            columnName: auto_backup
