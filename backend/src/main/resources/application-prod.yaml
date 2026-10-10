@@ -69,6 +69,11 @@ application:
   items:
     max-dependency-depth: 3
     max-dependency-items: 200
+    sync:
+      enabled: true
+      cron: "0 0 */6 * * ? *"
+      stale-after: 24h
+      batch-size: 500
   authors:
     refresh:
       enabled: true
