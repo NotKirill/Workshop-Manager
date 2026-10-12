@@ -68,6 +68,15 @@ application:
           retention: 30d
   one-time-code:
     default-ttl: 3m
+  storage:
+    type: S3
+    s3:
+      endpoint: http://localhost:8334
+      region: us-east-1
+      bucket: workshop-manager
+      access-key: devseaweed
+      secret-key: devseaweed-secret
+      create-bucket: true
   items:
     max-dependency-depth: 3
     max-dependency-items: 200
