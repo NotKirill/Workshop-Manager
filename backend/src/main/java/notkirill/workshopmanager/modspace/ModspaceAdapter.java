@@ -3,6 +3,7 @@ package notkirill.workshopmanager.modspace;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 public interface ModspaceAdapter {
@@ -22,5 +23,13 @@ public interface ModspaceAdapter {
 
     default Map<String, String> fetchAuthorNames(Collection<String> originalIds) {
         return Map.of();
+    }
+
+    default boolean supportsGameNames() {
+        return false;
+    }
+
+    default Optional<String> fetchGameName(String externalId) {
+        return Optional.empty();
     }
 }

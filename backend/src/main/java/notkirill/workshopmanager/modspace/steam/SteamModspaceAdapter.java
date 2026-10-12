@@ -25,6 +25,7 @@ public class SteamModspaceAdapter implements ModspaceAdapter {
 
     private final SteamWorkshopClient workshopClient;
     private final SteamUserClient userClient;
+    private final SteamStoreClient storeClient;
     private final GameResolutionService gameResolutionService;
     private final AuthorService authorService;
     private final SteamItemReaderService itemReaderService;
@@ -33,12 +34,13 @@ public class SteamModspaceAdapter implements ModspaceAdapter {
 
     @Autowired
     public SteamModspaceAdapter(SteamWorkshopClient workshopClient, SteamUserClient userClient,
-                                GameResolutionService gameResolutionService,
+                                SteamStoreClient storeClient, GameResolutionService gameResolutionService,
                                 AuthorService authorService, SteamItemReaderService itemReaderService,
                                 SteamItemWriterService itemWriterService,
                                 PlatformTransactionManager transactionManager) {
         this.workshopClient = workshopClient;
         this.userClient = userClient;
+        this.storeClient = storeClient;
         this.gameResolutionService = gameResolutionService;
         this.authorService = authorService;
         this.itemReaderService = itemReaderService;
@@ -93,6 +95,22 @@ public class SteamModspaceAdapter implements ModspaceAdapter {
             }
         });
         return names;
+    }
+
+    @Override
+    public boolean supportsGameNames() {
+        return true;
+    }
+
+    @Override
+    public Optional<String> fetchGameName(String externalId) {
+        long appId;
+        try {
+            appId = Long.parseLong(externalId);
+        } catch (NumberFormatException _) {
+            return Optional.empty();
+        }
+        return appId > 0 ? storeClient.getAppName(appId) : Optional.empty();
     }
 
     private <R> R persistWithRetry(SteamPublishedFile file, Map<String, String> authors,
@@ -156,4 +174,5 @@ public class SteamModspaceAdapter implements ModspaceAdapter {
             return Map.of();
         }
     }
+
 }

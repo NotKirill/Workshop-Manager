@@ -7,7 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 class SteamOriginalIdTest {
-    private final SteamModspaceAdapter adapter = new SteamModspaceAdapter(null, null, null, null, null, null,
+    private final SteamModspaceAdapter adapter = new SteamModspaceAdapter(null, null, null, null, null, null, null,
             mock(PlatformTransactionManager.class));
 
     @Test

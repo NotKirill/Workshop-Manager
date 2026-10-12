@@ -82,6 +82,11 @@ application:
       cron: "0 45 * * * ? *"
       stale-after: 7d
       batch-size: 30
+  games:
+    lookup:
+      enabled: true
+      interval: 1m
+      max-per-run: 15
   modspace:
     steam:
       web-api-key: ${STEAM_WEB_API_KEY:}
