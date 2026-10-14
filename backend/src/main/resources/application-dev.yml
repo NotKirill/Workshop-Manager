@@ -84,6 +84,7 @@ application:
       create-bucket: true
   media:
     max-image-size: 20MB
+    download-link-ttl: 1h
   items:
     max-dependency-depth: 3
     max-dependency-items: 200

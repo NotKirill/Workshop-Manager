@@ -3,6 +3,7 @@ package notkirill.workshopmanager.media;
 import jakarta.annotation.Nullable;
 import notkirill.workshopmanager.common.FileNames;
 import notkirill.workshopmanager.exception.BadRequestException;
+import notkirill.workshopmanager.exception.NotFoundException;
 import notkirill.workshopmanager.media.enums.MediaProvider;
 import notkirill.workshopmanager.media.enums.MediaType;
 import notkirill.workshopmanager.media.models.MediaEmbed;
@@ -11,7 +12,9 @@ import notkirill.workshopmanager.media.models.MediaItem;
 import notkirill.workshopmanager.media.repositories.MediaEmbedRepository;
 import notkirill.workshopmanager.media.repositories.MediaFileRepository;
 import notkirill.workshopmanager.media.repositories.MediaItemRepository;
+import notkirill.workshopmanager.security.SignedUrlService;
 import notkirill.workshopmanager.storage.ObjectStorage;
+import notkirill.workshopmanager.storage.StoredObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,17 +51,20 @@ public class MediaItemService {
     private final MediaFileRepository fileRepository;
     private final MediaEmbedRepository embedRepository;
     private final ObjectStorage storage;
+    private final SignedUrlService signedUrlService;
     private final MediaProperties properties;
     private final TransactionTemplate transactionTemplate;
 
     @Autowired
     public MediaItemService(MediaItemRepository itemRepository, MediaFileRepository fileRepository,
-                            MediaEmbedRepository embedRepository, ObjectStorage storage, MediaProperties properties,
+                            MediaEmbedRepository embedRepository, ObjectStorage storage,
+                            SignedUrlService signedUrlService, MediaProperties properties,
                             PlatformTransactionManager transactionManager) {
         this.itemRepository = itemRepository;
         this.fileRepository = fileRepository;
         this.embedRepository = embedRepository;
         this.storage = storage;
+        this.signedUrlService = signedUrlService;
         this.properties = properties;
         this.transactionTemplate = new TransactionTemplate(transactionManager);
     }
@@ -84,6 +90,10 @@ public class MediaItemService {
             case SKETCHFAB -> "https://sketchfab.com/models/" + embed.getExternalId() + "/embed";
             case UNKNOWN -> null;
         };
+    }
+
+    private static String resource(long mediaItemId) {
+        return "media:" + mediaItemId;
     }
 
     public MediaItem createImage(long ownerUserId, ImageUpload upload) {
@@ -183,9 +193,15 @@ public class MediaItemService {
         for (MediaItem item : itemRepository.findAllById(mediaItemIds)) {
             if (item.getType() == MediaType.FILE) {
                 MediaFile file = files.get(item.getId());
+                SignedUrlService.Signature signature = signedUrlService.signCacheable(
+                        resource(item.getId()),
+                        properties.downloadLinkTtl()
+                );
+                String url = "/api/public/downloads/media/" + item.getId()
+                        + "?exp=" + signature.expiresAt() + "&sig=" + signature.value();
                 result.put(
                         item.getId(), new MediaItemDetails(
-                                item.getId(), MediaType.FILE, null, null, null, file.getFileName()
+                                item.getId(), MediaType.FILE, url, null, null, file.getFileName()
                         )
                 );
             } else {
@@ -210,6 +226,22 @@ public class MediaItemService {
         });
         embedRepository.findById(mediaItemId).ifPresent(embedRepository::delete);
         itemRepository.findById(mediaItemId).ifPresent(itemRepository::delete);
+    }
+
+    @Transactional(readOnly = true)
+    public StoredObject openFile(long mediaItemId, long expiresAt, String signature) {
+        if (!signedUrlService.verify(resource(mediaItemId), expiresAt, signature)) {
+            throw new NotFoundException("LINK_EXPIRED", "Media link is invalid or expired");
+        }
+        MediaFile file = fileRepository.findById(mediaItemId)
+                .orElseThrow(() -> new NotFoundException("MEDIA_NOT_FOUND", "Media not found"));
+        ImageFormat format = ImageFormat.fromFileName(file.getFileName())
+                .orElseThrow(() -> new IllegalStateException("Media file without image extension: "
+                                                                     + file.getMediaItemId()));
+        return new StoredObject(
+                storage.get(file.getS3Key()), file.getFileName(), format.mimeType(),
+                file.getFileSize()
+        );
     }
 
     private void deleteObjectAfterCommit(String key) {
