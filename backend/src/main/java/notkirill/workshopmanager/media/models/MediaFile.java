@@ -1,4 +1,4 @@
-package notkirill.workshopmanager.models;
+package notkirill.workshopmanager.media.models;
 
 import jakarta.annotation.Nullable;
 import jakarta.persistence.Column;
@@ -6,9 +6,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
-import tools.jackson.databind.JsonNode;
 
 @Entity
 @Table(name = "media_files")
@@ -19,12 +16,12 @@ public class MediaFile {
     private long mediaItemId;
 
     @Nullable
-    @Column(name = "source_id", nullable = true)
-    private String sourceId;
+    @Column(name = "source_version", nullable = true)
+    private String sourceVersion;
 
     @NotNull
     @Column(name = "file_size", nullable = false)
-    private int fileSize;
+    private long fileSize;
 
     @NotNull
     @Column(name = "file_name", nullable = false)
@@ -34,21 +31,16 @@ public class MediaFile {
     @Column(name = "s3_key", nullable = false)
     private String s3Key;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "metadata", columnDefinition = "jsonb")
-    private JsonNode metadata;
-
     protected MediaFile() {
         // Required by JPA
     }
 
-    public MediaFile(long mediaItemId, @Nullable String sourceId, int fileSize, String fileName, String s3Key, JsonNode metadata) {
+    public MediaFile(long mediaItemId, @Nullable String sourceVersion, long fileSize, String fileName, String s3Key) {
         this.mediaItemId = mediaItemId;
-        this.sourceId = sourceId;
+        this.sourceVersion = sourceVersion;
         this.fileSize = fileSize;
         this.fileName = fileName;
         this.s3Key = s3Key;
-        this.metadata = metadata;
     }
 
     public long getMediaItemId() {
@@ -60,19 +52,19 @@ public class MediaFile {
     }
 
     @Nullable
-    public String getSourceId() {
-        return sourceId;
+    public String getSourceVersion() {
+        return sourceVersion;
     }
 
-    public void setSourceId(@Nullable String sourceId) {
-        this.sourceId = sourceId;
+    public void setSourceVersion(@Nullable String sourceVersion) {
+        this.sourceVersion = sourceVersion;
     }
 
-    public int getFileSize() {
+    public long getFileSize() {
         return fileSize;
     }
 
-    public void setFileSize(int fileSize) {
+    public void setFileSize(long fileSize) {
         this.fileSize = fileSize;
     }
 
@@ -92,23 +84,14 @@ public class MediaFile {
         this.s3Key = s3Key;
     }
 
-    public JsonNode getMetadata() {
-        return metadata;
-    }
-
-    public void setMetadata(JsonNode metadata) {
-        this.metadata = metadata;
-    }
-
     @Override
     public String toString() {
         return "MediaFile{" +
                 "mediaItemId=" + mediaItemId +
-                ", sourceId='" + sourceId + '\'' +
+                ", sourceVersion='" + sourceVersion + '\'' +
                 ", fileSize=" + fileSize +
                 ", fileName='" + fileName + '\'' +
                 ", s3Key='" + s3Key + '\'' +
-                ", metadata=" + metadata +
                 '}';
     }
 }

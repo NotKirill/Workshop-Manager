@@ -1,0 +1,137 @@
+databaseChangeLog:
+  - changeSet:
+      id: "020"
+      author: NotKirill
+      changes:
+        - modifyDataType:
+            tableName: media_files
+            columnName: file_size
+            newDataType: BIGINT
+        - dropColumn:
+            tableName: media_files
+            columnName: metadata
+        - dropColumn:
+            tableName: media_embeds
+            columnName: metadata
+        - dropColumn:
+            tableName: media_links
+            columnName: metadata
+      rollback:
+        - addColumn:
+            tableName: media_files
+            columns:
+              - column:
+                  name: metadata
+                  type: JSONB
+        - addColumn:
+            tableName: media_embeds
+            columns:
+              - column:
+                  name: metadata
+                  type: JSONB
+        - addColumn:
+            tableName: media_links
+            columns:
+              - column:
+                  name: metadata
+                  type: JSONB
+        - modifyDataType:
+            tableName: media_files
+            columnName: file_size
+            newDataType: INTEGER
+  - changeSet:
+      id: "020-link-owner"
+      author: NotKirill
+      changes:
+        - addColumn:
+            tableName: media_links
+            columns:
+              - column:
+                  name: owner_user_id
+                  type: BIGINT
+  - changeSet:
+      id: "020-override-hidden"
+      author: NotKirill
+      changes:
+        - dropColumn:
+            tableName: media_link_overrides
+            columnName: media_item_id
+        - addColumn:
+            tableName: media_link_overrides
+            columns:
+              - column:
+                  name: hidden
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+      rollback:
+        - dropColumn:
+            tableName: media_link_overrides
+            columnName: hidden
+        - addColumn:
+            tableName: media_link_overrides
+            columns:
+              - column:
+                  name: media_item_id
+                  type: BIGINT
+  - changeSet:
+      id: "020-time-created"
+      author: NotKirill
+      changes:
+        - renameColumn:
+            tableName: media_items
+            oldColumnName: time_uploaded
+            newColumnName: time_created
+  - changeSet:
+      id: "020-source-media"
+      author: NotKirill
+      changes:
+        - renameColumn:
+            tableName: media_files
+            oldColumnName: source_id
+            newColumnName: source_version
+        - addColumn:
+            tableName: media_links
+            columns:
+              - column:
+                  name: source_key
+                  type: TEXT
+        - createTable:
+            tableName: media_source_syncs
+            columns:
+              - column:
+                  name: entity
+                  type: entity_type
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_media_source_syncs
+                    nullable: false
+              - column:
+                  name: entity_id
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_media_source_syncs
+                    nullable: false
+              - column:
+                  name: due_at
+                  type: TIMESTAMPTZ
+              - column:
+                  name: failures
+                  type: SMALLINT
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_error
+                  type: TEXT
+              - column:
+                  name: time_synced
+                  type: TIMESTAMPTZ
+              - column:
+                  name: source_modspace
+                  type: modspace_type
+              - column:
+                  name: source_original_id
+                  type: TEXT

@@ -1,11 +1,11 @@
-package notkirill.workshopmanager.models;
+package notkirill.workshopmanager.media.models;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import notkirill.workshopmanager.models.enums.EntityType;
+import notkirill.workshopmanager.media.enums.EntityType;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-import tools.jackson.databind.JsonNode;
 
 @Entity
 @Table(name = "media_links")
@@ -30,30 +30,34 @@ public class MediaLink {
     @Column(name = "entity_id", nullable = false)
     private long entityId;
 
+    @Nullable
+    @Column(name = "owner_user_id", nullable = true)
+    private Long ownerUserId;
+
+    @Nullable
+    @Column(name = "source_key", nullable = true)
+    private String sourceKey;
+
     @NotNull
     @Column(name = "purpose", nullable = false)
     private String purpose;
 
-    // Long TODO relocate to metadata
     @Column(name = "sort_order")
     private int sortOrder;
-
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "metadata", columnDefinition = "jsonb")
-    private JsonNode metadata;
 
     protected MediaLink() {
         // Required by JPA
     }
 
-    public MediaLink(long mediaItemId, EntityType entity, long entityId, String purpose, int sortOrder,
-                     JsonNode metadata) {
+    public MediaLink(long mediaItemId, EntityType entity, long entityId, @Nullable Long ownerUserId,
+                     @Nullable String sourceKey, String purpose, int sortOrder) {
         this.mediaItemId = mediaItemId;
         this.entity = entity;
         this.entityId = entityId;
+        this.ownerUserId = ownerUserId;
+        this.sourceKey = sourceKey;
         this.purpose = purpose;
         this.sortOrder = sortOrder;
-        this.metadata = metadata;
     }
 
     public long getId() {
@@ -70,6 +74,16 @@ public class MediaLink {
 
     public void setMediaItemId(long mediaItemId) {
         this.mediaItemId = mediaItemId;
+    }
+
+    @Nullable
+    public Long getOwnerUserId() {
+        return ownerUserId;
+    }
+
+    @Nullable
+    public String getSourceKey() {
+        return sourceKey;
     }
 
     public EntityType getEntity() {
@@ -104,14 +118,6 @@ public class MediaLink {
         this.sortOrder = sortOrder;
     }
 
-    public JsonNode getMetadata() {
-        return metadata;
-    }
-
-    public void setMetadata(JsonNode metadata) {
-        this.metadata = metadata;
-    }
-
     @Override
     public String toString() {
         return "MediaLink{" +
@@ -119,9 +125,10 @@ public class MediaLink {
                 ", mediaItemId=" + mediaItemId +
                 ", entity=" + entity +
                 ", entityId=" + entityId +
+                ", ownerUserId=" + ownerUserId +
+                ", sourceKey='" + sourceKey + '\'' +
                 ", purpose='" + purpose + '\'' +
                 ", sortOrder=" + sortOrder +
-                ", metadata=" + metadata +
                 '}';
     }
 }

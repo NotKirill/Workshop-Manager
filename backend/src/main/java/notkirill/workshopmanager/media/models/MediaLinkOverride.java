@@ -1,4 +1,4 @@
-package notkirill.workshopmanager.models;
+package notkirill.workshopmanager.media.models;
 
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
@@ -21,21 +21,22 @@ public class MediaLinkOverride {
     @Column(name = "user_id", nullable = false)
     private long userId;
 
-    @Nullable
-    @Column(name = "media_item_id", nullable = true)
-    private long mediaItemId;
+    @NotNull
+    @Column(name = "hidden", nullable = false)
+    private boolean hidden;
 
-    @Column(name = "sort_order")
-    private int sortOrder;
+    @Nullable
+    @Column(name = "sort_order", nullable = true)
+    private Integer sortOrder;
 
     protected MediaLinkOverride() {
         // Required by JPA
     }
 
-    public MediaLinkOverride(long linkId, long userId, long mediaItemId, int sortOrder) {
+    public MediaLinkOverride(long linkId, long userId, boolean hidden, @Nullable Integer sortOrder) {
         this.linkId = linkId;
         this.userId = userId;
-        this.mediaItemId = mediaItemId;
+        this.hidden = hidden;
         this.sortOrder = sortOrder;
     }
 
@@ -55,19 +56,20 @@ public class MediaLinkOverride {
         this.userId = userId;
     }
 
-    public long getMediaItemId() {
-        return mediaItemId;
+    public boolean isHidden() {
+        return hidden;
     }
 
-    public void setMediaItemId(long mediaItemId) {
-        this.mediaItemId = mediaItemId;
+    public void setHidden(boolean hidden) {
+        this.hidden = hidden;
     }
 
-    public int getSortOrder() {
+    @Nullable
+    public Integer getSortOrder() {
         return sortOrder;
     }
 
-    public void setSortOrder(int sortOrder) {
+    public void setSortOrder(@Nullable Integer sortOrder) {
         this.sortOrder = sortOrder;
     }
 
@@ -76,7 +78,7 @@ public class MediaLinkOverride {
         return "MediaLinkOverride{" +
                 "linkId=" + linkId +
                 ", userId=" + userId +
-                ", mediaItemId=" + mediaItemId +
+                ", hidden=" + hidden +
                 ", sortOrder=" + sortOrder +
                 '}';
     }

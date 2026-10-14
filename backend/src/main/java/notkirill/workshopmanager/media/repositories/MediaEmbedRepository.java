@@ -1,7 +1,7 @@
-package notkirill.workshopmanager.models.repositories;
+package notkirill.workshopmanager.media.repositories;
 
-import notkirill.workshopmanager.models.MediaEmbed;
-import notkirill.workshopmanager.models.enums.MediaProvider;
+import notkirill.workshopmanager.media.models.MediaEmbed;
+import notkirill.workshopmanager.media.enums.MediaProvider;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

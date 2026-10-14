@@ -1,11 +1,10 @@
-package notkirill.workshopmanager.models;
+package notkirill.workshopmanager.media.models;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import notkirill.workshopmanager.models.enums.MediaProvider;
+import notkirill.workshopmanager.media.enums.MediaProvider;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-import tools.jackson.databind.JsonNode;
 
 @Entity
 @Table(name = "media_embeds")
@@ -25,19 +24,14 @@ public class MediaEmbed {
     @Column(name = "provider", columnDefinition = "media_provider", nullable = false)
     private MediaProvider provider;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "metadata", columnDefinition = "jsonb")
-    private JsonNode metadata;
-
     protected MediaEmbed() {
         // Required by JPA
     }
 
-    public MediaEmbed(long mediaItemId, String externalId, MediaProvider provider, JsonNode metadata) {
+    public MediaEmbed(long mediaItemId, String externalId, MediaProvider provider) {
         this.mediaItemId = mediaItemId;
         this.externalId = externalId;
         this.provider = provider;
-        this.metadata = metadata;
     }
 
     public long getMediaItemId() {
@@ -64,21 +58,12 @@ public class MediaEmbed {
         this.provider = provider;
     }
 
-    public JsonNode getMetadata() {
-        return metadata;
-    }
-
-    public void setMetadata(JsonNode metadata) {
-        this.metadata = metadata;
-    }
-
     @Override
     public String toString() {
         return "MediaEmbed{" +
                 "mediaItemId=" + mediaItemId +
                 ", externalId='" + externalId + '\'' +
                 ", provider=" + provider +
-                ", metadata=" + metadata +
                 '}';
     }
 }

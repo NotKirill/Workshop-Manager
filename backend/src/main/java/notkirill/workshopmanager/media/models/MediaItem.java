@@ -1,9 +1,9 @@
-package notkirill.workshopmanager.models;
+package notkirill.workshopmanager.media.models;
 
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import notkirill.workshopmanager.models.enums.MediaType;
+import notkirill.workshopmanager.media.enums.MediaType;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import org.springframework.data.annotation.CreatedDate;
@@ -27,11 +27,10 @@ public class MediaItem {
     @Column(name = "type", columnDefinition = "media_type", nullable = false)
     private MediaType type;
 
-    // Long TODO why 'uploaded' instead of 'created'?
     @NotNull
-    @Column(name = "time_uploaded", nullable = false)
+    @Column(name = "time_created", nullable = false)
     @CreatedDate
-    private OffsetDateTime timeUploaded;
+    private OffsetDateTime timeCreated;
 
     @Nullable
     @Column(name = "owner_user_id", nullable = true)
@@ -62,8 +61,8 @@ public class MediaItem {
         this.type = type;
     }
 
-    public OffsetDateTime getTimeUploaded() {
-        return timeUploaded;
+    public OffsetDateTime getTimeCreated() {
+        return timeCreated;
     }
 
     @Nullable
@@ -80,7 +79,7 @@ public class MediaItem {
         return "MediaItem{" +
                 "id=" + id +
                 ", type=" + type +
-                ", timeUploaded=" + timeUploaded +
+                ", timeCreated=" + timeCreated +
                 ", ownerUserId=" + ownerUserId +
                 '}';
     }
