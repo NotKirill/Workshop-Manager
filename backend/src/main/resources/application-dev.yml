@@ -9,6 +9,11 @@ spring:
     password: dev
     hikari:
       data-source-properties: stringtype=unspecified
+  servlet:
+    multipart:
+      max-file-size: 21MB
+      max-request-size: 22MB
+      file-size-threshold: 2MB
   liquibase:
     enabled: true
   jpa:
@@ -77,6 +82,8 @@ application:
       access-key: devseaweed
       secret-key: devseaweed-secret
       create-bucket: true
+  media:
+    max-image-size: 20MB
   items:
     max-dependency-depth: 3
     max-dependency-items: 200

@@ -7,6 +7,11 @@ spring:
     password: ${POSTGRES_PASSWORD}
     hikari:
       data-source-properties: stringtype=unspecified
+  servlet:
+    multipart:
+      max-file-size: 21MB
+      max-request-size: 22MB
+      file-size-threshold: 2MB
   liquibase:
     enabled: true
   jpa:
@@ -75,6 +80,8 @@ application:
       access-key: ${S3_ACCESS_KEY}
       secret-key: ${S3_SECRET_KEY}
       create-bucket: true
+  media:
+    max-image-size: 20MB
   items:
     max-dependency-depth: 3
     max-dependency-items: 200
