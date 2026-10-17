@@ -43,10 +43,11 @@ public interface ContentJobRepository extends JpaRepository<ContentJob, Long> {
 
     @Modifying
     @Query("""
-            UPDATE ContentJob j SET j.status = :newStatus, j.note = :note
+            UPDATE ContentJob j SET j.status = :newStatus, j.note = :note, j.timeFinished = :now
             WHERE j.internalMetadataId = :internalId AND j.status = :currentStatus
             """)
-    int changeStatus(long internalId, ContentJobStatus currentStatus, ContentJobStatus newStatus, String note);
+    int changeStatus(long internalId, ContentJobStatus currentStatus, ContentJobStatus newStatus, String note,
+                     OffsetDateTime now);
 
     @Modifying
     @Query("DELETE FROM ContentJob j WHERE j.internalMetadataId = :internalId")

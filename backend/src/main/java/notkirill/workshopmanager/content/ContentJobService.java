@@ -86,7 +86,10 @@ public class ContentJobService {
 
     @Transactional
     public void cancelPending(long internalId, String reason) {
-        repository.changeStatus(internalId, ContentJobStatus.PENDING, ContentJobStatus.CANCELLED, reason);
+        repository.changeStatus(
+                internalId, ContentJobStatus.PENDING, ContentJobStatus.CANCELLED, reason,
+                OffsetDateTime.now(clock)
+        );
     }
 
     @Transactional
