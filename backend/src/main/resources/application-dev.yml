@@ -85,6 +85,12 @@ application:
   media:
     max-image-size: 20MB
     download-link-ttl: 1h
+    sync-enabled: true
+    sync-interval: 1m
+    sync-batch-size: 20
+    sync-max-failures: 5
+    sync-retry-base-delay: 5m
+    download-timeout: 30s
   items:
     max-dependency-depth: 3
     max-dependency-items: 200

@@ -5,6 +5,8 @@ import notkirill.workshopmanager.game.models.GameMetadata;
 import notkirill.workshopmanager.game.models.GameToModspaceId;
 import notkirill.workshopmanager.game.repositories.GameMetadataRepository;
 import notkirill.workshopmanager.game.repositories.GameToModspaceIdRepository;
+import notkirill.workshopmanager.media.enums.EntityType;
+import notkirill.workshopmanager.media.source.MediaSourceSyncService;
 import notkirill.workshopmanager.modspace.ModspaceType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,6 +27,7 @@ class GameResolutionServiceTest {
 
     private GameMetadataRepository gameRepository;
     private GameToModspaceIdRepository mappingRepository;
+    private MediaSourceSyncService mediaSourceSyncService;
     private GameResolutionService service;
 
     @BeforeEach
@@ -33,9 +36,10 @@ class GameResolutionServiceTest {
         mappingRepository = mock(GameToModspaceIdRepository.class);
         when(gameRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
         when(mappingRepository.findBySourceModspaceAndExternalId(any(), any())).thenReturn(Optional.empty());
+        mediaSourceSyncService = mock(MediaSourceSyncService.class);
         service = new GameResolutionService(
                 gameRepository, mappingRepository, mock(DatabaseLocks.class),
-                Clock.fixed(NOW_INSTANT, ZoneOffset.UTC)
+                Clock.fixed(NOW_INSTANT, ZoneOffset.UTC), mediaSourceSyncService
         );
     }
 
@@ -57,6 +61,13 @@ class GameResolutionServiceTest {
     }
 
     @Test
+    void newGameRequestsItsCover() {
+        long gameId = service.resolve(ModspaceType.STEAM, "4000", "Garry's Mod", "Steam App 4000");
+
+        verify(mediaSourceSyncService).onSourceSynced(EntityType.GAME, gameId, ModspaceType.STEAM, "4000", true);
+    }
+
+    @Test
     void knownGameIsReturnedAsIs() {
         when(mappingRepository.findBySourceModspaceAndExternalId(ModspaceType.STEAM, "4000"))
                 .thenReturn(Optional.of(new GameToModspaceId(7, ModspaceType.STEAM, "4000")));
@@ -64,6 +75,7 @@ class GameResolutionServiceTest {
         assertThat(service.resolve(ModspaceType.STEAM, "4000", null, "Steam App 4000")).isEqualTo(7);
         verify(gameRepository, never()).save(any());
         verify(mappingRepository, never()).save(any());
+        verifyNoInteractions(mediaSourceSyncService);
     }
 
     private GameMetadata savedGame() {

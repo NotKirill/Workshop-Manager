@@ -3,6 +3,9 @@ package notkirill.workshopmanager.game.web;
 import notkirill.workshopmanager.game.GameService;
 import notkirill.workshopmanager.game.models.GameMetadata;
 import notkirill.workshopmanager.game.models.GameToModspaceId;
+import notkirill.workshopmanager.media.MediaPurposes;
+import notkirill.workshopmanager.media.MediaService;
+import notkirill.workshopmanager.media.enums.EntityType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,10 +16,12 @@ import java.util.Map;
 @Service
 public class GameWebService {
     private final GameService gameService;
+    private final MediaService mediaService;
 
     @Autowired
-    public GameWebService(GameService gameService) {
+    public GameWebService(GameService gameService, MediaService mediaService) {
         this.gameService = gameService;
+        this.mediaService = mediaService;
     }
 
     public List<GameResponse> getAll(long userId) {
@@ -48,6 +53,7 @@ public class GameWebService {
         List<Long> ids = games.stream().map(GameMetadata::getId).toList();
         Map<Long, List<GameToModspaceId>> mappings = gameService.modspaceIdsOf(ids);
         Map<Long, List<Long>> compatibility = gameService.compatibleGameIdsOf(ids);
+        Map<Long, String> covers = mediaService.sourceImageUrls(EntityType.GAME, ids, MediaPurposes.COVER);
         List<GameResponse> result = new ArrayList<>();
         for (GameMetadata game : games) {
             List<GameResponse.ModspaceId> modspaceIds = mappings.getOrDefault(game.getId(), List.of()).stream()
@@ -55,7 +61,7 @@ public class GameWebService {
                     .toList();
             boolean namePending = game.getNameRequestedAt() != null;
             result.add(new GameResponse(
-                    game.getId(), game.getName(), game.getSlug(), namePending, null,
+                    game.getId(), game.getName(), game.getSlug(), namePending, covers.get(game.getId()),
                     modspaceIds, compatibility.getOrDefault(game.getId(), List.of()),
                     counts.getOrDefault(game.getId(), 0L)
             ));

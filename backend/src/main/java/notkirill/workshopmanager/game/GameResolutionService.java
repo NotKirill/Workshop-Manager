@@ -5,6 +5,8 @@ import notkirill.workshopmanager.game.models.GameMetadata;
 import notkirill.workshopmanager.game.models.GameToModspaceId;
 import notkirill.workshopmanager.game.repositories.GameMetadataRepository;
 import notkirill.workshopmanager.game.repositories.GameToModspaceIdRepository;
+import notkirill.workshopmanager.media.enums.EntityType;
+import notkirill.workshopmanager.media.source.MediaSourceSyncService;
 import notkirill.workshopmanager.modspace.ModspaceType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,15 +22,17 @@ public class GameResolutionService {
     private final GameToModspaceIdRepository mappingRepository;
     private final DatabaseLocks databaseLocks;
     private final Clock clock;
+    private final MediaSourceSyncService mediaSourceSyncService;
 
     @Autowired
     public GameResolutionService(GameMetadataRepository gameRepository,
                                  GameToModspaceIdRepository mappingRepository, DatabaseLocks databaseLocks,
-                                 Clock clock) {
+                                 Clock clock, MediaSourceSyncService mediaSourceSyncService) {
         this.gameRepository = gameRepository;
         this.mappingRepository = mappingRepository;
         this.databaseLocks = databaseLocks;
         this.clock = clock;
+        this.mediaSourceSyncService = mediaSourceSyncService;
     }
 
     public Optional<Long> find(ModspaceType modspace, String externalId) {
@@ -54,6 +58,7 @@ public class GameResolutionService {
         }
         GameMetadata game = gameRepository.save(newGame);
         mappingRepository.save(new GameToModspaceId(game.getId(), modspace, externalId));
+        mediaSourceSyncService.onSourceSynced(EntityType.GAME, game.getId(), modspace, externalId, true);
         return game.getId();
     }
 }

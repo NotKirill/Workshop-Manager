@@ -5,6 +5,8 @@ import notkirill.workshopmanager.item.shared.ItemInternalService;
 import notkirill.workshopmanager.item.shared.ItemMetadataInternal;
 import notkirill.workshopmanager.item.shared.ItemProjectionService;
 import notkirill.workshopmanager.item.shared.ProjectionData;
+import notkirill.workshopmanager.media.enums.EntityType;
+import notkirill.workshopmanager.media.source.MediaSourceSyncService;
 import notkirill.workshopmanager.modspace.ModspaceRegistry;
 import notkirill.workshopmanager.modspace.ModspaceType;
 import notkirill.workshopmanager.modspace.SourceItem;
@@ -19,13 +21,15 @@ public class SourceFetchService {
     private final ModspaceRegistry modspaceRegistry;
     private final ItemInternalService internalService;
     private final ItemProjectionService projectionService;
+    private final MediaSourceSyncService mediaSourceSyncService;
 
     @Autowired
     public SourceFetchService(ModspaceRegistry modspaceRegistry, ItemInternalService internalService,
-                              ItemProjectionService projectionService) {
+                              ItemProjectionService projectionService, MediaSourceSyncService mediaSourceSyncService) {
         this.modspaceRegistry = modspaceRegistry;
         this.internalService = internalService;
         this.projectionService = projectionService;
+        this.mediaSourceSyncService = mediaSourceSyncService;
     }
 
     public List<SyncOutcome> sync(ModspaceType modspace, Collection<String> originalIds) {
@@ -43,6 +47,10 @@ public class SourceFetchService {
                 source.modspace(), source.gameId(), source.originalId());
         internalService.assignGame(internal, source.gameId());
         long internalId = internal.getId();
+        mediaSourceSyncService.onSourceSynced(
+                EntityType.ITEM, internalId, source.modspace(), source.originalId(),
+                source.mediaChanged()
+        );
         projectionService.upsert(
                 internalId, new ProjectionData(
                         source.title(),

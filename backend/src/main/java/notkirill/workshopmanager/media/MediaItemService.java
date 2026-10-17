@@ -12,12 +12,14 @@ import notkirill.workshopmanager.media.models.MediaItem;
 import notkirill.workshopmanager.media.repositories.MediaEmbedRepository;
 import notkirill.workshopmanager.media.repositories.MediaFileRepository;
 import notkirill.workshopmanager.media.repositories.MediaItemRepository;
+import notkirill.workshopmanager.media.source.SourceMedia;
 import notkirill.workshopmanager.security.SignedUrlService;
 import notkirill.workshopmanager.storage.ObjectStorage;
 import notkirill.workshopmanager.storage.StoredObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.InputStreamSource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -117,6 +119,13 @@ public class MediaItemService {
         );
     }
 
+    public MediaItem createSourceImage(byte[] data, String originalName, ImageFormat format, String sourceVersion) {
+        return storeImage(
+                null, format, fileName(originalName, format), data.length, new ByteArrayResource(data),
+                sourceVersion
+        );
+    }
+
     private MediaItem storeImage(@Nullable Long ownerUserId, ImageFormat format, String fileName, long size,
                                  InputStreamSource data, @Nullable String sourceVersion) {
         MediaItem item = itemRepository.save(new MediaItem(MediaType.FILE, ownerUserId));
@@ -180,6 +189,20 @@ public class MediaItemService {
     @Transactional(readOnly = true)
     public Optional<MediaItem> find(long mediaItemId) {
         return itemRepository.findById(mediaItemId);
+    }
+
+    @Transactional(readOnly = true)
+    public Map<Long, String> sourceVersions(Collection<Long> mediaItemIds) {
+        Map<Long, String> versions = new HashMap<>();
+        for (MediaFile file : fileRepository.findAllById(mediaItemIds)) {
+            if (file.getSourceVersion() != null) {
+                versions.put(file.getMediaItemId(), file.getSourceVersion());
+            }
+        }
+        for (MediaEmbed embed : embedRepository.findAllById(mediaItemIds)) {
+            versions.put(embed.getMediaItemId(), SourceMedia.Embed.version(embed.getProvider(), embed.getExternalId()));
+        }
+        return versions;
     }
 
     @Transactional(readOnly = true)
