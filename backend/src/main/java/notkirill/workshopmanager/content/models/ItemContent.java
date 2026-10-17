@@ -1,4 +1,4 @@
-package notkirill.workshopmanager.models;
+package notkirill.workshopmanager.content.models;
 
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
@@ -9,7 +9,8 @@ import java.util.Arrays;
 @Entity
 @Table(name = "item_contents",
         uniqueConstraints = {
-                @UniqueConstraint(name = "uk_item_contents_internal_metadata_id", columnNames = {"internal_metadata_id"})
+                @UniqueConstraint(name = "uk_item_contents_internal_metadata_id",
+                        columnNames = {"internal_metadata_id", "edition", "attributes"})
         })
 public class ItemContent {
     @Id
@@ -21,9 +22,6 @@ public class ItemContent {
     @NotNull
     @Column(name = "internal_metadata_id", nullable = false)
     private long internalMetadataId;
-
-    @Column(name = "reference_count")
-    private int referenceCount;
 
     @NotNull
     @Column(name = "edition", nullable = false)
@@ -40,9 +38,8 @@ public class ItemContent {
         // Required by JPA
     }
 
-    public ItemContent(long internalMetadataId, int referenceCount, String edition, String[] attributes, short maxRevisions) {
+    public ItemContent(long internalMetadataId, String edition, String[] attributes, short maxRevisions) {
         this.internalMetadataId = internalMetadataId;
-        this.referenceCount = referenceCount;
         this.edition = edition;
         this.attributes = attributes;
         this.maxRevisions = maxRevisions;
@@ -62,14 +59,6 @@ public class ItemContent {
 
     public void setInternalMetadataId(long internalMetadataId) {
         this.internalMetadataId = internalMetadataId;
-    }
-
-    public int getReferenceCount() {
-        return referenceCount;
-    }
-
-    public void setReferenceCount(int referenceCount) {
-        this.referenceCount = referenceCount;
     }
 
     public String getEdition() {
@@ -101,7 +90,6 @@ public class ItemContent {
         return "ItemContent{" +
                 "id=" + id +
                 ", internalMetadataId=" + internalMetadataId +
-                ", referenceCount=" + referenceCount +
                 ", edition='" + edition + '\'' +
                 ", attributes=" + Arrays.toString(attributes) +
                 ", maxRevisions=" + maxRevisions +

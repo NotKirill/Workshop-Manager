@@ -1,6 +1,7 @@
 package notkirill.workshopmanager.item.registration;
 
 import jakarta.annotation.Nullable;
+import notkirill.workshopmanager.content.ContentJobService;
 import notkirill.workshopmanager.exception.ApiException;
 import notkirill.workshopmanager.game.GameService;
 import notkirill.workshopmanager.item.enums.ItemLifecycleState;
@@ -39,19 +40,21 @@ public class ItemRegistrationService {
     private final ItemInternalService internalService;
     private final ItemProjectionService projectionService;
     private final PersonalItemService personalService;
+    private final ContentJobService contentJobService;
     private final GameService gameService;
     private final TransactionTemplate transactionTemplate;
 
     @Autowired
     public ItemRegistrationService(ModspaceRegistry modspaceRegistry, SourceFetchService sourceFetchService,
                                    ItemInternalService internalService, ItemProjectionService projectionService,
-                                   PersonalItemService personalService, GameService gameService,
-                                   PlatformTransactionManager transactionManager) {
+                                   PersonalItemService personalService, ContentJobService contentJobService,
+                                   GameService gameService, PlatformTransactionManager transactionManager) {
         this.modspaceRegistry = modspaceRegistry;
         this.sourceFetchService = sourceFetchService;
         this.internalService = internalService;
         this.projectionService = projectionService;
         this.personalService = personalService;
+        this.contentJobService = contentJobService;
         this.gameService = gameService;
         this.transactionTemplate = new TransactionTemplate(transactionManager);
     }
@@ -183,6 +186,9 @@ public class ItemRegistrationService {
                                 new ItemMetadataPersonal(userId, internalId, null, null, null, autoBackup)), true
                 );
             });
+            if (attachment.created() && autoBackup) {
+                contentJobService.requestBackup(internalId, userId);
+            }
             return result(
                     modspace, originalId,
                     attachment.created() ? Status.REGISTERED : Status.ALREADY_REGISTERED,

@@ -82,6 +82,17 @@ application:
       access-key: devseaweed
       secret-key: devseaweed-secret
       create-bucket: true
+  content:
+    temp-dir: ./build/dev-content-tmp
+    default-max-revisions: 3
+    jobs:
+      enabled: true
+      interval: 30s
+      batch-size: 3
+      max-attempts: 5
+      retry-base-delay: 1m
+      running-timeout: 2h
+      history-retention: 30d
   media:
     max-image-size: 20MB
     download-link-ttl: 1h

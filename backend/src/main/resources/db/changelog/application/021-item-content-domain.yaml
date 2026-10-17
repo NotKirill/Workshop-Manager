@@ -1,0 +1,183 @@
+databaseChangeLog:
+  - changeSet:
+      id: "021-types"
+      author: NotKirill
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: CREATE TYPE content_job_type AS ENUM ('BACKUP', 'DELETE_REVISION', 'DELETE_ALL')
+        - sql:
+            dbms: postgresql
+            sql: CREATE TYPE content_job_status AS ENUM ('PENDING', 'RUNNING', 'SUCCEEDED', 'FAILED', 'CANCELLED')
+      rollback:
+        - sql:
+            dbms: postgresql
+            sql: DROP TYPE content_job_status
+        - sql:
+            dbms: postgresql
+            sql: DROP TYPE content_job_type
+  - changeSet:
+      id: "021"
+      author: NotKirill
+      changes:
+        - addColumn:
+            tableName: item_content_revisions
+            columns:
+              - column:
+                  name: sha256
+                  type: TEXT
+              - column:
+                  name: source_version
+                  type: TEXT
+              - column:
+                  name: uploaded_by_user_id
+                  type: BIGINT
+        - createTable:
+            tableName: content_jobs
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_content_jobs
+                    nullable: false
+              - column:
+                  name: internal_metadata_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: type
+                  type: content_job_type
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: content_job_status
+                  defaultValue: PENDING
+                  constraints:
+                    nullable: false
+              - column:
+                  name: revision
+                  type: BIGINT
+              - column:
+                  name: requested_by_user_id
+                  type: BIGINT
+              - column:
+                  name: attempts
+                  type: SMALLINT
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: next_attempt_at
+                  type: TIMESTAMPTZ
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_error
+                  type: TEXT
+              - column:
+                  name: time_created
+                  type: TIMESTAMPTZ
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: time_started
+                  type: TIMESTAMPTZ
+              - column:
+                  name: time_finished
+                  type: TIMESTAMPTZ
+              - column:
+                  name: error_code
+                  type: TEXT
+              - column:
+                  name: note
+                  type: TEXT
+  - changeSet:
+      id: "021-manual-rollback"
+      author: NotKirill
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: >-
+              CREATE UNIQUE INDEX uk_content_jobs_active_backup ON content_jobs (internal_metadata_id)
+              WHERE type = 'BACKUP' AND status IN ('PENDING', 'RUNNING')
+        - dropColumn:
+            tableName: item_contents
+            columnName: reference_count
+        - modifyDataType:
+            tableName: item_content_revisions
+            columnName: file_size
+            newDataType: BIGINT
+      rollback:
+        - modifyDataType:
+            tableName: item_content_revisions
+            columnName: file_size
+            newDataType: INTEGER
+        - addColumn:
+            tableName: item_contents
+            columns:
+              - column:
+                  name: reference_count
+                  type: INTEGER
+        - sql:
+            dbms: postgresql
+            sql: DROP INDEX uk_content_jobs_active_backup
+  - changeSet:
+      id: "021-uploads"
+      author: NotKirill
+      changes:
+        - createTable:
+            tableName: content_uploads
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_content_uploads
+                    nullable: false
+              - column:
+                  name: internal_metadata_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: file_name
+                  type: TEXT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: size
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: received
+                  type: BIGINT
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: time_created
+                  type: TIMESTAMPTZ
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false
+              - column:
+                  name: time_updated
+                  type: TIMESTAMPTZ
+                  defaultValueComputed: NOW()
+                  constraints:
+                    nullable: false

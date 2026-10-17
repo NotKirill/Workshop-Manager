@@ -1,5 +1,6 @@
 package notkirill.workshopmanager.item.sync;
 
+import notkirill.workshopmanager.content.ContentJobService;
 import notkirill.workshopmanager.item.personal.PersonalItemService;
 import notkirill.workshopmanager.item.shared.ItemInternalService;
 import notkirill.workshopmanager.item.shared.ItemMetadataInternal;
@@ -24,17 +25,19 @@ public class ItemSyncService {
     private final PersonalItemService personalService;
     private final ModspaceRegistry modspaceRegistry;
     private final SourceFetchService sourceFetchService;
+    private final ContentJobService contentJobService;
     private final ItemSyncProperties properties;
     private final Clock clock;
 
     @Autowired
     public ItemSyncService(ItemInternalService internalService, PersonalItemService personalService,
                            ModspaceRegistry modspaceRegistry, SourceFetchService sourceFetchService,
-                           ItemSyncProperties properties, Clock clock) {
+                           ContentJobService contentJobService, ItemSyncProperties properties, Clock clock) {
         this.internalService = internalService;
         this.personalService = personalService;
         this.modspaceRegistry = modspaceRegistry;
         this.sourceFetchService = sourceFetchService;
+        this.contentJobService = contentJobService;
         this.properties = properties;
         this.clock = clock;
     }
@@ -42,6 +45,7 @@ public class ItemSyncService {
     public SyncReport syncStale() {
         int synced = 0;
         int unavailable = 0;
+        int backups = 0;
         for (ModspaceAdapter adapter : modspaceRegistry.all()) {
             if (adapter.type() == ModspaceType.LOCAL) {
                 continue;
@@ -62,17 +66,25 @@ public class ItemSyncService {
                     } else {
                         synced++;
                     }
+                    if (outcome.sourceChanged()) {
+                        backups++;
+                    }
                 }
             } catch (RuntimeException e) {
                 log.warn("Scheduled sync with {} failed: {}", adapter.type(), e.getMessage());
             }
         }
-        return new SyncReport(synced, unavailable, 0);
+        return new SyncReport(synced, unavailable, backups);
     }
 
     public List<SyncOutcome> sync(ModspaceType modspace, Collection<String> originalIds) {
         List<SyncOutcome> outcomes = sourceFetchService.sync(modspace, originalIds);
         for (SyncOutcome outcome : outcomes) {
+            if (outcome.sourceChanged()) {
+                if (personalService.hasAutoBackupUsers(outcome.internalId())) {
+                    contentJobService.requestBackup(outcome.internalId(), null);
+                }
+            }
             if (outcome.dependenciesChanged()) {
                 personalService.requestDependencyReview(outcome.internalId());
             }

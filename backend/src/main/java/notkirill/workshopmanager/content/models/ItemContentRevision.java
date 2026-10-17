@@ -1,5 +1,6 @@
-package notkirill.workshopmanager.models;
+package notkirill.workshopmanager.content.models;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.annotation.CreatedDate;
@@ -34,7 +35,17 @@ public class ItemContentRevision {
 
     @NotNull
     @Column(name = "file_size", nullable = false)
-    private int fileSize;
+    private long fileSize;
+
+    @Column(name = "sha256")
+    private String sha256;
+
+    @Column(name = "source_version")
+    private String sourceVersion;
+
+    @Nullable
+    @Column(name = "uploaded_by_user_id", nullable = true)
+    private Long uploadedByUserId;
 
     @NotNull
     @Column(name = "time_created", nullable = false)
@@ -45,12 +56,33 @@ public class ItemContentRevision {
         // Required by JPA
     }
 
-    public ItemContentRevision(long itemContentId, long revision, String s3Key, String fileName, int fileSize) {
+    public ItemContentRevision(long itemContentId, long revision, String s3Key, String fileName, long fileSize,
+                               String sha256, String sourceVersion, @Nullable Long uploadedByUserId) {
         this.itemContentId = itemContentId;
         this.revision = revision;
         this.s3Key = s3Key;
         this.fileName = fileName;
         this.fileSize = fileSize;
+        this.sha256 = sha256;
+        this.sourceVersion = sourceVersion;
+        this.uploadedByUserId = uploadedByUserId;
+    }
+
+    public String getSha256() {
+        return sha256;
+    }
+
+    public String getSourceVersion() {
+        return sourceVersion;
+    }
+
+    @Nullable
+    public Long getUploadedByUserId() {
+        return uploadedByUserId;
+    }
+
+    public boolean isVisibleTo(long userId) {
+        return uploadedByUserId == null || uploadedByUserId == userId;
     }
 
     public long getItemContentId() {
@@ -85,11 +117,11 @@ public class ItemContentRevision {
         this.fileName = fileName;
     }
 
-    public int getFileSize() {
+    public long getFileSize() {
         return fileSize;
     }
 
-    public void setFileSize(int fileSize) {
+    public void setFileSize(long fileSize) {
         this.fileSize = fileSize;
     }
 
