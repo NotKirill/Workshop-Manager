@@ -131,7 +131,7 @@ application:
       steamcmd:
         # The steamcmd service of compose.dev.yaml
         url: http://127.0.0.1:8096
-        downloads-dir: /tmp/workshop-manager/steam-downloads
+        downloads-dir: /tmp/workshop-manager-steam-downloads
         timeout: 30m
   bootstrap:
     admin:
