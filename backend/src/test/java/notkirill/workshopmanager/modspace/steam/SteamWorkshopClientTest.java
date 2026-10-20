@@ -58,7 +58,7 @@ class SteamWorkshopClientTest {
         server.expect(requestTo(startsWith(BASE_URL + path)))
                 .andExpect(method(method))
                 .andRespond(withSuccess(answer, MediaType.APPLICATION_JSON));
-        return new SteamWorkshopClient(new SteamProperties(webApiKey, null, null), builder.build());
+        return new SteamWorkshopClient(new SteamProperties(webApiKey, null, null, null), builder.build());
     }
 
     @Test

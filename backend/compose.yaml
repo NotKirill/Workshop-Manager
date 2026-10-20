@@ -51,8 +51,39 @@ services:
       timeout: 5s
       retries: 5
       start_period: 15s
+  steamcmd:
+    build:
+      context: ./steamcmd
+      args:
+        UID: ${APP_UID:?APP_UID is required}
+        GID: ${APP_GID:?APP_GID is required}
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETUID
+      - SETGID
+    logging:
+      options:
+        max-size: 10m
+        max-file: "3"
+    volumes:
+      - /var/lib/workshop-manager/steam-downloads:/downloads
+      - steamcmd_data:/opt/steamcmd
+    ports:
+      - "127.0.0.1:8095:8095"
+    healthcheck:
+      test: [ "CMD", "curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1:8095/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
 
 volumes:
   postgres_data:
   redis_data:
   seaweedfs_data:
+  steamcmd_data:

@@ -128,6 +128,11 @@ application:
       web-api-key: ${STEAM_WEB_API_KEY:}
       batch-min-size: 70
       batch-max-size: 100
+      steamcmd:
+        # The steamcmd service of compose.dev.yaml
+        url: http://127.0.0.1:8096
+        downloads-dir: /tmp/workshop-manager/steam-downloads
+        timeout: 30m
   bootstrap:
     admin:
       username: admin
