@@ -6,6 +6,7 @@ import notkirill.workshopmanager.scheduler.ValidQuartzCron;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.boot.context.properties.bind.Name;
+import org.springframework.util.unit.DataSize;
 import org.springframework.validation.annotation.Validated;
 
 import java.nio.file.Path;
@@ -19,7 +20,8 @@ public record ContentProperties(
         @Name("default-max-revisions") Short defaultMaxRevisions,
         @Name("housekeeping-cron") @ValidQuartzCron String housekeepingCron,
 
-        @Name("jobs") @DefaultValue @Valid Jobs jobs
+        @Name("jobs") @DefaultValue @Valid Jobs jobs,
+        @Name("uploads") @DefaultValue @Valid Uploads uploads
 ) {
     public static final String CONF_PATH = "application.content";
 
@@ -67,5 +69,12 @@ public record ContentProperties(
                 runningTimeout = Duration.ofHours(2);
             }
         }
+    }
+
+    public record Uploads(
+            @Name("max-size") @NotNull DataSize maxSize,
+            @Name("chunk-size") @NotNull DataSize chunkSize,
+            @Name("expiry") @NotNull Duration expiry
+    ) {
     }
 }

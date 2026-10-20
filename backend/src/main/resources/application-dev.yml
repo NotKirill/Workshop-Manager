@@ -95,6 +95,10 @@ application:
       retry-base-delay: 1m
       running-timeout: 2h
       history-retention: 30d
+    uploads:
+      max-size: 4GB
+      chunk-size: 16MB
+      expiry: 24h
   media:
     max-image-size: 20MB
     download-link-ttl: 1h
