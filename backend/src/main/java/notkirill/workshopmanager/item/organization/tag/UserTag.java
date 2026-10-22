@@ -1,4 +1,4 @@
-package notkirill.workshopmanager.models;
+package notkirill.workshopmanager.item.organization.tag;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -12,7 +12,12 @@ public class UserTag {
     @Column(name = "id", nullable = false)
     private long id;
 
-    @Column(name = "display_name")
+    @NotNull
+    @Column(name = "user_id", nullable = false)
+    private long userId;
+
+    @NotNull
+    @Column(name = "display_name", nullable = false)
     private String displayName;
 
     @NotNull
@@ -23,7 +28,8 @@ public class UserTag {
         // Required by JPA
     }
 
-    public UserTag(String displayName, long gameId) {
+    public UserTag(long userId, String displayName, long gameId) {
+        this.userId = userId;
         this.displayName = displayName;
         this.gameId = gameId;
     }
@@ -34,6 +40,10 @@ public class UserTag {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public long getUserId() {
+        return userId;
     }
 
     public String getDisplayName() {
@@ -56,6 +66,7 @@ public class UserTag {
     public String toString() {
         return "UserTag{" +
                 "id=" + id +
+                ", userId=" + userId +
                 ", displayName='" + displayName + '\'' +
                 ", gameId=" + gameId +
                 '}';

@@ -3,9 +3,12 @@ package notkirill.workshopmanager.item.registration;
 import jakarta.annotation.Nullable;
 import notkirill.workshopmanager.content.ContentJobService;
 import notkirill.workshopmanager.exception.ApiException;
+import notkirill.workshopmanager.exception.BadRequestException;
 import notkirill.workshopmanager.game.GameService;
+import notkirill.workshopmanager.item.ItemProperties;
 import notkirill.workshopmanager.item.enums.ItemLifecycleState;
 import notkirill.workshopmanager.item.enums.ItemSourceStatus;
+import notkirill.workshopmanager.item.organization.relation.RelationService;
 import notkirill.workshopmanager.item.personal.ItemMetadataPersonal;
 import notkirill.workshopmanager.item.personal.PersonalItemService;
 import notkirill.workshopmanager.item.registration.RegistrationResult.Status;
@@ -40,22 +43,28 @@ public class ItemRegistrationService {
     private final ItemInternalService internalService;
     private final ItemProjectionService projectionService;
     private final PersonalItemService personalService;
+    private final RelationService relationService;
     private final ContentJobService contentJobService;
     private final GameService gameService;
+    private final ItemProperties properties;
     private final TransactionTemplate transactionTemplate;
 
     @Autowired
     public ItemRegistrationService(ModspaceRegistry modspaceRegistry, SourceFetchService sourceFetchService,
                                    ItemInternalService internalService, ItemProjectionService projectionService,
-                                   PersonalItemService personalService, ContentJobService contentJobService,
-                                   GameService gameService, PlatformTransactionManager transactionManager) {
+                                   PersonalItemService personalService, RelationService relationService,
+                                   ContentJobService contentJobService,
+                                   GameService gameService, ItemProperties properties,
+                                   PlatformTransactionManager transactionManager) {
         this.modspaceRegistry = modspaceRegistry;
         this.sourceFetchService = sourceFetchService;
         this.internalService = internalService;
         this.projectionService = projectionService;
         this.personalService = personalService;
+        this.relationService = relationService;
         this.contentJobService = contentJobService;
         this.gameService = gameService;
+        this.properties = properties;
         this.transactionTemplate = new TransactionTemplate(transactionManager);
     }
 
@@ -97,6 +106,100 @@ public class ItemRegistrationService {
         for (Map.Entry<ModspaceType, Set<String>> entry : byModspace.entrySet()) {
             results.addAll(registerResolved(userId, entry.getKey(), entry.getValue(), request.autoBackup(), null));
         }
+
+        if (Boolean.TRUE.equals(request.includeDependencies())) {
+            List<RegistrationResult> roots = results.stream()
+                    .filter(r -> r.personalId() != null)
+                    .toList();
+            Set<Long> visited = new HashSet<>();
+            for (RegistrationResult root : roots) {
+                results.addAll(registerDependencies(userId, root.personalId(), request.autoBackup(), visited));
+            }
+        }
+        return results;
+    }
+
+    public List<RegistrationResult> registerDependencies(long userId, long personalId, boolean autoBackup,
+                                                         Set<Long> visited) {
+        List<RegistrationResult> results = new ArrayList<>();
+        Deque<long[]> queue = new ArrayDeque<>();
+        queue.add(new long[]{personalId, 0});
+        int registered = 0;
+
+        while (!queue.isEmpty() && registered < properties.maxDependencyItems()) {
+            long[] current = queue.poll();
+            long sourcePersonalId = current[0];
+            int depth = (int) current[1];
+            if (!visited.add(sourcePersonalId) || depth >= properties.maxDependencyDepth()) {
+                continue;
+            }
+            Optional<ItemMetadataPersonal> source = personalService.findOwned(userId, sourcePersonalId);
+            if (source.isEmpty()) {
+                continue;
+            }
+            ItemMetadataInternal internal = internalService.require(source.get().getInternalMetadataId());
+            Optional<ModspaceAdapter> adapter = modspaceRegistry.find(internal.getSourceModspace());
+            if (adapter.isEmpty()) {
+                continue;
+            }
+            List<String> dependencyIds = adapter.get().getDependencies(internal.getOriginalId());
+            if (dependencyIds.isEmpty()) {
+                continue;
+            }
+            List<RegistrationResult> dependencyResults = registerResolved(
+                    userId, internal.getSourceModspace(),
+                    dependencyIds, autoBackup, sourcePersonalId
+            );
+            for (RegistrationResult dependency : dependencyResults) {
+                results.add(dependency);
+                if (dependency.personalId() != null) {
+                    relationService.linkDependency(userId, sourcePersonalId, dependency.personalId());
+                    if (dependency.status() == Status.REGISTERED) {
+                        registered++;
+                    }
+                    queue.add(new long[]{dependency.personalId(), depth + 1});
+                }
+            }
+        }
+        List<Long> tracked = new ArrayList<>(List.of(personalId));
+        results.stream().map(RegistrationResult::personalId).filter(Objects::nonNull).forEach(tracked::add);
+        personalService.trackDependencies(tracked);
+        return results;
+    }
+
+    public List<RegistrationResult> reviewDependencies(long userId, long personalId, Collection<String> add,
+                                                       Collection<Long> remove) {
+        ItemMetadataPersonal personal = personalService.requireOwned(userId, personalId);
+        List<RegistrationResult> results = new ArrayList<>();
+        if (!add.isEmpty()) {
+            ItemMetadataInternal internal = internalService.require(personal.getInternalMetadataId());
+            ModspaceAdapter adapter = modspaceRegistry.get(internal.getSourceModspace());
+            if (!adapter.getDependencies(internal.getOriginalId()).containsAll(add)) {
+                throw new BadRequestException(
+                        "NOT_A_DEPENDENCY",
+                        "Only items the source declares as dependencies can be added"
+                );
+            }
+            Set<Long> visited = new HashSet<>(List.of(personalId));
+            for (RegistrationResult dependency : registerResolved(
+                    userId, internal.getSourceModspace(), add,
+                    personal.isAutoBackup(), personalId
+            )) {
+                results.add(dependency);
+                if (dependency.personalId() != null) {
+                    relationService.linkDependency(userId, personalId, dependency.personalId());
+                    results.addAll(registerDependencies(
+                            userId, dependency.personalId(), personal.isAutoBackup(),
+                            visited
+                    ));
+                }
+            }
+        }
+        for (long targetId : remove) {
+            relationService.unlinkDependency(userId, personalId, targetId);
+        }
+        personal.setDependenciesNeedReview(false);
+        personalService.save(personal);
         return results;
     }
 

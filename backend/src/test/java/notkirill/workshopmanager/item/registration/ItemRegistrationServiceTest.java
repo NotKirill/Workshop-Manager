@@ -3,7 +3,9 @@ package notkirill.workshopmanager.item.registration;
 import notkirill.workshopmanager.content.ContentJobService;
 import notkirill.workshopmanager.exception.ExternalServiceException;
 import notkirill.workshopmanager.game.GameService;
+import notkirill.workshopmanager.item.ItemProperties;
 import notkirill.workshopmanager.item.enums.ItemLifecycleState;
+import notkirill.workshopmanager.item.organization.relation.RelationService;
 import notkirill.workshopmanager.item.personal.PersonalItemService;
 import notkirill.workshopmanager.item.shared.ItemInternalService;
 import notkirill.workshopmanager.item.shared.ItemMetadataInternal;
@@ -58,9 +60,10 @@ class ItemRegistrationServiceTest {
         when(projectionService.find(anyLong())).thenReturn(Optional.empty());
 
         service = new ItemRegistrationService(
-                new ModspaceRegistry(List.of(steam)), sourceFetchService, internalService, projectionService,
-                personalService, mock(ContentJobService.class), mock(GameService.class),
-                mock(PlatformTransactionManager.class)
+                new ModspaceRegistry(List.of(steam)), sourceFetchService,
+                internalService, projectionService, personalService,
+                mock(RelationService.class), mock(ContentJobService.class), mock(GameService.class),
+                new ItemProperties(null, null), mock(PlatformTransactionManager.class)
         );
     }
 

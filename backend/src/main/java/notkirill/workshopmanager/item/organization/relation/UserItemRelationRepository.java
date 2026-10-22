@@ -1,8 +1,10 @@
-package notkirill.workshopmanager.models.repositories;
+package notkirill.workshopmanager.item.organization.relation;
 
-import notkirill.workshopmanager.models.UserItemRelation;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface UserItemRelationRepository extends JpaRepository<UserItemRelation, UserItemRelation.CompositeId> {
@@ -12,4 +14,11 @@ public interface UserItemRelationRepository extends JpaRepository<UserItemRelati
 
     List<UserItemRelation> findBySourceItemPersonalMetadataIdAndTargetItemPersonalMetadataId(
             long sourceItemPersonalMetadataId, long targetItemPersonalMetadataId);
+
+    @Modifying
+    @Query("""
+            DELETE FROM UserItemRelation r
+            WHERE r.sourceItemPersonalMetadataId IN :personalIds OR r.targetItemPersonalMetadataId IN :personalIds
+            """)
+    int deleteTouching(Collection<Long> personalIds);
 }

@@ -1,4 +1,4 @@
-package notkirill.workshopmanager.models;
+package notkirill.workshopmanager.item.organization.group;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -7,34 +7,34 @@ import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
-@Table(name = "user_item_tags")
-@IdClass(UserItemTag.CompositeId.class)
-public class UserItemTag {
+@Table(name = "user_group_items")
+@IdClass(UserGroupItem.CompositeId.class)
+public class UserGroupItem {
     @Id
     @NotNull
-    @Column(name = "tag_id", nullable = false)
-    private long tagId;
+    @Column(name = "user_group_id", nullable = false)
+    private long userGroupId;
 
     @Id
     @NotNull
     @Column(name = "item_personal_metadata_id", nullable = false)
     private long itemPersonalMetadataId;
 
-    protected UserItemTag() {
+    protected UserGroupItem() {
         // Required by JPA
     }
 
-    public UserItemTag(long tagId, long itemPersonalMetadataId) {
-        this.tagId = tagId;
+    public UserGroupItem(long userGroupId, long itemPersonalMetadataId) {
+        this.userGroupId = userGroupId;
         this.itemPersonalMetadataId = itemPersonalMetadataId;
     }
 
-    public long getTagId() {
-        return tagId;
+    public long getUserGroupId() {
+        return userGroupId;
     }
 
-    public void setTagId(long tagId) {
-        this.tagId = tagId;
+    public void setUserGroupId(long userGroupId) {
+        this.userGroupId = userGroupId;
     }
 
     public long getItemPersonalMetadataId() {
@@ -47,31 +47,31 @@ public class UserItemTag {
 
     @Override
     public String toString() {
-        return "UserItemTag{" +
-                "tagId=" + tagId +
+        return "UserGroupItem{" +
+                "userGroupId=" + userGroupId +
                 ", itemPersonalMetadataId=" + itemPersonalMetadataId +
                 '}';
     }
 
     public static class CompositeId implements Serializable {
-        private long tagId;
+        private long userGroupId;
         private long itemPersonalMetadataId;
 
         protected CompositeId() {
             // Required by JPA
         }
 
-        public CompositeId(long tagId, long itemPersonalMetadataId) {
-            this.tagId = tagId;
+        public CompositeId(long userGroupId, long itemPersonalMetadataId) {
+            this.userGroupId = userGroupId;
             this.itemPersonalMetadataId = itemPersonalMetadataId;
         }
 
-        public long getTagId() {
-            return tagId;
+        public long getUserGroupId() {
+            return userGroupId;
         }
 
-        public void setTagId(long tagId) {
-            this.tagId = tagId;
+        public void setUserGroupId(long userGroupId) {
+            this.userGroupId = userGroupId;
         }
 
         public long getItemPersonalMetadataId() {
@@ -84,19 +84,19 @@ public class UserItemTag {
 
         @Override
         public int hashCode() {
-            return Objects.hash(tagId, itemPersonalMetadataId);
+            return Objects.hash(userGroupId, itemPersonalMetadataId);
         }
 
         @Override
         public boolean equals(Object o) {
             if (!(o instanceof CompositeId that)) return false;
-            return tagId == that.tagId && itemPersonalMetadataId == that.itemPersonalMetadataId;
+            return userGroupId == that.userGroupId && itemPersonalMetadataId == that.itemPersonalMetadataId;
         }
 
         @Override
         public String toString() {
-            return "UserItemTag.CompositeId{" +
-                    "tagId=" + tagId +
+            return "UserGroupItem.CompositeId{" +
+                    "userGroupId=" + userGroupId +
                     ", itemPersonalMetadataId=" + itemPersonalMetadataId +
                     '}';
         }

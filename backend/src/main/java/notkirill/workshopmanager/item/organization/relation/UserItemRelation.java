@@ -1,8 +1,8 @@
-package notkirill.workshopmanager.models;
+package notkirill.workshopmanager.item.organization.relation;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import notkirill.workshopmanager.models.enums.RelationType;
+import notkirill.workshopmanager.item.enums.RelationType;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 

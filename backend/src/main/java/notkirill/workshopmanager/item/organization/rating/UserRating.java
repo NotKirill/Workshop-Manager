@@ -1,4 +1,4 @@
-package notkirill.workshopmanager.models;
+package notkirill.workshopmanager.item.organization.rating;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -7,34 +7,38 @@ import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
-@Table(name = "user_group_items")
-@IdClass(UserGroupItem.CompositeId.class)
-public class UserGroupItem {
+@Table(name = "user_ratings")
+@IdClass(UserRating.CompositeId.class)
+public class UserRating {
     @Id
     @NotNull
-    @Column(name = "user_group_id", nullable = false)
-    private long userGroupId;
+    @Column(name = "user_id", nullable = false)
+    private long userId;
 
     @Id
     @NotNull
     @Column(name = "item_personal_metadata_id", nullable = false)
     private long itemPersonalMetadataId;
 
-    protected UserGroupItem() {
+    @Column(name = "score")
+    private short score;
+
+    protected UserRating() {
         // Required by JPA
     }
 
-    public UserGroupItem(long userGroupId, long itemPersonalMetadataId) {
-        this.userGroupId = userGroupId;
+    public UserRating(long userId, long itemPersonalMetadataId, short score) {
+        this.userId = userId;
         this.itemPersonalMetadataId = itemPersonalMetadataId;
+        this.score = score;
     }
 
-    public long getUserGroupId() {
-        return userGroupId;
+    public long getUserId() {
+        return userId;
     }
 
-    public void setUserGroupId(long userGroupId) {
-        this.userGroupId = userGroupId;
+    public void setUserId(long userId) {
+        this.userId = userId;
     }
 
     public long getItemPersonalMetadataId() {
@@ -45,33 +49,42 @@ public class UserGroupItem {
         this.itemPersonalMetadataId = itemPersonalMetadataId;
     }
 
+    public short getScore() {
+        return score;
+    }
+
+    public void setScore(short score) {
+        this.score = score;
+    }
+
     @Override
     public String toString() {
-        return "UserGroupItem{" +
-                "userGroupId=" + userGroupId +
+        return "UserRating{" +
+                "userId=" + userId +
                 ", itemPersonalMetadataId=" + itemPersonalMetadataId +
+                ", score=" + score +
                 '}';
     }
 
     public static class CompositeId implements Serializable {
-        private long userGroupId;
+        private long userId;
         private long itemPersonalMetadataId;
 
         protected CompositeId() {
             // Required by JPA
         }
 
-        public CompositeId(long userGroupId, long itemPersonalMetadataId) {
-            this.userGroupId = userGroupId;
+        public CompositeId(long userId, long itemPersonalMetadataId) {
+            this.userId = userId;
             this.itemPersonalMetadataId = itemPersonalMetadataId;
         }
 
-        public long getUserGroupId() {
-            return userGroupId;
+        public long getUserId() {
+            return userId;
         }
 
-        public void setUserGroupId(long userGroupId) {
-            this.userGroupId = userGroupId;
+        public void setUserId(long userId) {
+            this.userId = userId;
         }
 
         public long getItemPersonalMetadataId() {
@@ -84,21 +97,22 @@ public class UserGroupItem {
 
         @Override
         public int hashCode() {
-            return Objects.hash(userGroupId, itemPersonalMetadataId);
+            return Objects.hash(userId, itemPersonalMetadataId);
         }
 
         @Override
         public boolean equals(Object o) {
             if (!(o instanceof CompositeId that)) return false;
-            return userGroupId == that.userGroupId && itemPersonalMetadataId == that.itemPersonalMetadataId;
+            return userId == that.userId && itemPersonalMetadataId == that.itemPersonalMetadataId;
         }
 
         @Override
         public String toString() {
-            return "UserGroupItem.CompositeId{" +
-                    "userGroupId=" + userGroupId +
+            return "UserRating.CompositeId{" +
+                    "userId=" + userId +
                     ", itemPersonalMetadataId=" + itemPersonalMetadataId +
                     '}';
         }
     }
+
 }

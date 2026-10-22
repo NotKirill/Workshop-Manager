@@ -1,4 +1,4 @@
-package notkirill.workshopmanager.models;
+package notkirill.workshopmanager.item.organization.tag;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -7,38 +7,34 @@ import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
-@Table(name = "user_ratings")
-@IdClass(UserRating.CompositeId.class)
-public class UserRating {
+@Table(name = "user_item_tags")
+@IdClass(UserItemTag.CompositeId.class)
+public class UserItemTag {
     @Id
     @NotNull
-    @Column(name = "user_id", nullable = false)
-    private long userId;
+    @Column(name = "tag_id", nullable = false)
+    private long tagId;
 
     @Id
     @NotNull
     @Column(name = "item_personal_metadata_id", nullable = false)
     private long itemPersonalMetadataId;
 
-    @Column(name = "score")
-    private short score;
-
-    protected UserRating() {
+    protected UserItemTag() {
         // Required by JPA
     }
 
-    public UserRating(long userId, long itemPersonalMetadataId, short score) {
-        this.userId = userId;
+    public UserItemTag(long tagId, long itemPersonalMetadataId) {
+        this.tagId = tagId;
         this.itemPersonalMetadataId = itemPersonalMetadataId;
-        this.score = score;
     }
 
-    public long getUserId() {
-        return userId;
+    public long getTagId() {
+        return tagId;
     }
 
-    public void setUserId(long userId) {
-        this.userId = userId;
+    public void setTagId(long tagId) {
+        this.tagId = tagId;
     }
 
     public long getItemPersonalMetadataId() {
@@ -49,42 +45,33 @@ public class UserRating {
         this.itemPersonalMetadataId = itemPersonalMetadataId;
     }
 
-    public short getScore() {
-        return score;
-    }
-
-    public void setScore(short score) {
-        this.score = score;
-    }
-
     @Override
     public String toString() {
-        return "UserRating{" +
-                "userId=" + userId +
+        return "UserItemTag{" +
+                "tagId=" + tagId +
                 ", itemPersonalMetadataId=" + itemPersonalMetadataId +
-                ", score=" + score +
                 '}';
     }
 
     public static class CompositeId implements Serializable {
-        private long userId;
+        private long tagId;
         private long itemPersonalMetadataId;
 
         protected CompositeId() {
             // Required by JPA
         }
 
-        public CompositeId(long userId, long itemPersonalMetadataId) {
-            this.userId = userId;
+        public CompositeId(long tagId, long itemPersonalMetadataId) {
+            this.tagId = tagId;
             this.itemPersonalMetadataId = itemPersonalMetadataId;
         }
 
-        public long getUserId() {
-            return userId;
+        public long getTagId() {
+            return tagId;
         }
 
-        public void setUserId(long userId) {
-            this.userId = userId;
+        public void setTagId(long tagId) {
+            this.tagId = tagId;
         }
 
         public long getItemPersonalMetadataId() {
@@ -97,22 +84,21 @@ public class UserRating {
 
         @Override
         public int hashCode() {
-            return Objects.hash(userId, itemPersonalMetadataId);
+            return Objects.hash(tagId, itemPersonalMetadataId);
         }
 
         @Override
         public boolean equals(Object o) {
             if (!(o instanceof CompositeId that)) return false;
-            return userId == that.userId && itemPersonalMetadataId == that.itemPersonalMetadataId;
+            return tagId == that.tagId && itemPersonalMetadataId == that.itemPersonalMetadataId;
         }
 
         @Override
         public String toString() {
-            return "UserRating.CompositeId{" +
-                    "userId=" + userId +
+            return "UserItemTag.CompositeId{" +
+                    "tagId=" + tagId +
                     ", itemPersonalMetadataId=" + itemPersonalMetadataId +
                     '}';
         }
     }
-
 }
