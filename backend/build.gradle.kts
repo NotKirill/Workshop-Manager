@@ -2,6 +2,7 @@ plugins {
     java
     id("org.springframework.boot") version "4.1.1"
     id("io.spring.dependency-management") version "1.1.7"
+    antlr
 }
 
 group = "notkirill"
@@ -51,6 +52,8 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-quartz-test")
     testImplementation("org.mvnpm.at.playwright:test:1.60.0")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    antlr("org.antlr:antlr4:4.13.1")
+    implementation("org.antlr:antlr4-runtime:4.13.1")
 }
 
 dependencyManagement {
@@ -62,6 +65,11 @@ dependencyManagement {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+tasks.generateGrammarSource {
+    maxHeapSize = "64m"
+    arguments = arguments + listOf("-visitor", "-no-listener")
 }
 
 tasks.bootRun {
