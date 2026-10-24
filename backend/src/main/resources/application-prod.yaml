@@ -115,6 +115,13 @@ application:
       cron: "0 0 */6 * * ? *"
       stale-after: 24h
       batch-size: 500
+    cleanup:
+      enabled: true
+      cron: "0 15 * * * ? *"
+      grace-period: 7d
+      batch-size: 50
+      max-attempts: 5
+      retry-base-delay: 10m
   search:
     item:
       max-query-length: 1000

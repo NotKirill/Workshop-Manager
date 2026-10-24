@@ -8,6 +8,7 @@ import notkirill.workshopmanager.game.GameService;
 import notkirill.workshopmanager.item.ItemProperties;
 import notkirill.workshopmanager.item.enums.ItemLifecycleState;
 import notkirill.workshopmanager.item.enums.ItemSourceStatus;
+import notkirill.workshopmanager.item.lifecycle.ItemLifecycleService;
 import notkirill.workshopmanager.item.organization.relation.RelationService;
 import notkirill.workshopmanager.item.personal.ItemMetadataPersonal;
 import notkirill.workshopmanager.item.personal.PersonalItemService;
@@ -42,6 +43,7 @@ public class ItemRegistrationService {
     private final SourceFetchService sourceFetchService;
     private final ItemInternalService internalService;
     private final ItemProjectionService projectionService;
+    private final ItemLifecycleService lifecycleService;
     private final PersonalItemService personalService;
     private final RelationService relationService;
     private final ContentJobService contentJobService;
@@ -52,14 +54,15 @@ public class ItemRegistrationService {
     @Autowired
     public ItemRegistrationService(ModspaceRegistry modspaceRegistry, SourceFetchService sourceFetchService,
                                    ItemInternalService internalService, ItemProjectionService projectionService,
-                                   PersonalItemService personalService, RelationService relationService,
-                                   ContentJobService contentJobService,
+                                   ItemLifecycleService lifecycleService, PersonalItemService personalService,
+                                   RelationService relationService, ContentJobService contentJobService,
                                    GameService gameService, ItemProperties properties,
                                    PlatformTransactionManager transactionManager) {
         this.modspaceRegistry = modspaceRegistry;
         this.sourceFetchService = sourceFetchService;
         this.internalService = internalService;
         this.projectionService = projectionService;
+        this.lifecycleService = lifecycleService;
         this.personalService = personalService;
         this.relationService = relationService;
         this.contentJobService = contentJobService;
@@ -280,6 +283,7 @@ public class ItemRegistrationService {
         String reason = unavailableReason(current.get().getSourceStatus() == ItemSourceStatus.UNAVAILABLE, title);
         try {
             Attachment attachment = transactionTemplate.execute(status -> {
+                lifecycleService.prepareForRegistration(internalId);
                 Optional<ItemMetadataPersonal> existing = personalService.findOfInternal(userId, internalId);
                 if (existing.isPresent()) {
                     return new Attachment(existing.get(), false);
