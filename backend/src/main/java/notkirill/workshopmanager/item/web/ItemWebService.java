@@ -3,9 +3,7 @@ package notkirill.workshopmanager.item.web;
 import notkirill.workshopmanager.exception.ForbiddenException;
 import notkirill.workshopmanager.item.registration.ItemRegistrationService;
 import notkirill.workshopmanager.item.registration.RegistrationResult;
-import notkirill.workshopmanager.item.web.dto.ExternalItemRegisteringRequest;
-import notkirill.workshopmanager.item.web.dto.LocalItemRegisteringRequest;
-import notkirill.workshopmanager.item.web.dto.RegistrationResponse;
+import notkirill.workshopmanager.item.web.dto.*;
 import notkirill.workshopmanager.security.PermissionAuthorities;
 import notkirill.workshopmanager.security.UserPrincipal;
 import notkirill.workshopmanager.user.permission.PermissionEnum;
@@ -16,11 +14,20 @@ import java.util.List;
 
 @Service
 public class ItemWebService {
+    private final ItemQueryService queryService;
+    private final ItemDetailService detailService;
     private final ItemRegistrationService registrationService;
 
     @Autowired
-    public ItemWebService(ItemRegistrationService registrationService) {
+    public ItemWebService(ItemQueryService queryService, ItemDetailService detailService,
+                          ItemRegistrationService registrationService) {
+        this.queryService = queryService;
+        this.detailService = detailService;
         this.registrationService = registrationService;
+    }
+
+    private static boolean canManageContent(UserPrincipal principal) {
+        return PermissionAuthorities.has(principal, PermissionEnum.CONTENT_MANAGE);
     }
 
     private static void requireAutoBackupAllowed(boolean autoBackup, UserPrincipal principal) {
@@ -30,6 +37,18 @@ public class ItemWebService {
                     "Storing content needs the content import permission"
             );
         }
+    }
+
+    public ItemPageResponse search(ItemSearchQuery query, UserPrincipal principal) {
+        return queryService.search(principal.getUserId(), query);
+    }
+
+    public SearchHelpResponse searchHelp() {
+        return queryService.getSearchHelp();
+    }
+
+    public ItemDetailResponse getItem(long id, UserPrincipal principal) {
+        return detailService.getDetail(principal.getUserId(), id, canManageContent(principal));
     }
 
     public RegistrationResponse registerExternal(ExternalItemRegisteringRequest request, UserPrincipal principal) {

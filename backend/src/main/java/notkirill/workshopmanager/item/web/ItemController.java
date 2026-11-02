@@ -1,9 +1,7 @@
 package notkirill.workshopmanager.item.web;
 
 import jakarta.validation.Valid;
-import notkirill.workshopmanager.item.web.dto.ExternalItemRegisteringRequest;
-import notkirill.workshopmanager.item.web.dto.LocalItemRegisteringRequest;
-import notkirill.workshopmanager.item.web.dto.RegistrationResponse;
+import notkirill.workshopmanager.item.web.dto.*;
 import notkirill.workshopmanager.security.UserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,6 +18,22 @@ public class ItemController {
     @Autowired
     public ItemController(ItemWebService itemWebService) {
         this.itemWebService = itemWebService;
+    }
+
+    @PostMapping("/search")
+    public ItemPageResponse search(@Valid @RequestBody ItemSearchQuery query,
+                                   @AuthenticationPrincipal UserPrincipal principal) {
+        return itemWebService.search(query, principal);
+    }
+
+    @GetMapping("/search/help")
+    public SearchHelpResponse searchHelp() {
+        return itemWebService.searchHelp();
+    }
+
+    @GetMapping("/{id}")
+    public ItemDetailResponse getItem(@PathVariable long id, @AuthenticationPrincipal UserPrincipal principal) {
+        return itemWebService.getItem(id, principal);
     }
 
     @PostMapping("/register-external")
