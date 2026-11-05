@@ -1,7 +1,10 @@
+import com.github.gradle.node.npm.task.NpmTask
+
 plugins {
     java
     id("org.springframework.boot") version "4.1.1"
     id("io.spring.dependency-management") version "1.1.7"
+    id("com.github.node-gradle.node") version "7.1.0"
     antlr
 }
 
@@ -88,4 +91,34 @@ tasks.register<Exec>("dockerComposeUp") {
 tasks.register<Exec>("dockerComposeDown") {
     group = "docker"
     commandLine("docker", "compose", "-f", "compose.dev.yaml", "down")
+}
+
+node {
+    download.set(true)
+    version.set("24.21.0")
+    npmInstallCommand.set("ci")
+    nodeProjectDir.set(file("../frontend"))
+}
+
+val npmBuild by tasks.registering(NpmTask::class) {
+    dependsOn(tasks.npmInstall)
+    args.set(listOf("run", "build"))
+}
+
+// Only the executable jar (with the frontend) is deployed
+tasks.jar {
+    enabled = false
+}
+
+tasks.bootJar {
+    dependsOn(npmBuild)
+
+    // Java 25 warns when libraries load native code (Netty in the Redis client)
+    manifest {
+        attributes("Enable-Native-Access" to "ALL-UNNAMED")
+    }
+
+    from(provider { file("../frontend/dist") }) {
+        into("BOOT-INF/classes/static")
+    }
 }
