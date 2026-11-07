@@ -1,7 +1,7 @@
 import {useMutation} from "@tanstack/react-query";
 import axios from "axios";
 import authService from "@/features/auth/service.ts";
-import type {AuthRequest, AuthSuccessRequest} from "@/features/auth/types.ts";
+import type {AuthRequest, AuthSuccessRequest, PasswordChangeRequest} from "@/features/auth/types.ts";
 import authApi from "@/features/auth/api.ts";
 import tokenStorage from "@/app/tokenStorage.ts";
 import steamOpenIdService from "@/features/auth/providers/steam/service.ts";
@@ -12,7 +12,6 @@ const clearOnUnauthorized = (error: unknown) => {
     }
 };
 
-// Long TODO maybe other 'onError' handler?
 export const useLogin = () =>
     useMutation({
         mutationFn: (request: AuthRequest) =>
@@ -23,7 +22,6 @@ export const useLogin = () =>
         onError: clearOnUnauthorized,
     });
 
-// Long TODO maybe other 'onError' handler?
 export const useLoginSuccess = () =>
     useMutation({
         mutationFn: (request: AuthSuccessRequest) =>
@@ -72,4 +70,9 @@ export const useLogout = () =>
         onSettled: () => {
             authService.clearAuth();
         },
+    });
+
+export const useChangePasswordBySignIn = () =>
+    useMutation({
+        mutationFn: (request: PasswordChangeRequest) => authApi.changePassword(request),
     });

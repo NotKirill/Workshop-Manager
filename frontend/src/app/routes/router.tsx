@@ -3,6 +3,7 @@ import PublicLayout from "@/app/routes/PublicLayout.tsx";
 import ProtectedLayout from "@/app/routes/ProtectedLayout.tsx";
 import LoginPage from "@/features/auth/components/LoginPage.tsx";
 import LoginSuccessCallback from "@/features/auth/components/LoginSuccessCallback.tsx";
+import ChangePasswordPage from "@/features/auth/components/ChangePasswordPage.tsx";
 import {AppShell} from "@/features/layout/AppShell.tsx";
 import DashboardPage from "@/features/shared/DashboardPage.tsx";
 import ProfilePage from "@/features/shared/ProfilePage.tsx";
@@ -13,6 +14,7 @@ export const router = createBrowserRouter([
         children: [
             {path: "/login", element: <LoginPage/>},
             {path: "/login-success", element: <LoginSuccessCallback/>},
+            {path: "/change-password", element: <ChangePasswordPage/>},
         ],
     },
     {

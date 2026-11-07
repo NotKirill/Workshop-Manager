@@ -3,7 +3,7 @@ import type {AuthProvider} from "@/features/auth/types.ts";
 
 const ExternalAuthSection = ({providers}: { providers: AuthProvider[] }) => {
     return (
-        <VStack minW="full" gap={3} align="stretch">
+        <VStack minW="full" gap="3" align="stretch">
             {providers.map(provider => (
                 <AuthProviderButton key={provider.id} provider={provider}/>
             ))}
@@ -16,11 +16,11 @@ const AuthProviderButton = ({provider}: { provider: AuthProvider }) => {
     const {mutate, isPending} = provider.redirectHook();
 
     return (
-        <Button variant="surface" colorPalette="gray"
+        <Button variant="surface" colorPalette="gray" aria-label={`Continue with ${provider.name}`}
                 onClick={() => mutate()}
                 loading={isPending} disabled={isPending}
         >
-            <Image src={provider.icon} boxSize="24px" objectFit="contain"/>
+            <Image src={provider.icon} alt="" boxSize="24px" objectFit="contain"/>
             <Text whiteSpace="nowrap">
                 Continue with {provider.name}
             </Text>

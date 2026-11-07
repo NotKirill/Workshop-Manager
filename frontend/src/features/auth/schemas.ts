@@ -47,3 +47,16 @@ export const emailSchema = z.object({
         .max(254, "Email address is too long")
 });
 export type Email = z.infer<typeof emailSchema>;
+
+
+export const loginFieldSchema = z.string().superRefine((val, ctx) => {
+    const result = val.includes("@")
+        ? emailSchema.shape.email.safeParse(val)
+        : usernameSchema.shape.username.safeParse(val);
+
+    if (!result.success) {
+        result.error.issues.forEach((issue) => {
+            ctx.addIssue(issue as Parameters<typeof ctx.addIssue>[0]);
+        });
+    }
+});

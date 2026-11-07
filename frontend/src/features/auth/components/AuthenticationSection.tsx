@@ -1,24 +1,16 @@
 import {Button, Field, HStack, Input, Link as ChakraLink, VStack} from "@chakra-ui/react";
-import {Link as RouterLink} from "react-router"
+import {Link as RouterLink} from "react-router";
 import {z} from "zod";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
-import {emailSchema, passwordSignInSchema, usernameSchema} from "@/features/auth/schemas.ts";
+import {loginFieldSchema, passwordSignInSchema} from "@/features/auth/schemas.ts";
 import {useLogin} from "@/features/auth/mutations.ts";
 import type {AuthRequest} from "@/features/auth/types.ts";
+import {getErrorMessage} from "@/lib/errors.ts";
+import {ErrorAlert} from "@/features/shared/ErrorAlert.tsx";
 
 const loginSchema = z.object({
-    login: z.string().superRefine((val, ctx) => {
-        const result = val.includes("@")
-            ? emailSchema.shape.email.safeParse(val)
-            : usernameSchema.shape.username.safeParse(val);
-
-        if (!result.success) {
-            result.error.issues.forEach((issue) => {
-                ctx.addIssue(issue as Parameters<typeof ctx.addIssue>[0]);
-            });
-        }
-    }),
+    login: loginFieldSchema,
     password: passwordSignInSchema.shape.password,
 });
 type FormInput = z.input<typeof loginSchema>;
@@ -33,9 +25,8 @@ export const AuthenticationSection = () => {
         resolver: zodResolver(loginSchema),
     });
 
-    const {mutate: login, isPending} = useLogin();
+    const {mutate: login, isPending, error} = useLogin();
 
-    // TODO server errors??? setError in useForm???????
     const onSubmit = (data: FormOutput) => {
         const request: AuthRequest = {
             login: data.login,
@@ -46,30 +37,32 @@ export const AuthenticationSection = () => {
     };
 
     return (
-        <VStack minW="full" align="stretch" as="form" onSubmit={handleSubmit(onSubmit)} p={0} gap={3}>
+        <VStack minW="full" align="stretch" as="form" onSubmit={handleSubmit(onSubmit)} p="0" gap="3">
             <Field.Root invalid={!!errors.login}>
-                <Field.Label htmlFor="login" fontWeight="bold">Username or email address</Field.Label>
+                <Field.Label htmlFor="login">Username or email address</Field.Label>
                 <Input id="login" placeholder="Username or email" {...register("login")}/>
                 <Field.ErrorText overflowWrap="anywhere">{errors.login?.message}</Field.ErrorText>
             </Field.Root>
 
             <Field.Root invalid={!!errors.password}>
                 <HStack justify="space-between" w="full">
-                    <Field.Label htmlFor="password" fontWeight="bold">
+                    <Field.Label htmlFor="password">
                         Password
                     </Field.Label>
-
                     <ChakraLink asChild fontSize="sm">
-                        {/*TODO*/}
-                        <RouterLink to="/forgot-password">Forgot password?</RouterLink>
+                        <RouterLink to="/change-password">Change password</RouterLink>
                     </ChakraLink>
                 </HStack>
                 <Input id="password" type="password" placeholder="Password" {...register("password")}/>
                 <Field.ErrorText overflowWrap="anywhere">{errors.password?.message}</Field.ErrorText>
             </Field.Root>
 
+            {!!error && (
+                <ErrorAlert size="sm" description={getErrorMessage(error, "Sign-in failed")}/>
+            )}
+
             <Button type="submit" loading={isSubmitting || isPending} disabled={isSubmitting || isPending}
-                    colorPalette='teal' mt={4}>Sign in</Button>
+                    colorPalette='brand' mt="4">Sign in</Button>
         </VStack>
     );
 };
