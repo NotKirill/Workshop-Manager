@@ -5,6 +5,7 @@ import type {CollectionKind} from "@/features/collections/types.ts";
 import {gamesQueryKey} from "@/features/games/queries.ts";
 import itemsApi from "@/features/items/api.ts";
 import {itemQueryKey, itemsQueryKey} from "@/features/items/queries.ts";
+import {uploadResumable} from "@/features/items/resumableUpload.ts";
 import type {ItemDetail, LocalItemRequest, RelationType, UpdateItemRequest} from "@/features/items/types.ts";
 import type {ModspaceType} from "@/lib/apiTypes.ts";
 import {notifyError} from "@/lib/notify.ts";
@@ -129,6 +130,14 @@ export const useRequestBackup = (id: number) =>
         mutationFn: () => itemsApi.requestBackup(id),
         onSuccess: () => invalidateItemAndLists(id),
         onError: error => notifyError(error),
+    });
+
+export const useUploadContent = (id: number) =>
+    useMutation({
+        mutationFn: ({file, onProgress}: { file: File; onProgress: (percent: number) => void }) =>
+            uploadResumable(id, file, onProgress),
+        onSuccess: () => invalidateItemAndLists(id),
+        onError: error => notifyError(error, "Upload failed"),
     });
 
 export const useDownloadRevision = (id: number) =>

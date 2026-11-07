@@ -6,6 +6,7 @@ import LoginSuccessCallback from "@/features/auth/components/LoginSuccessCallbac
 import ChangePasswordPage from "@/features/auth/components/ChangePasswordPage.tsx";
 import {AppShell} from "@/features/layout/AppShell.tsx";
 import {LibraryPage} from "@/features/items/components/LibraryPage.tsx";
+import {ItemPage} from "@/features/items/components/ItemPage.tsx";
 import ProfilePage from "@/features/shared/ProfilePage.tsx";
 
 export const router = createBrowserRouter([
@@ -24,6 +25,7 @@ export const router = createBrowserRouter([
                 element: <AppShell/>,
                 children: [
                     {path: "/library", element: <LibraryPage/>},
+                    {path: "/items/:id", element: <ItemPage/>},
                     {path: "/profile", element: <ProfilePage/>},
                     {path: "/dashboard", element: <Navigate to="/library" replace/>},
                     {path: "/", element: <Navigate to="/library" replace/>},
