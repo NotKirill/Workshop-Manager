@@ -3,10 +3,9 @@ import type {
     AuthResponse,
     AuthSuccessRequest,
     LogoutRequest,
-    MeResponse,
     RefreshRequest
 } from "@/features/auth/types.ts";
-import {privateApi, publicApi} from "@/app/axios.ts";
+import {publicApi} from "@/app/axios.ts";
 
 
 export const authApi = {
@@ -43,12 +42,6 @@ export const authApi = {
 
     logout: async (request: LogoutRequest): Promise<void> => {
         await publicApi.post("/auth/logout", request);
-    },
-
-    me: async (): Promise<MeResponse> => {
-        const response = await privateApi.get<MeResponse>("/me");
-
-        return response.data;
     },
 };
 export default authApi;

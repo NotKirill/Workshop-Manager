@@ -1,29 +1,14 @@
-import {Navigate, Outlet} from "react-router";
+import {Navigate, Outlet, useLocation} from "react-router";
 import {useAppSelector} from "@/app/hooks.ts";
-import {AuthBootstrap} from "@/features/auth/components/AuthBootstrap.tsx";
 
 const ProtectedLayout = () => {
-    const isAuthenticated = useAppSelector(
-        state => state.auth.isAuthenticated
-    );
+    const isAuthenticated = useAppSelector(state => state.auth.isAuthenticated);
+    const location = useLocation();
 
     if (!isAuthenticated) {
-        return <Navigate to="/login" replace/>;
+        return <Navigate to="/login" replace state={{from: location.pathname + location.search}}/>;
     }
-
-    return (
-        <>
-            <AuthBootstrap/>
-            <Outlet/>
-        </>
-    );
-
-    // return (
-    //     <>
-    //         <Navbar />
-    //         <Outlet />
-    //     </>
-    // );
+    return <Outlet/>;
 };
 
 export default ProtectedLayout;

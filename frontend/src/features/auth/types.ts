@@ -22,12 +22,6 @@ export interface LogoutRequest {
     refresh_token: string;
 }
 
-export interface MeResponse {
-    id: bigint;
-    name: string;
-    time_created: string;
-}
-
 export interface AuthProvider {
     id: string;
     name: string;

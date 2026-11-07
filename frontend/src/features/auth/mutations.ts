@@ -73,11 +73,3 @@ export const useLogout = () =>
             authService.clearAuth();
         },
     });
-
-export const useMeRequest = () =>
-    useMutation({
-        mutationFn: () =>
-            authApi.me(),
-
-        onError: clearOnUnauthorized,
-    });
