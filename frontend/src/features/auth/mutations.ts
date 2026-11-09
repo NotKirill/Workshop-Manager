@@ -1,10 +1,16 @@
 import {useMutation} from "@tanstack/react-query";
 import axios from "axios";
 import authService from "@/features/auth/service.ts";
-import type {AuthRequest, AuthSuccessRequest, PasswordChangeRequest} from "@/features/auth/types.ts";
+import type {AuthRequest, AuthResponse, AuthSuccessRequest, PasswordChangeRequest} from "@/features/auth/types.ts";
 import authApi from "@/features/auth/api.ts";
 import tokenStorage from "@/app/tokenStorage.ts";
 import steamOpenIdService from "@/features/auth/providers/steam/service.ts";
+import queryClient from "@/app/queryClient.ts";
+
+const startSession = (response: AuthResponse) => {
+    queryClient.clear();
+    authService.saveAuth(response);
+};
 
 const clearOnUnauthorized = (error: unknown) => {
     if (axios.isAxiosError(error) && error.response?.status === 401) {
@@ -17,7 +23,7 @@ export const useLogin = () =>
         mutationFn: (request: AuthRequest) =>
             authApi.login(request),
 
-        onSuccess: authService.saveAuth,
+        onSuccess: startSession,
 
         onError: clearOnUnauthorized,
     });
@@ -27,7 +33,7 @@ export const useLoginSuccess = () =>
         mutationFn: (request: AuthSuccessRequest) =>
             authApi.loginSuccess(request),
 
-        onSuccess: authService.saveAuth,
+        onSuccess: startSession,
 
         onError: clearOnUnauthorized,
     });
@@ -69,6 +75,7 @@ export const useLogout = () =>
 
         onSettled: () => {
             authService.clearAuth();
+            queryClient.clear();
         },
     });
 
