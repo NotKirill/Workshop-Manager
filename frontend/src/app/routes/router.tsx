@@ -8,7 +8,10 @@ import {AppShell} from "@/features/layout/AppShell.tsx";
 import {LibraryPage} from "@/features/items/components/LibraryPage.tsx";
 import {ItemPage} from "@/features/items/components/ItemPage.tsx";
 import {OrganizePage} from "@/features/collections/components/OrganizePage.tsx";
-import ProfilePage from "@/features/shared/ProfilePage.tsx";
+import {ProfilePage} from "@/features/users/components/ProfilePage.tsx";
+import {LinkSteamCallback} from "@/features/users/components/LinkSteamCallback.tsx";
+import {AdminLayout} from "@/features/layout/AdminLayout.tsx";
+import {AdminUsersPage} from "@/features/users/components/AdminUsersPage.tsx";
 
 export const router = createBrowserRouter([
     {
@@ -29,6 +32,14 @@ export const router = createBrowserRouter([
                     {path: "/items/:id", element: <ItemPage/>},
                     {path: "/organize", element: <OrganizePage/>},
                     {path: "/profile", element: <ProfilePage/>},
+                    {path: "/profile/link-steam", element: <LinkSteamCallback/>},
+                    {
+                        path: "/admin",
+                        element: <AdminLayout/>,
+                        children: [
+                            {path: "users", element: <AdminUsersPage/>},
+                        ],
+                    },
                     {path: "/dashboard", element: <Navigate to="/library" replace/>},
                     {path: "/", element: <Navigate to="/library" replace/>},
                 ],

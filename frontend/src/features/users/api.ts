@@ -1,6 +1,6 @@
 import {privateApi} from "@/app/axios.ts";
 import tokenStorage from "@/app/tokenStorage.ts";
-import type {AuthSource, Profile} from "@/features/users/types.ts";
+import type {AdminUser, AuthSource, CreateUserRequest, PermissionInfo, Profile, UpdateUserRequest} from "@/features/users/types.ts";
 
 export const profileApi = {
     get: async (): Promise<Profile> => (await privateApi.get<Profile>("/users/me")).data,
@@ -26,4 +26,31 @@ export const profileApi = {
 
     steamLinkUrl: async (): Promise<{ url: string }> =>
         (await privateApi.post<{ url: string }>("/users/me/identities/steam/link-url")).data,
+};
+
+export const adminUsersApi = {
+    list: async (): Promise<AdminUser[]> => (await privateApi.get<AdminUser[]>("/admin/users")).data,
+
+    permissions: async (): Promise<PermissionInfo[]> =>
+        (await privateApi.get<PermissionInfo[]>("/admin/users/permissions")).data,
+
+    create: async (request: CreateUserRequest): Promise<AdminUser> =>
+        (await privateApi.post<AdminUser>("/admin/users", request)).data,
+
+    update: async (id: number, request: UpdateUserRequest): Promise<AdminUser> =>
+        (await privateApi.patch<AdminUser>(`/admin/users/${id}`, request)).data,
+
+    resetPassword: async (id: number, password: string): Promise<void> => {
+        await privateApi.post(`/admin/users/${id}/password`, {password});
+    },
+
+    setIdentity: async (id: number, provider: AuthSource, key: string): Promise<AdminUser> =>
+        (await privateApi.put<AdminUser>(`/admin/users/${id}/identities/${provider}`, {key})).data,
+
+    removeIdentity: async (id: number, provider: AuthSource): Promise<AdminUser> =>
+        (await privateApi.delete<AdminUser>(`/admin/users/${id}/identities/${provider}`)).data,
+
+    remove: async (id: number): Promise<void> => {
+        await privateApi.delete(`/admin/users/${id}`);
+    },
 };
