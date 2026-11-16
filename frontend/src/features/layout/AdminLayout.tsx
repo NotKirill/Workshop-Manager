@@ -1,12 +1,14 @@
 import {Box, Button, Container, Flex, Stack, Text} from "@chakra-ui/react";
 import {Navigate, NavLink, Outlet, useLocation, useMatch} from "react-router";
-import {FiUsers} from "react-icons/fi";
+import {FiActivity, FiMonitor, FiUsers} from "react-icons/fi";
 import {useMe} from "@/features/auth/queries.ts";
 import type {ReactNode} from "react";
 import type {Permission} from "@/features/users/types.ts";
 
 const sections: { path: string; label: string; icon: ReactNode; permission: Permission }[] = [
     {path: "/admin/users", label: "Users", icon: <FiUsers/>, permission: "USERS_MANAGE"},
+    {path: "/admin/games", label: "Games", icon: <FiMonitor/>, permission: "GAMES_MANAGE"},
+    {path: "/admin/maintenance", label: "Maintenance", icon: <FiActivity/>, permission: "MAINTENANCE_MANAGE"},
 ];
 
 const SectionLink = ({path, label, icon}: { path: string; label: string; icon: ReactNode }) => {

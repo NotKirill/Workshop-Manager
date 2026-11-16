@@ -12,6 +12,8 @@ import {ProfilePage} from "@/features/users/components/ProfilePage.tsx";
 import {LinkSteamCallback} from "@/features/users/components/LinkSteamCallback.tsx";
 import {AdminLayout} from "@/features/layout/AdminLayout.tsx";
 import {AdminUsersPage} from "@/features/users/components/AdminUsersPage.tsx";
+import {AdminGamesPage} from "@/features/games/components/AdminGamesPage.tsx";
+import {AdminMaintenancePage} from "@/features/maintenance/components/AdminMaintenancePage.tsx";
 
 export const router = createBrowserRouter([
     {
@@ -38,6 +40,8 @@ export const router = createBrowserRouter([
                         element: <AdminLayout/>,
                         children: [
                             {path: "users", element: <AdminUsersPage/>},
+                            {path: "games", element: <AdminGamesPage/>},
+                            {path: "maintenance", element: <AdminMaintenancePage/>},
                         ],
                     },
                     {path: "/dashboard", element: <Navigate to="/library" replace/>},
