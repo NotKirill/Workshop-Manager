@@ -1,0 +1,268 @@
+apiVersion: 1
+groups:
+  - orgId: 1
+    name: workshop-manager
+    folder: Workshop Manager
+    interval: 1m
+    rules:
+      - uid: wm-app-down
+        title: Workshop Manager is down
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              expr: 'up{job="workshop-manager"}'
+              instant: true
+              refId: A
+          - refId: B
+            datasourceUid: __expr__
+            model: { type: reduce, expression: A, reducer: last, refId: B }
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              refId: C
+              conditions:
+                - evaluator: { type: lt, params: [ 1 ] }
+        noDataState: Alerting
+        execErrState: Error
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Prometheus cannot read the app's metrics: the app is down or its management port (127.0.0.1:8081) does not answer."
+      - uid: wm-http-5xx
+        title: Server errors
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              expr: 'sum(increase(http_server_requests_seconds_count{status=~"5.."}[10m])) or vector(0)'
+              instant: true
+              refId: A
+          - refId: B
+            datasourceUid: __expr__
+            model: { type: reduce, expression: A, reducer: last, refId: B }
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              refId: C
+              conditions:
+                - evaluator: { type: gt, params: [ 5 ] }
+        noDataState: OK
+        execErrState: Error
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "More than 5 requests answered 5xx in 10 minutes. The log has the details under each error id."
+      - uid: wm-errors-logged
+        title: Errors in the log
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              expr: 'sum(increase(logback_events_total{level="error"}[10m])) or vector(0)'
+              instant: true
+              refId: A
+          - refId: B
+            datasourceUid: __expr__
+            model: { type: reduce, expression: A, reducer: last, refId: B }
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              refId: C
+              conditions:
+                - evaluator: { type: gt, params: [ 0 ] }
+        noDataState: OK
+        execErrState: Error
+        for: 0s
+        labels:
+          severity: warning
+        annotations:
+          summary: "The app logged ERROR lines in the last 10 minutes."
+      - uid: wm-circuit-open
+        title: External API paused
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              expr: 'max by (name) (resilience4j_circuitbreaker_state{state=~"open|forced_open"})'
+              instant: true
+              refId: A
+          - refId: B
+            datasourceUid: __expr__
+            model: { type: reduce, expression: A, reducer: last, refId: B }
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              refId: C
+              conditions:
+                - evaluator: { type: gt, params: [ 0 ] }
+        noDataState: OK
+        execErrState: Error
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "A circuit breaker is open: calls to this Steam API failed too often and are paused for a while."
+      - uid: wm-quota-low
+        title: External API quota almost used up
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              expr: 'max by (api) (workshop_ratelimit_tokens) / max by (api) (workshop_ratelimit_capacity)'
+              instant: true
+              refId: A
+          - refId: B
+            datasourceUid: __expr__
+            model: { type: reduce, expression: A, reducer: last, refId: B }
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              refId: C
+              conditions:
+                - evaluator: { type: lt, params: [ 0.1 ] }
+        noDataState: OK
+        execErrState: Error
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Less than 10% of the quota of this API is left for 15 minutes."
+      - uid: wm-content-jobs-failed
+        title: Content jobs failed
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              expr: 'max(workshop_content_jobs_current{status="FAILED"})'
+              instant: true
+              refId: A
+          - refId: B
+            datasourceUid: __expr__
+            model: { type: reduce, expression: A, reducer: last, refId: B }
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              refId: C
+              conditions:
+                - evaluator: { type: gt, params: [ 0 ] }
+        noDataState: OK
+        execErrState: Error
+        for: 0s
+        labels:
+          severity: warning
+        annotations:
+          summary: "Backup or deletion jobs gave up. See them and retry on the maintenance page."
+      - uid: wm-cleanup-failed
+        title: Item cleanup failed
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              expr: 'max(workshop_items{state="FAILED"})'
+              instant: true
+              refId: A
+          - refId: B
+            datasourceUid: __expr__
+            model: { type: reduce, expression: A, reducer: last, refId: B }
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              refId: C
+              conditions:
+                - evaluator: { type: gt, params: [ 0 ] }
+        noDataState: OK
+        execErrState: Error
+        for: 0s
+        labels:
+          severity: warning
+        annotations:
+          summary: "Items whose deletion gave up. See them and retry on the maintenance page."
+      - uid: wm-media-given-up
+        title: Media copies given up
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              expr: 'max(workshop_media_syncs_given_up)'
+              instant: true
+              refId: A
+          - refId: B
+            datasourceUid: __expr__
+            model: { type: reduce, expression: A, reducer: last, refId: B }
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              refId: C
+              conditions:
+                - evaluator: { type: gt, params: [ 0 ] }
+        noDataState: OK
+        execErrState: Error
+        for: 0s
+        labels:
+          severity: info
+        annotations:
+          summary: "Copies of modspace media failed too often. See them and retry on the maintenance page."
+      - uid: wm-failed-sign-ins
+        title: Many failed sign-ins
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              expr: 'sum(increase(workshop_logins_total{outcome="BAD_CREDENTIALS"}[10m])) or vector(0)'
+              instant: true
+              refId: A
+          - refId: B
+            datasourceUid: __expr__
+            model: { type: reduce, expression: A, reducer: last, refId: B }
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              expression: B
+              refId: C
+              conditions:
+                - evaluator: { type: gt, params: [ 20 ] }
+        noDataState: OK
+        execErrState: Error
+        for: 0s
+        labels:
+          severity: warning
+        annotations:
+          summary: "More than 20 wrong passwords in 10 minutes: possibly password guessing (nginx limits it per IP)."

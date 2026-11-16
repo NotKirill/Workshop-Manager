@@ -1,0 +1,9 @@
+apiVersion: 1
+
+providers:
+  - name: workshop-manager
+    folder: Workshop Manager
+    type: file
+    allowUiUpdates: false
+    options:
+      path: /etc/grafana/dashboards
