@@ -1,5 +1,7 @@
 package notkirill.workshopmanager.content;
 
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.annotation.Nullable;
 import notkirill.workshopmanager.content.models.ContentUpload;
 import notkirill.workshopmanager.content.models.ItemContentRevision;
@@ -39,16 +41,25 @@ public class ContentUploadService {
     private final Clock clock;
     private final TransactionTemplate transactionTemplate;
     private final Set<Long> busy = ConcurrentHashMap.newKeySet();
+    private final Counter receivedBytes;
+    private final Counter abandonedUploads;
 
     @Autowired
     public ContentUploadService(ContentUploadRepository repository, ContentRevisionService revisionService,
                                 ContentProperties properties, Clock clock,
-                                PlatformTransactionManager transactionManager) {
+                                PlatformTransactionManager transactionManager, MeterRegistry meterRegistry) {
         this.repository = repository;
         this.revisionService = revisionService;
         this.properties = properties;
         this.clock = clock;
         this.transactionTemplate = new TransactionTemplate(transactionManager);
+        this.receivedBytes = Counter.builder("workshop.content.uploads.received")
+                .description("Bytes of backup uploads written to disk")
+                .baseUnit("bytes")
+                .register(meterRegistry);
+        this.abandonedUploads = Counter.builder("workshop.content.uploads.abandoned")
+                .description("Unfinished uploads deleted by the housekeeping")
+                .register(meterRegistry);
     }
 
     public long countOpen() {
@@ -138,6 +149,7 @@ public class ContentUploadService {
                 }
             }
         }
+        abandonedUploads.increment(deleted);
         return deleted;
     }
 
@@ -174,6 +186,7 @@ public class ContentUploadService {
         } catch (IOException e) {
             throw new UncheckedIOException("Cannot write upload part", e);
         } finally {
+            receivedBytes.increment(written);
             long received = offset + written;
             transactionTemplate.executeWithoutResult(status ->
                                                              repository.findById(upload.getId()).ifPresent(

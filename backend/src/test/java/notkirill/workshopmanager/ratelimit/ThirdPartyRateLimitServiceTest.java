@@ -3,6 +3,7 @@ package notkirill.workshopmanager.ratelimit;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.local.LocalBucketBuilder;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import notkirill.workshopmanager.ratelimit.exception.RateLimitExceededException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,7 @@ class ThirdPartyRateLimitServiceTest {
 
     private final Map<String, Bucket> buckets = new HashMap<>();
     private ThirdPartyRateLimitService service;
+    private SimpleMeterRegistry meterRegistry;
 
     static QuotaBuckets localBuckets(Map<String, Bucket> buckets) {
         return (key, configuration) -> buckets.computeIfAbsent(
@@ -45,7 +47,8 @@ class ThirdPartyRateLimitServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new ThirdPartyRateLimitService(localBuckets(buckets), List.of(WEB, STORE));
+        meterRegistry = new SimpleMeterRegistry();
+        service = new ThirdPartyRateLimitService(localBuckets(buckets), List.of(WEB, STORE), meterRegistry);
     }
 
     @Test
@@ -75,6 +78,23 @@ class ThirdPartyRateLimitServiceTest {
     }
 
     @Test
+    void refusalsAreCountedByReason() {
+        CallPriority.BACKGROUND.run(() -> {
+            for (int i = 0; i < 7; i++) {
+                service.acquire(WEB);
+            }
+            assertThatThrownBy(() -> service.acquire(WEB)).isInstanceOf(RateLimitExceededException.class);
+        });
+        for (int i = 0; i < 3; i++) {
+            service.acquire(WEB);
+        }
+        assertThatThrownBy(() -> service.acquire(WEB)).isInstanceOf(RateLimitExceededException.class);
+
+        assertThat(refusals("RESERVE")).isEqualTo(1);
+        assertThat(refusals("QUOTA")).isEqualTo(1);
+    }
+
+    @Test
     void apisHaveSeparateQuotas() {
         for (int i = 0; i < 10; i++) {
             service.acquire(WEB);
@@ -87,6 +107,10 @@ class ThirdPartyRateLimitServiceTest {
         assertThat(service.getBucketStatuses()).extracting(ThirdPartyRateLimitService.Status::api)
                 .containsExactly("webApi", "storeApi");
         assertThat(service.getBucketStatuses().getFirst().reservedForInteractive()).isEqualTo(3);
+    }
+
+    private double refusals(String reason) {
+        return meterRegistry.counter("workshop.ratelimit.refusals", "api", "webApi", "reason", reason).count();
     }
 
     record TestApi(String beanName, ApiProfile profile) implements ThirdPartyApi {

@@ -1,5 +1,7 @@
 package notkirill.workshopmanager.security.auth;
 
+import io.micrometer.core.instrument.MeterRegistry;
+import jakarta.annotation.Nullable;
 import jakarta.servlet.http.HttpServletRequest;
 import notkirill.workshopmanager.exception.UnauthorizedException;
 import notkirill.workshopmanager.ott.OneTimeTokenService;
@@ -17,6 +19,7 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -25,6 +28,8 @@ import java.util.Objects;
 
 @Service
 public class AuthService {
+    private static final String LOGINS = "workshop.logins";
+
     private final AuthNormalizer authNormalizer;
     private final AuthValidator authValidator;
 
@@ -36,13 +41,14 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final UserDetailsServiceImpl userDetailsService;
     private final UserAccountService accountService;
+    private final MeterRegistry meterRegistry;
 
     @Autowired
     public AuthService(AuthNormalizer authNormalizer, AuthValidator authValidator, JwtService jwtService,
                        RefreshTokenService refreshTokenService,
                        ClientInfoService clientInfoService, OneTimeTokenService ottService,
                        AuthenticationManager authenticationManager, UserDetailsServiceImpl userDetailsService,
-                       UserAccountService accountService) {
+                       UserAccountService accountService, MeterRegistry meterRegistry) {
         this.authNormalizer = authNormalizer;
         this.authValidator = authValidator;
         this.jwtService = jwtService;
@@ -52,10 +58,18 @@ public class AuthService {
         this.authenticationManager = authenticationManager;
         this.userDetailsService = userDetailsService;
         this.accountService = accountService;
+        this.meterRegistry = meterRegistry;
     }
 
     public AuthResponse authenticateByAuthRequest(AuthRequest request, HttpServletRequest servletRequest) {
-        UserDetails user = authenticate(request);
+        UserDetails user;
+        try {
+            user = authenticate(request);
+        } catch (AuthenticationException e) {
+            countLogin("PASSWORD", e);
+            throw e;
+        }
+        countLogin("PASSWORD", null);
         return approveAuthentication(servletRequest, user);
     }
 
@@ -74,12 +88,19 @@ public class AuthService {
         try {
             userDetails = userDetailsService.loadByIdentity(provider, providerKey);
         } catch (UsernameNotFoundException _) {
+            meterRegistry.counter(LOGINS, "method", provider.name(), "outcome", "NOT_LINKED").increment();
             throw new UnauthorizedException(
                     "ACCOUNT_NOT_LINKED",
                     "This " + provider + " account is not linked to any user. Ask an administrator for access."
             );
         }
-        requireActive(userDetails);
+        try {
+            requireActive(userDetails);
+        } catch (AuthenticationException e) {
+            countLogin(provider.name(), e);
+            throw e;
+        }
+        countLogin(provider.name(), null);
         return approveAuthentication(servletRequest, userDetails);
     }
 
@@ -124,6 +145,16 @@ public class AuthService {
                 clientInfoService.getClientInfo(servletRequest)
         );
         return new AuthResponse(jwt, tokenData.token());
+    }
+
+    private void countLogin(String method, @Nullable AuthenticationException failure) {
+        String outcome = switch (failure) {
+            case null -> "SUCCESS";
+            case DisabledException _ -> "DISABLED";
+            case LockedException _ -> "LOCKED";
+            default -> "BAD_CREDENTIALS";
+        };
+        meterRegistry.counter(LOGINS, "method", method, "outcome", outcome).increment();
     }
 
     private void requireActive(UserDetails user) {

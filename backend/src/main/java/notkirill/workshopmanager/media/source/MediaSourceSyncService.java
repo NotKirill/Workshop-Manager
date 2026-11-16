@@ -1,5 +1,7 @@
 package notkirill.workshopmanager.media.source;
 
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.annotation.Nullable;
 import notkirill.workshopmanager.common.Texts;
 import notkirill.workshopmanager.exception.NotFoundException;
@@ -43,12 +45,15 @@ public class MediaSourceSyncService {
     private final MediaProperties properties;
     private final Clock clock;
     private final TransactionTemplate transactionTemplate;
+    private final Counter syncedCounter;
+    private final Counter failedCounter;
+    private final Counter givenUpCounter;
 
     @Autowired
     public MediaSourceSyncService(MediaSourceSyncRepository repository, MediaItemService itemService,
                                   MediaLinkService linkService, SourceMediaDownloader downloader,
                                   List<SourceMediaProvider> providers, MediaProperties properties, Clock clock,
-                                  PlatformTransactionManager transactionManager) {
+                                  PlatformTransactionManager transactionManager, MeterRegistry meterRegistry) {
         this.repository = repository;
         this.itemService = itemService;
         this.linkService = linkService;
@@ -58,6 +63,16 @@ public class MediaSourceSyncService {
         this.properties = properties;
         this.clock = clock;
         this.transactionTemplate = new TransactionTemplate(transactionManager);
+        this.syncedCounter = syncCounter(meterRegistry, "SYNCED");
+        this.failedCounter = syncCounter(meterRegistry, "FAILED");
+        this.givenUpCounter = syncCounter(meterRegistry, "GIVEN_UP");
+    }
+
+    private static Counter syncCounter(MeterRegistry meterRegistry, String outcome) {
+        return Counter.builder("workshop.media.syncs")
+                .description("Copies of modspace media, by outcome")
+                .tag("outcome", outcome)
+                .register(meterRegistry);
     }
 
     @Transactional
@@ -206,6 +221,7 @@ public class MediaSourceSyncService {
                     found.setLastError(null);
                     found.setTimeSynced(OffsetDateTime.now(clock));
                 }));
+        syncedCounter.increment();
     }
 
     private void markFailed(MediaSourceSync state, RuntimeException error) {
@@ -222,6 +238,8 @@ public class MediaSourceSyncService {
                     found.setLastError(Texts.errorMessage(error));
                     found.setDueAt(OffsetDateTime.now(clock).plus(pause));
                 }));
+        if (failures >= properties.syncMaxFailures()) givenUpCounter.increment();
+        else failedCounter.increment();
     }
 
     private record Source(@Nullable SourceMediaProvider provider, List<SourceMedia> entries) {

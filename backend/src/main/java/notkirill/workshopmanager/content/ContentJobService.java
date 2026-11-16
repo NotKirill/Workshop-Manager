@@ -1,5 +1,7 @@
 package notkirill.workshopmanager.content;
 
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import jakarta.annotation.Nullable;
 import notkirill.workshopmanager.common.Texts;
 import notkirill.workshopmanager.content.enums.ContentJobError;
@@ -35,14 +37,17 @@ public class ContentJobService {
     private final ContentProperties properties;
     private final TransactionTemplate transactionTemplate;
     private final Clock clock;
+    private final MeterRegistry meterRegistry;
 
     @Autowired
     public ContentJobService(ContentJobRepository repository, ContentProperties properties,
-                             PlatformTransactionManager transactionManager, Clock clock) {
+                             PlatformTransactionManager transactionManager, Clock clock,
+                             MeterRegistry meterRegistry) {
         this.repository = repository;
         this.properties = properties;
         this.transactionTemplate = new TransactionTemplate(transactionManager);
         this.clock = clock;
+        this.meterRegistry = meterRegistry;
     }
 
     @Transactional
@@ -143,6 +148,7 @@ public class ContentJobService {
             job.setLastError(null);
             job.setErrorCode(null);
             repository.save(job);
+            recordRun(job, status.name(), null, now);
         }));
     }
 
@@ -168,7 +174,9 @@ public class ContentJobService {
                 current.setStatus(ContentJobStatus.FAILED);
                 current.setTimeFinished(now);
                 log.error("Content job {} moved to FAILED after {} attempts", current.getId(), current.getAttempts());
+                recordRun(current, "FAILED", errorCode, now);
             } else {
+                recordRun(current, "RETRY", errorCode, now);
                 long factor = 1L << Math.min(10, current.getAttempts() - 1);
                 Duration delay = properties.jobs().retryBaseDelay().multipliedBy(factor);
                 current.setStatus(ContentJobStatus.PENDING);
@@ -189,5 +197,15 @@ public class ContentJobService {
                 repository.save(job);
             }
         }));
+    }
+
+    private void recordRun(ContentJob job, String outcome, @Nullable ContentJobError error, OffsetDateTime finished) {
+        Timer.builder("workshop.content.jobs")
+                .description("Content job runs (backups and deletions) from claim to end")
+                .tag("type", job.getType().name())
+                .tag("outcome", outcome)
+                .tag("error", error == null ? "none" : error.name())
+                .register(meterRegistry)
+                .record(Duration.between(job.getTimeStarted(), finished));
     }
 }

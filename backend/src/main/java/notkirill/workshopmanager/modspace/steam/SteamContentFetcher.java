@@ -1,5 +1,8 @@
 package notkirill.workshopmanager.modspace.steam;
 
+import io.micrometer.core.instrument.DistributionSummary;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import notkirill.workshopmanager.common.Directories;
 import notkirill.workshopmanager.common.Zips;
 import notkirill.workshopmanager.content.enums.ContentJobError;
@@ -20,6 +23,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 
@@ -33,11 +37,19 @@ public class SteamContentFetcher implements ContentFetcher {
     private final SteamProperties properties;
     private final SteamItemReaderService itemReaderService;
     private final HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
+    private final MeterRegistry meterRegistry;
+    private final DistributionSummary backupSizes;
 
     @Autowired
-    public SteamContentFetcher(SteamProperties properties, SteamItemReaderService itemReaderService) {
+    public SteamContentFetcher(SteamProperties properties, SteamItemReaderService itemReaderService,
+                               MeterRegistry meterRegistry) {
         this.properties = properties;
         this.itemReaderService = itemReaderService;
+        this.meterRegistry = meterRegistry;
+        this.backupSizes = DistributionSummary.builder("workshop.steamcmd.backups")
+                .description("Zipped size of the items SteamCMD downloaded")
+                .baseUnit("bytes")
+                .register(meterRegistry);
     }
 
     @Override
@@ -60,9 +72,10 @@ public class SteamContentFetcher implements ContentFetcher {
         String folder = workDir.getFileName().toString();
         Path downloaded = properties.steamcmd().downloadsDir().resolve(folder);
         try {
-            String content = download(item, folder);
+            String content = timedDownload(item, folder);
             Path zip = workDir.resolve(item.getPublishedFileId() + ".zip");
             Zips.zipDirectory(downloaded.resolve(content), zip);
+            backupSizes.record(Files.size(zip));
             String title = item.getTitle() == null || item.getTitle().isBlank()
                     ? item.getPublishedFileId() : item.getTitle();
             return new FetchedContent(zip, title + ".zip");
@@ -74,6 +87,24 @@ public class SteamContentFetcher implements ContentFetcher {
             );
         } finally {
             Directories.deleteRecursively(downloaded);
+        }
+    }
+
+    private String timedDownload(SteamWorkshopItem item, String folder) throws IOException {
+        Timer.Sample sample = Timer.start(meterRegistry);
+        String outcome = ContentJobError.DOWNLOAD_FAILED.name();
+        try {
+            String content = download(item, folder);
+            outcome = "OK";
+            return content;
+        } catch (ContentFetchException e) {
+            outcome = e.getError().name();
+            throw e;
+        } finally {
+            sample.stop(Timer.builder("workshop.steamcmd.downloads")
+                                .description("SteamCMD downloads, by outcome")
+                                .tag("outcome", outcome)
+                                .register(meterRegistry));
         }
     }
 

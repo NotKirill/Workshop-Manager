@@ -40,6 +40,9 @@ dependencies {
     implementation("com.bucket4j:bucket4j_jdk17-lettuce:8.21.0")
     implementation("io.github.resilience4j:resilience4j-retry:2.4.0")
     implementation("io.github.resilience4j:resilience4j-circuitbreaker:2.4.0")
+    implementation("io.github.resilience4j:resilience4j-micrometer:2.4.0")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    runtimeOnly("io.micrometer:micrometer-registry-prometheus")
     runtimeOnly("org.postgresql:postgresql")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.13.0")
     // CVE fix in dependency manager

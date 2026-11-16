@@ -2,6 +2,7 @@ package notkirill.workshopmanager.ratelimit;
 
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.retry.RetryRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import notkirill.workshopmanager.exception.ServiceUnavailableException;
 import notkirill.workshopmanager.ratelimit.exception.RateLimitExceededException;
 import org.junit.jupiter.api.Test;
@@ -45,7 +46,7 @@ class ThirdPartyInterceptorTest {
         circuitBreaker = api.getProfile().circuitBreakerProfile()
                 .create(CircuitBreakerRegistry.ofDefaults(), api.getBeanName());
         rateLimitService = new ThirdPartyRateLimitService(
-                ThirdPartyRateLimitServiceTest.localBuckets(new HashMap<>()), List.of(api));
+                ThirdPartyRateLimitServiceTest.localBuckets(new HashMap<>()), List.of(api), new SimpleMeterRegistry());
         RestClient.Builder builder = RestClient.builder().requestInterceptor(new ThirdPartyInterceptor(
                 api, rateLimitService, circuitBreaker,
                 api.getProfile().retry().create(RetryRegistry.ofDefaults(), api.getBeanName())

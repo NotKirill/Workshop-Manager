@@ -2,6 +2,7 @@ package notkirill.workshopmanager.ratelimit;
 
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.retry.RetryRegistry;
+import io.micrometer.observation.ObservationRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,13 +18,15 @@ public class ApiClientConfig {
     public static final String STEAM_COMMUNITY_API_CLIENT = "steamCommunityApiRestClient";
 
     private final ThirdPartyRateLimitService rateLimitService;
+    private final ObservationRegistry observationRegistry;
     private final CircuitBreakerRegistry circuitBreakerRegistry;
     private final RetryRegistry retryRegistry;
 
     @Autowired
-    public ApiClientConfig(ThirdPartyRateLimitService rateLimitService, CircuitBreakerRegistry circuitBreakerRegistry,
-                           RetryRegistry retryRegistry) {
+    public ApiClientConfig(ThirdPartyRateLimitService rateLimitService, ObservationRegistry observationRegistry,
+                           CircuitBreakerRegistry circuitBreakerRegistry, RetryRegistry retryRegistry) {
         this.rateLimitService = rateLimitService;
+        this.observationRegistry = observationRegistry;
         this.circuitBreakerRegistry = circuitBreakerRegistry;
         this.retryRegistry = retryRegistry;
     }
@@ -56,6 +59,8 @@ public class ApiClientConfig {
         RestClient.Builder clientBuilder = RestClient.builder()
                 .requestFactory(requestFactory)
                 .defaultHeader("User-Agent", "WorkshopManager/1.0")
+                .observationRegistry(observationRegistry)
+                .observationConvention(new PathObservationConvention())
                 .requestInterceptor(new ThirdPartyInterceptor(
                         api, rateLimitService,
                         profile.circuitBreakerProfile().create(circuitBreakerRegistry, api.getBeanName()),

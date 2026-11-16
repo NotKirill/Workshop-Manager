@@ -1,5 +1,7 @@
 package notkirill.workshopmanager.item.lifecycle;
 
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import notkirill.workshopmanager.common.Texts;
 import notkirill.workshopmanager.content.ContentJobService;
 import notkirill.workshopmanager.content.ContentRevisionService;
@@ -42,6 +44,9 @@ public class ItemCleanupService {
     private final ItemCleanupProperties properties;
     private final TransactionTemplate transactionTemplate;
     private final Clock clock;
+    private final Counter orphanedCounter;
+    private final Counter deletedCounter;
+    private final Counter failedCounter;
 
     @Autowired
     public ItemCleanupService(ItemMetadataInternalRepository internalRepository,
@@ -50,7 +55,8 @@ public class ItemCleanupService {
                               ContentRevisionService contentRevisionService, ContentJobService contentJobService,
                               MediaSourceSyncService mediaSourceSyncService,
                               ModspaceRegistry modspaceRegistry, ItemCleanupProperties properties,
-                              PlatformTransactionManager transactionManager, Clock clock) {
+                              PlatformTransactionManager transactionManager, Clock clock,
+                              MeterRegistry meterRegistry) {
         this.internalRepository = internalRepository;
         this.cleanupRepository = cleanupRepository;
         this.lifecycleService = lifecycleService;
@@ -62,6 +68,16 @@ public class ItemCleanupService {
         this.properties = properties;
         this.transactionTemplate = new TransactionTemplate(transactionManager);
         this.clock = clock;
+        this.orphanedCounter = cleanupCounter(meterRegistry, "ORPHANED");
+        this.deletedCounter = cleanupCounter(meterRegistry, "DELETED");
+        this.failedCounter = cleanupCounter(meterRegistry, "FAILED");
+    }
+
+    private static Counter cleanupCounter(MeterRegistry meterRegistry, String outcome) {
+        return Counter.builder("workshop.items.cleanups")
+                .description("Items handled by the cleanup job, by outcome")
+                .tag("outcome", outcome)
+                .register(meterRegistry);
     }
 
     public CleanupReport runCleanup() {
@@ -78,6 +94,9 @@ public class ItemCleanupService {
                 registerFailure(internalId, e);
             }
         }
+        orphanedCounter.increment(marked);
+        deletedCounter.increment(deleted);
+        failedCounter.increment(failed);
         return new CleanupReport(marked, deleted, failed);
     }
 

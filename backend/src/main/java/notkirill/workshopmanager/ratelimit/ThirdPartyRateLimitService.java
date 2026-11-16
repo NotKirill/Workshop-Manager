@@ -3,6 +3,7 @@ package notkirill.workshopmanager.ratelimit;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.BucketConfiguration;
 import io.github.bucket4j.ConsumptionProbe;
+import io.micrometer.core.instrument.MeterRegistry;
 import notkirill.workshopmanager.exception.ServiceUnavailableException;
 import notkirill.workshopmanager.ratelimit.exception.RateLimitExceededException;
 import org.slf4j.Logger;
@@ -20,11 +21,13 @@ public class ThirdPartyRateLimitService {
 
     private final QuotaBuckets buckets;
     private final List<ThirdPartyApi> apis;
+    private final MeterRegistry meterRegistry;
 
     @Autowired
-    public ThirdPartyRateLimitService(QuotaBuckets buckets, List<ThirdPartyApi> apis) {
+    public ThirdPartyRateLimitService(QuotaBuckets buckets, List<ThirdPartyApi> apis, MeterRegistry meterRegistry) {
         this.buckets = buckets;
         this.apis = apis;
+        this.meterRegistry = meterRegistry;
     }
 
     public void acquire(ThirdPartyApi api) {
@@ -36,10 +39,12 @@ public class ThirdPartyRateLimitService {
             probe = bucket.tryConsumeAndReturnRemaining(1);
         } catch (RuntimeException e) {
             log.warn("Rate limiter of {} unavailable: {}", api.getBeanName(), e.getMessage());
+            countRefusal(api, "LIMITER_UNAVAILABLE");
             throw new ServiceUnavailableException(
                     "RATE_LIMITER_UNAVAILABLE", "Quota of " + api.getBeanName() + " cannot be checked");
         }
         if (!probe.isConsumed()) {
+            countRefusal(api, "QUOTA");
             throw new RateLimitExceededException(
                     "THIRD_PARTY_RATE_LIMIT", "Quota of " + api.getBeanName()
                     + " is used up for " + Duration.ofNanos(probe.getNanosToWaitForRefill()).toSeconds() + " s"
@@ -48,6 +53,7 @@ public class ThirdPartyRateLimitService {
         if (CallPriority.current() == CallPriority.BACKGROUND
                 && probe.getRemainingTokens() < quotaProfile.reservedForInteractive()) {
             bucket.addTokens(1);
+            countRefusal(api, "RESERVE");
             throw new RateLimitExceededException(
                     "THIRD_PARTY_RATE_LIMIT", "Only the reserved quota of " + api.getBeanName() + " is left");
         }
@@ -70,6 +76,10 @@ public class ThirdPartyRateLimitService {
                 api.getBeanName(), quotaProfile.maxRequests(), quotaProfile.window(), available,
                 quotaProfile.reservedForInteractive()
         );
+    }
+
+    private void countRefusal(ThirdPartyApi api, String reason) {
+        meterRegistry.counter("workshop.ratelimit.refusals", "api", api.getBeanName(), "reason", reason).increment();
     }
 
     private Bucket getBucket(ThirdPartyApi api) {

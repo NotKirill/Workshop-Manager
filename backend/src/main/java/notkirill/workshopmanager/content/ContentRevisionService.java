@@ -1,5 +1,7 @@
 package notkirill.workshopmanager.content;
 
+import io.micrometer.core.instrument.DistributionSummary;
+import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.annotation.Nullable;
 import notkirill.workshopmanager.common.DatabaseLocks;
 import notkirill.workshopmanager.common.FileNames;
@@ -41,12 +43,15 @@ public class ContentRevisionService {
     private final DatabaseLocks databaseLocks;
     private final TransactionTemplate transactionTemplate;
     private final MessageDigest messageDigest;
+    private final DistributionSummary downloadedRevisions;
+    private final DistributionSummary uploadedRevisions;
 
     @Autowired
     public ContentRevisionService(ItemContentRepository contentRepository,
                                   ItemContentRevisionRepository revisionRepository, ContentJobService jobService,
                                   ObjectStorage storage, ContentProperties properties, DatabaseLocks databaseLocks,
-                                  PlatformTransactionManager transactionManager, MessageDigest messageDigest) {
+                                  PlatformTransactionManager transactionManager, MessageDigest messageDigest,
+                                  MeterRegistry meterRegistry) {
         this.contentRepository = contentRepository;
         this.revisionRepository = revisionRepository;
         this.jobService = jobService;
@@ -55,6 +60,8 @@ public class ContentRevisionService {
         this.databaseLocks = databaseLocks;
         this.transactionTemplate = new TransactionTemplate(transactionManager);
         this.messageDigest = messageDigest;
+        this.downloadedRevisions = revisionSizes(meterRegistry, "download");
+        this.uploadedRevisions = revisionSizes(meterRegistry, "upload");
     }
 
     static String sanitizeFileName(String name) {
@@ -65,6 +72,14 @@ public class ContentRevisionService {
         return "content/" + contentId
                 + "/" + UUID.randomUUID()
                 + "/" + sanitizeFileName(fileName);
+    }
+
+    private static DistributionSummary revisionSizes(MeterRegistry meterRegistry, String source) {
+        return DistributionSummary.builder("workshop.content.revisions")
+                .description("Stored backup revisions and their size")
+                .baseUnit("bytes")
+                .tag("source", source)
+                .register(meterRegistry);
     }
 
     @Transactional(readOnly = true)
@@ -146,6 +161,8 @@ public class ContentRevisionService {
                 enforceMaxRevisions(content);
                 return revision;
             });
+            if (uploadedByUserId == null) downloadedRevisions.record(size);
+            else uploadedRevisions.record(size);
             return stored;
         } catch (RuntimeException e) {
             try {

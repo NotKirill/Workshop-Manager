@@ -1,5 +1,6 @@
 package notkirill.workshopmanager.item.sync;
 
+import io.micrometer.core.instrument.MeterRegistry;
 import notkirill.workshopmanager.content.ContentJobService;
 import notkirill.workshopmanager.item.personal.PersonalItemService;
 import notkirill.workshopmanager.item.shared.ItemInternalService;
@@ -28,11 +29,13 @@ public class ItemSyncService {
     private final ContentJobService contentJobService;
     private final ItemSyncProperties properties;
     private final Clock clock;
+    private final MeterRegistry meterRegistry;
 
     @Autowired
     public ItemSyncService(ItemInternalService internalService, PersonalItemService personalService,
                            ModspaceRegistry modspaceRegistry, SourceFetchService sourceFetchService,
-                           ContentJobService contentJobService, ItemSyncProperties properties, Clock clock) {
+                           ContentJobService contentJobService, ItemSyncProperties properties, Clock clock,
+                           MeterRegistry meterRegistry) {
         this.internalService = internalService;
         this.personalService = personalService;
         this.modspaceRegistry = modspaceRegistry;
@@ -40,6 +43,7 @@ public class ItemSyncService {
         this.contentJobService = contentJobService;
         this.properties = properties;
         this.clock = clock;
+        this.meterRegistry = meterRegistry;
     }
 
     public SyncReport syncStale() {
@@ -80,7 +84,9 @@ public class ItemSyncService {
     public List<SyncOutcome> sync(ModspaceType modspace, Collection<String> originalIds) {
         List<SyncOutcome> outcomes = sourceFetchService.sync(modspace, originalIds);
         for (SyncOutcome outcome : outcomes) {
+            countSync(modspace, outcome.status().name());
             if (outcome.sourceChanged()) {
+                meterRegistry.counter("workshop.items.source_changes", "modspace", modspace.name()).increment();
                 if (personalService.hasAutoBackupUsers(outcome.internalId())) {
                     contentJobService.requestBackup(outcome.internalId(), null);
                 }
@@ -90,6 +96,10 @@ public class ItemSyncService {
             }
         }
         return outcomes;
+    }
+
+    private void countSync(ModspaceType modspace, String outcome) {
+        meterRegistry.counter("workshop.items.syncs", "modspace", modspace.name(), "outcome", outcome).increment();
     }
 
     public record SyncReport(int synced, int unavailable, int backupsQueued) {
