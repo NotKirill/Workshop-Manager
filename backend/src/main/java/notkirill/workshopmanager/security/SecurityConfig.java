@@ -14,8 +14,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Collections;
 import java.util.List;
@@ -25,11 +23,6 @@ public class SecurityConfig {
     @Bean
     public SecureRandom secureRandom() {
         return new SecureRandom();
-    }
-
-    @Bean
-    public MessageDigest messageDigestSha256() throws NoSuchAlgorithmException {
-        return MessageDigest.getInstance("SHA-256");
     }
 
     @Bean

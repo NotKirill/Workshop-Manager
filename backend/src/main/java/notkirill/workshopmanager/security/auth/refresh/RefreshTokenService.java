@@ -1,17 +1,15 @@
 package notkirill.workshopmanager.security.auth.refresh;
 
+import notkirill.workshopmanager.common.Hashes;
 import notkirill.workshopmanager.exception.UnauthorizedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.time.Clock;
 import java.time.OffsetDateTime;
 import java.util.Base64;
-import java.util.HexFormat;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
@@ -21,16 +19,14 @@ public class RefreshTokenService {
     private final RefreshTokenRepository repository;
 
     private final SecureRandom secureRandom;
-    private final MessageDigest messageDigest;
     private final Clock clock;
 
     @Autowired
     public RefreshTokenService(RefreshTokenProperties properties, RefreshTokenRepository repository,
-                               SecureRandom secureRandom, MessageDigest messageDigest, Clock clock) {
+                               SecureRandom secureRandom, Clock clock) {
         this.properties = properties;
         this.repository = repository;
         this.secureRandom = secureRandom;
-        this.messageDigest = messageDigest;
         this.clock = clock;
     }
 
@@ -132,7 +128,6 @@ public class RefreshTokenService {
     }
 
     private String getTokenHash(String token) {
-        return HexFormat.of().formatHex(messageDigest.digest(
-                token.getBytes(StandardCharsets.UTF_8)));
+        return Hashes.sha256Hex(token);
     }
 }

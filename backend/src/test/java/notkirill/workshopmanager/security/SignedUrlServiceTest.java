@@ -3,8 +3,6 @@ package notkirill.workshopmanager.security;
 import notkirill.workshopmanager.security.auth.jwt.JwtProperties;
 import org.junit.jupiter.api.Test;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -17,7 +15,7 @@ class SignedUrlServiceTest {
 
     @Test
     void acceptsValidSignatureOnlyForSameResource() {
-        SignedUrlService service = new SignedUrlService(JWT, Clock.systemUTC(), sha256());
+        SignedUrlService service = new SignedUrlService(JWT, Clock.systemUTC());
         SignedUrlService.Signature signature = service.sign("content:1:2", Duration.ofMinutes(5));
 
         assertThat(service.verify("content:1:2", signature.expiresAt(), signature.value())).isTrue();
@@ -29,10 +27,10 @@ class SignedUrlServiceTest {
     @Test
     void rejectsExpiredSignature() {
         Instant now = Instant.parse("2026-01-01T00:00:00Z");
-        SignedUrlService signer = new SignedUrlService(JWT, Clock.fixed(now, ZoneOffset.UTC), sha256());
+        SignedUrlService signer = new SignedUrlService(JWT, Clock.fixed(now, ZoneOffset.UTC));
         SignedUrlService.Signature signature = signer.sign("media:7", Duration.ofMinutes(1));
 
-        SignedUrlService later = new SignedUrlService(JWT, Clock.fixed(now.plusSeconds(120), ZoneOffset.UTC), sha256());
+        SignedUrlService later = new SignedUrlService(JWT, Clock.fixed(now.plusSeconds(120), ZoneOffset.UTC));
         assertThat(later.verify("media:7", signature.expiresAt(), signature.value())).isFalse();
     }
 
@@ -53,14 +51,6 @@ class SignedUrlServiceTest {
     }
 
     private static SignedUrlService signerAt(Instant now) {
-        return new SignedUrlService(JWT, Clock.fixed(now, ZoneOffset.UTC), sha256());
-    }
-
-    private static MessageDigest sha256() {
-        try {
-            return MessageDigest.getInstance("SHA-256");
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException(e);
-        }
+        return new SignedUrlService(JWT, Clock.fixed(now, ZoneOffset.UTC));
     }
 }

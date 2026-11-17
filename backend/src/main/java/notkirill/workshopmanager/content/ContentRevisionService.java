@@ -5,6 +5,7 @@ import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.annotation.Nullable;
 import notkirill.workshopmanager.common.DatabaseLocks;
 import notkirill.workshopmanager.common.FileNames;
+import notkirill.workshopmanager.common.Hashes;
 import notkirill.workshopmanager.content.models.ItemContent;
 import notkirill.workshopmanager.content.models.ItemContentRevision;
 import notkirill.workshopmanager.content.repositories.ItemContentRepository;
@@ -21,11 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.MessageDigest;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -42,7 +41,6 @@ public class ContentRevisionService {
     private final ContentProperties properties;
     private final DatabaseLocks databaseLocks;
     private final TransactionTemplate transactionTemplate;
-    private final MessageDigest messageDigest;
     private final DistributionSummary downloadedRevisions;
     private final DistributionSummary uploadedRevisions;
 
@@ -50,8 +48,7 @@ public class ContentRevisionService {
     public ContentRevisionService(ItemContentRepository contentRepository,
                                   ItemContentRevisionRepository revisionRepository, ContentJobService jobService,
                                   ObjectStorage storage, ContentProperties properties, DatabaseLocks databaseLocks,
-                                  PlatformTransactionManager transactionManager, MessageDigest messageDigest,
-                                  MeterRegistry meterRegistry) {
+                                  PlatformTransactionManager transactionManager, MeterRegistry meterRegistry) {
         this.contentRepository = contentRepository;
         this.revisionRepository = revisionRepository;
         this.jobService = jobService;
@@ -59,7 +56,6 @@ public class ContentRevisionService {
         this.properties = properties;
         this.databaseLocks = databaseLocks;
         this.transactionTemplate = new TransactionTemplate(transactionManager);
-        this.messageDigest = messageDigest;
         this.downloadedRevisions = revisionSizes(meterRegistry, "download");
         this.uploadedRevisions = revisionSizes(meterRegistry, "upload");
     }
@@ -136,7 +132,7 @@ public class ContentRevisionService {
         long size;
         try {
             size = Files.size(file);
-            sha256 = sha256Hex(file);
+            sha256 = Hashes.sha256Hex(file);
         } catch (IOException e) {
             throw new UncheckedIOException("Cannot read content file", e);
         }
@@ -263,17 +259,5 @@ public class ContentRevisionService {
     }
 
     private record PreparedContent(ItemContent content, boolean created) {
-    }
-
-    private String sha256Hex(Path file) throws IOException {
-        messageDigest.reset();
-        try (InputStream in = Files.newInputStream(file)) {
-            byte[] buffer = new byte[8192];
-            int read;
-            while ((read = in.read(buffer)) != -1) {
-                messageDigest.update(buffer, 0, read);
-            }
-        }
-        return HexFormat.of().formatHex(messageDigest.digest());
     }
 }

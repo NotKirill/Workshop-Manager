@@ -1,5 +1,6 @@
 package notkirill.workshopmanager.security;
 
+import notkirill.workshopmanager.common.Hashes;
 import notkirill.workshopmanager.security.auth.jwt.JwtProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,9 +21,13 @@ public class SignedUrlService {
     private final Clock clock;
 
     @Autowired
-    public SignedUrlService(JwtProperties jwtProperties, Clock clock, MessageDigest messageDigest) {
-        this.key = messageDigest.digest(("signed-url:" + jwtProperties.secretKey()).getBytes(StandardCharsets.UTF_8));
+    public SignedUrlService(JwtProperties jwtProperties, Clock clock) {
+        this.key = deriveKey(jwtProperties.secretKey());
         this.clock = clock;
+    }
+
+    private static byte[] deriveKey(String secret) {
+        return Hashes.sha256(("signed-url:" + secret).getBytes(StandardCharsets.UTF_8));
     }
 
     public Signature sign(String resource, Duration ttl) {
