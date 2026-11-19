@@ -60,6 +60,11 @@ dependencies {
     implementation("org.antlr:antlr4-runtime:4.13.1")
 }
 
+// FIX: The ANTLR plugin puts the whole ANTLR tool on the runtime classpath
+configurations.api {
+    setExtendsFrom(extendsFrom.filterNot { it.name == "antlr" })
+}
+
 dependencyManagement {
     dependencies {
         // CVE-2026-54515 jjwt-jackson fix
