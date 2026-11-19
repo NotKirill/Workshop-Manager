@@ -6,8 +6,11 @@ import notkirill.workshopmanager.item.library.search.antlr.ItemSearchGrammarPars
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.util.Locale;
+import java.util.regex.Pattern;
 
 public class ItemSearchVisitor extends ItemSearchGrammarBaseVisitor<ItemSearchCriterion> {
+    private static final Pattern ESCAPED_CHAR = Pattern.compile("\\\\([\"\\\\])");
+
     private final ItemSearchPredicateBuilder predicateBuilder;
     private final ItemSearchProperties properties;
 
@@ -194,7 +197,7 @@ public class ItemSearchVisitor extends ItemSearchGrammarBaseVisitor<ItemSearchCr
     private String extractValue(ItemSearchGrammarParser.CriteriaContext ctx) {
         if (ctx.PHRASE() != null) {
             String text = ctx.PHRASE().getText();
-            return text.substring(1, text.length() - 1).replace("\\\"", "\"");
+            return ESCAPED_CHAR.matcher(text.substring(1, text.length() - 1)).replaceAll("$1");
         }
         if (ctx.WORD() != null) return ctx.WORD().getText();
         if (ctx.comp_val() != null) return ctx.comp_val().val.getText();

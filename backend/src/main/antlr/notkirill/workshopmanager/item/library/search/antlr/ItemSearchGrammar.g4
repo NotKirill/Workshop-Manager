@@ -22,7 +22,7 @@ OR        : 'OR' | '||' ;
 NOT       : 'NOT' | '!' | '-' ;
 GT : '>' ; GTE : '>=' ; LT : '<' ; LTE : '<=' ; EQ : '=' ; RANGE : '..' ;
 
-PHRASE    : '"' ( '\\"' | ~'"' )* '"' ;
+PHRASE    : '"' ( '\\' . | ~["\\] )* '"' ;
 fragment WORD_CHAR : ~[ \t\r\n()!":><=.-] ;
 WORD : WORD_CHAR+ ( ('.' | '-') WORD_CHAR+ )* ;
 
