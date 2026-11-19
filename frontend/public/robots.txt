@@ -1,0 +1,3 @@
+# TODO: don't forget to allow scanning when adds public page
+User-agent: *
+Disallow: /
