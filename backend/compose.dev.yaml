@@ -135,6 +135,32 @@ services:
       timeout: 5s
       retries: 3
       start_period: 30s
+  # docker compose -f compose.dev.yaml --profile seed run --rm seed
+  seed:
+    profiles: [ seed ]
+    build: ./dev/seed
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      seaweedfs:
+        condition: service_healthy
+    environment:
+      PGHOST: postgres
+      PGUSER: dev
+      PGPASSWORD: dev
+      PGDATABASE: workshop_manager
+      S3_ENDPOINT: http://seaweedfs:8333
+      S3_REGION: us-east-1
+      S3_BUCKET: workshop-manager
+      S3_ACCESS_KEY: devseaweed
+      S3_SECRET_KEY: devseaweed-secret
+      REDIS_HOST: redis
+      REDIS_PASSWORD: devpass
+      ADMIN_STEAM_ID: ${BOOTSTRAP_ADMIN_STEAM_ID:-}
+    volumes:
+      - ./dev/seed:/seed:ro
 
 volumes:
   postgres_data:
