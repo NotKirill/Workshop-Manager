@@ -160,7 +160,7 @@ services:
       REDIS_PASSWORD: devpass
       ADMIN_STEAM_ID: ${BOOTSTRAP_ADMIN_STEAM_ID:-}
     volumes:
-      - ./dev/seed:/seed:ro
+      - ./dev/seed:/seed
 
 volumes:
   postgres_data:
