@@ -48,7 +48,7 @@ public record SteamProperties(
     }
 
     /**
-     * The SteamCMD container (backend/steamcmd): {@code url} of its wrapper, and {@code downloads-dir}, the host folder
+     * The SteamCMD container (backend/steamcmd): {@code url} of its wrapper, and {@code downloads-dir}, the folder
      * mounted as its {@code /downloads}.
      */
     public record SteamCmd(

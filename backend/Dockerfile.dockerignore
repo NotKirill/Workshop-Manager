@@ -1,0 +1,43 @@
+# Build context of backend/Dockerfile is the repository root
+# Only backend/ and frontend/ go in
+*
+!backend/
+!frontend/
+
+# Secrets
+**/.env
+**/.env.local
+**/*.pem
+**/*.key
+
+# Build output, downloaded packages, caches
+**/node_modules
+**/build
+**/dist
+**/out
+**/.gradle
+backend/bin
+
+# IDE and git files
+**/.idea
+**/.vscode
+**/*.iml
+**/.gitignore
+**/.gitattributes
+**/*.md
+
+# Not used by the build
+backend/src/test
+backend/steamcmd/src
+backend/steamcmd/Dockerfile
+backend/steamcmd/.dockerignore
+backend/dev
+backend/deploy
+backend/monitoring
+backend/nginx
+backend/compose*.yaml
+backend/Dockerfile*
+backend/.env.example
+backend/gradlew.bat
+frontend/reference
+frontend/eslint.config.js

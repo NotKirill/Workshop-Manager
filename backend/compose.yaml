@@ -10,8 +10,6 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
       POSTGRES_DB: workshop_manager
-    ports:
-      - "127.0.0.1:5432:5432"
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB" ]
       interval: 10s
@@ -25,8 +23,6 @@ services:
       - redis_data:/data
     environment:
       REDIS_PASSWORD: ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
-    ports:
-      - "127.0.0.1:6379:6379"
     command: sh -c "redis-server --requirepass $$REDIS_PASSWORD"
     healthcheck:
       test: [ "CMD-SHELL", "redis-cli -a $$REDIS_PASSWORD ping" ]
@@ -43,8 +39,6 @@ services:
     environment:
       AWS_ACCESS_KEY_ID: ${S3_ACCESS_KEY:?S3_ACCESS_KEY is required}
       AWS_SECRET_ACCESS_KEY: ${S3_SECRET_KEY:?S3_SECRET_KEY is required}
-    ports:
-      - "127.0.0.1:8333:8333"
     healthcheck:
       test: [ "CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8333/healthz" ]
       interval: 10s
@@ -55,8 +49,8 @@ services:
     build:
       context: ./steamcmd
       args:
-        UID: ${APP_UID:?APP_UID is required}
-        GID: ${APP_GID:?APP_GID is required}
+        UID: "10001"
+        GID: "10001"
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -71,16 +65,61 @@ services:
         max-size: 10m
         max-file: "3"
     volumes:
-      - /var/lib/workshop-manager/steam-downloads:/downloads
+      - steam_downloads:/downloads
       - steamcmd_data:/opt/steamcmd
-    ports:
-      - "127.0.0.1:8095:8095"
     healthcheck:
       test: [ "CMD", "curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1:8095/health" ]
       interval: 30s
       timeout: 5s
       retries: 3
       start_period: 10s
+  app:
+    # A tag pushed by the CI; Use any name for a local build
+    image: ${APP_IMAGE:?APP_IMAGE is required}
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      seaweedfs:
+        condition: service_healthy
+      steamcmd:
+        condition: service_started
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY:?S3_ACCESS_KEY is required}
+      S3_SECRET_KEY: ${S3_SECRET_KEY:?S3_SECRET_KEY is required}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      FRONTEND_URL: ${FRONTEND_URL:?FRONTEND_URL is required}
+      STEAM_WEB_API_KEY: ${STEAM_WEB_API_KEY:-}
+      BOOTSTRAP_ADMIN_USERNAME: ${BOOTSTRAP_ADMIN_USERNAME:-}
+      BOOTSTRAP_ADMIN_PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD:-}
+      BOOTSTRAP_ADMIN_STEAM_ID: ${BOOTSTRAP_ADMIN_STEAM_ID:-}
+      JAVA_TOOL_OPTIONS: -Xmx256m
+    volumes:
+      - content_tmp:/var/lib/workshop-manager/content-tmp
+      - steam_downloads:/var/lib/workshop-manager/steam-downloads
+    ports:
+      - "127.0.0.1:8080:8080"
+      - "127.0.0.1:8081:8081"
+    # Scheduled jobs get time to finish (spring.quartz.wait-for-jobs-to-complete-on-shutdown)
+    stop_grace_period: 2m
+    logging:
+      options:
+        max-size: 10m
+        max-file: "3"
+    healthcheck:
+      test: [ "CMD", "curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1:8081/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
   prometheus:
     image: prom/prometheus:v3.16.0
     restart: unless-stopped
@@ -154,5 +193,7 @@ volumes:
   redis_data:
   seaweedfs_data:
   steamcmd_data:
+  steam_downloads:
+  content_tmp:
   prometheus_data:
   grafana_data:

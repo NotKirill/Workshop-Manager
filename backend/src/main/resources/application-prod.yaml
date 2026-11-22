@@ -1,5 +1,4 @@
 server:
-  address: 127.0.0.1
   forward-headers-strategy: native
   tomcat:
     mbeanregistry:
@@ -7,7 +6,6 @@ server:
 management:
   server:
     port: 8081
-    address: 127.0.0.1
   endpoints:
     web:
       exposure:
@@ -24,7 +22,7 @@ spring:
   application:
     name: workshop-manager-backend
   datasource:
-    url: jdbc:postgresql://localhost:5432/workshop_manager
+    url: jdbc:postgresql://postgres:5432/workshop_manager
     username: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
     hikari:
@@ -45,7 +43,7 @@ spring:
     type: redis
   data:
     redis:
-      host: localhost
+      host: redis
       port: 6379
       password: ${REDIS_PASSWORD}
       timeout: 1s
@@ -96,7 +94,7 @@ application:
   storage:
     type: S3
     s3:
-      endpoint: http://localhost:8333
+      endpoint: http://seaweedfs:8333
       region: us-east-1
       bucket: workshop-manager
       access-key: ${S3_ACCESS_KEY}
@@ -168,7 +166,7 @@ application:
       batch-max-size: 100
       steamcmd:
         # The steamcmd service of compose.yaml
-        url: http://127.0.0.1:8095
+        url: http://steamcmd:8095
         downloads-dir: /var/lib/workshop-manager/steam-downloads
         timeout: 30m
   bootstrap:
