@@ -45,6 +45,24 @@ write_file() {
 
 step "System packages"
 export DEBIAN_FRONTEND=noninteractive
+# Some VPS images point GRUB to a disk that doesn't exist
+if dpkg -s grub-pc &> /dev/null; then
+    GRUB_DISKS=$(debconf-show grub-pc | sed -n 's/^[* ]*grub-pc\/install_devices: //p' | tr ',' ' ')
+    GRUB_OK=$([[ -n $GRUB_DISKS ]] && echo true || echo false)
+    for disk in $GRUB_DISKS; do
+        [[ -e $disk ]] || GRUB_OK=false
+    done
+    if [[ $GRUB_OK == false ]]; then
+        # The disk the root filesystem is on (-s walks from the partition up to its disk)
+        DISKS=$(lsblk -snro NAME,TYPE "$(findmnt -nvo SOURCE /)" | awk '$2 == "disk" {print "/dev/" $1}')
+        [[ -n $DISKS && $(wc -l <<< "$DISKS") -eq 1 ]] \
+            || fail "GRUB's disk is not set and the system disk is unclear: run dpkg-reconfigure grub-pc"
+        echo "GRUB disk: $DISKS"
+        echo "grub-pc grub-pc/install_devices multiselect $DISKS" | debconf-set-selections
+    fi
+fi
+# Finishes packages that a failed run left half-installed
+dpkg --configure -a
 apt-get update
 apt-get -y -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold upgrade
 apt-get -y install sudo curl ca-certificates openssl rsync ufw fail2ban python3-systemd unattended-upgrades certbot
