@@ -6,6 +6,21 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <meta name="darkreader-lock"/>
     <title>Workshop Manager</title>
+    <!-- Page background before the app renders, so a load or reload doesn't flash -->
+    <style>
+        html { background: #FFFFFF; color-scheme: light; }
+        html.dark { background: #09090B; color-scheme: dark; }
+    </style>
+    <script>
+        try {
+            const saved = localStorage.getItem("theme") || "system";
+            const dark = saved === "dark"
+                || (saved === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+            document.documentElement.classList.add(dark ? "dark" : "light");
+        } catch {
+            // no storage: the app decides once it renders
+        }
+    </script>
 </head>
 <body>
 <div id="root"></div>
