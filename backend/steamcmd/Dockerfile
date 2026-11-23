@@ -18,5 +18,5 @@ COPY --from=build /jre /opt/jre
 COPY --from=build /out /opt/wrapper
 ENV HOME=/home/steam
 EXPOSE 8095
-COPY entrypoint.sh /opt/entrypoint.sh
+COPY --chmod=755 entrypoint.sh /opt/entrypoint.sh
 ENTRYPOINT ["/opt/entrypoint.sh"]
