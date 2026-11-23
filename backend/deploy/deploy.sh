@@ -52,7 +52,8 @@ fi
 docker image prune -af --filter until=168h > /dev/null
 
 # First deploy: replace the self-signed placeholder
-if ! openssl x509 -in "$(env_value TLS_CERT_DIR)/fullchain.pem" -noout -issuer | grep -q "Let's Encrypt"; then
+ISSUER=$(openssl x509 -in "$(env_value TLS_CERT_DIR)/fullchain.pem" -noout -issuer)
+if [[ $ISSUER != *"Let's Encrypt"* ]]; then
     sudo workshop-cert
 fi
 

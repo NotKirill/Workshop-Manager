@@ -88,7 +88,7 @@ echo 'vm.swappiness=10' | write_file /etc/sysctl.d/99-swappiness.conf && sysctl 
 swapon --show
 
 step "Firewall: SSH, HTTP and HTTPS only"
-SSH_PORT=$(sshd -T | awk '$1 == "port" {print $2; exit}')
+SSH_PORT=$(sshd -T | awk '$1 == "port" && !port {port = $2} END {print port}')
 ufw default deny incoming
 ufw default allow outgoing
 ufw allow "$SSH_PORT/tcp"
