@@ -1,0 +1,11 @@
+# The dev services on other host ports, so they run next to the dev stack. Ports come from run.sh
+services:
+  postgres:
+    ports: !override
+      - "127.0.0.1:${SHOWCASE_POSTGRES_PORT:?set by run.sh}:5432"
+  redis:
+    ports: !override
+      - "127.0.0.1:${SHOWCASE_REDIS_PORT:?set by run.sh}:6379"
+  seaweedfs:
+    ports: !override
+      - "127.0.0.1:${SHOWCASE_S3_PORT:?set by run.sh}:8333"

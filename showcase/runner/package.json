@@ -1,0 +1,9 @@
+{
+  "name": "workshop-manager-showcase",
+  "private": true,
+  "type": "module",
+  "description": "Showcase data and README captures for Workshop Manager, run by run.sh",
+  "dependencies": {
+    "playwright": "1.55.0"
+  }
+}

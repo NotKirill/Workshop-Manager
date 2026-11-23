@@ -1,0 +1,28 @@
+# The runner on the host network: the app listens on 127.0.0.1 only, and the services are reached on their host ports.
+# Ports come from run.sh
+services:
+  runner:
+    profiles: [ runner ]
+    build: ../showcase/runner
+    image: workshop-manager-showcase-runner
+    network_mode: host
+    # Chromium crashes with Docker's default 64 MB
+    shm_size: 1gb
+    environment:
+      PGHOST: 127.0.0.1
+      PGPORT: ${SHOWCASE_POSTGRES_PORT:?set by run.sh}
+      PGUSER: dev
+      PGPASSWORD: dev
+      PGDATABASE: workshop_manager
+      S3_ENDPOINT: http://127.0.0.1:${SHOWCASE_S3_PORT:?set by run.sh}
+      S3_REGION: us-east-1
+      S3_BUCKET: workshop-manager
+      S3_ACCESS_KEY: devseaweed
+      S3_SECRET_KEY: devseaweed-secret
+      REDIS_HOST: 127.0.0.1
+      REDIS_PORT: ${SHOWCASE_REDIS_PORT:?set by run.sh}
+      REDIS_PASSWORD: devpass
+    volumes:
+      - ../showcase/scripts:/opt/runner/scripts:ro
+      - ../showcase:/showcase
+      - ../docs/images:/output

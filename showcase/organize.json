@@ -1,0 +1,476 @@
+{
+  "_format": "per game: groups (names), items: original_id -> [rating or null, [tags], [groups], note or null, title override or null]",
+  "Garry's Mod": {
+    "groups": [
+      "Sandbox server",
+      "Friday PropHunt"
+    ],
+    "items": {
+      "105982362": [
+        9,
+        [
+          "maps",
+          "favorite"
+        ],
+        [
+          "Sandbox server"
+        ],
+        null,
+        null
+      ],
+      "160250458": [
+        10,
+        [
+          "tools",
+          "sandbox",
+          "server",
+          "must-have"
+        ],
+        [
+          "Sandbox server"
+        ],
+        "Needed for every contraption build. Update it before the server restart.",
+        null
+      ],
+      "771487490": [
+        8,
+        [
+          "vehicles"
+        ],
+        [
+          "Sandbox server"
+        ],
+        null,
+        null
+      ],
+      "104990330": [
+        7,
+        [
+          "vehicles",
+          "server"
+        ],
+        [
+          "Sandbox server"
+        ],
+        null,
+        null
+      ],
+      "504945881": [
+        8,
+        [],
+        [
+          "Sandbox server"
+        ],
+        null,
+        null
+      ],
+      "279079869": [
+        7,
+        [
+          "tools"
+        ],
+        [],
+        null,
+        null
+      ],
+      "108024198": [
+        6,
+        [
+          "props",
+          "try-later"
+        ],
+        [],
+        null,
+        null
+      ],
+      "2870296319": [
+        null,
+        [],
+        [],
+        null,
+        null
+      ],
+      "135509255": [
+        9,
+        [
+          "gamemodes",
+          "favorite",
+          "server"
+        ],
+        [
+          "Friday PropHunt"
+        ],
+        null,
+        null
+      ],
+      "3473911205": [
+        7,
+        [
+          "music"
+        ],
+        [],
+        null,
+        null
+      ],
+      "3483273863": [
+        8,
+        [],
+        [],
+        null,
+        null
+      ]
+    }
+  },
+  "Arma 3": {
+    "groups": [
+      "Co-op weekend"
+    ],
+    "items": {
+      "450814997": [
+        null,
+        [],
+        [
+          "Co-op weekend"
+        ],
+        null,
+        null
+      ],
+      "463939057": [
+        8,
+        [
+          "realism",
+          "co-op",
+          "server-side"
+        ],
+        [
+          "Co-op weekend"
+        ],
+        null,
+        null
+      ],
+      "1779063631": [
+        9,
+        [
+          "zeus"
+        ],
+        [
+          "Co-op weekend"
+        ],
+        null,
+        null
+      ],
+      "713709341": [
+        8,
+        [
+          "helicopters",
+          "co-op"
+        ],
+        [
+          "Co-op weekend"
+        ],
+        null,
+        null
+      ],
+      "615007497": [
+        null,
+        [
+          "helicopters"
+        ],
+        [],
+        null,
+        null
+      ],
+      "333310405": [
+        7,
+        [
+          "client-side"
+        ],
+        [],
+        null,
+        null
+      ],
+      "639837898": [
+        6,
+        [],
+        [],
+        null,
+        null
+      ]
+    }
+  },
+  "Terraria": {
+    "groups": [],
+    "items": {
+      "2448259079": [
+        8,
+        [
+          "ui",
+          "texture-pack"
+        ],
+        [],
+        null,
+        null
+      ],
+      "2971754944": [
+        7,
+        [
+          "texture-pack"
+        ],
+        [],
+        null,
+        null
+      ],
+      "2511496232": [
+        6,
+        [],
+        [],
+        null,
+        null
+      ],
+      "2440377616": [
+        null,
+        [
+          "worlds"
+        ],
+        [],
+        null,
+        null
+      ]
+    }
+  },
+  "tModLoader": {
+    "groups": [
+      "Calamity run"
+    ],
+    "items": {
+      "2824688072": [
+        9,
+        [
+          "content",
+          "bosses",
+          "favorite"
+        ],
+        [
+          "Calamity run"
+        ],
+        "Start on Revengeance, not Death. Boss Checklist shows the order.",
+        null
+      ],
+      "2824688266": [
+        8,
+        [
+          "music"
+        ],
+        [
+          "Calamity run"
+        ],
+        null,
+        null
+      ],
+      "2619954303": [
+        10,
+        [
+          "qol"
+        ],
+        [
+          "Calamity run"
+        ],
+        null,
+        null
+      ],
+      "2669644269": [
+        9,
+        [
+          "qol"
+        ],
+        [
+          "Calamity run"
+        ],
+        null,
+        null
+      ],
+      "2563309347": [
+        8,
+        [
+          "qol"
+        ],
+        [],
+        null,
+        null
+      ],
+      "2909886416": [
+        null,
+        [
+          "content",
+          "try-later"
+        ],
+        [],
+        null,
+        null
+      ]
+    }
+  },
+  "Cities: Skylines": {
+    "groups": [
+      "Main city"
+    ],
+    "items": {
+      "2040656402": [
+        null,
+        [],
+        [
+          "Main city"
+        ],
+        null,
+        null
+      ],
+      "1637663252": [
+        10,
+        [
+          "traffic",
+          "must-have"
+        ],
+        [
+          "Main city"
+        ],
+        "Set lane arrows on the highway exits first, that fixes most of the jams.",
+        "Traffic Manager: President Edition"
+      ],
+      "1619685021": [
+        9,
+        [
+          "tools",
+          "must-have"
+        ],
+        [
+          "Main city"
+        ],
+        null,
+        null
+      ],
+      "2472062376": [
+        8,
+        [
+          "traffic",
+          "roads"
+        ],
+        [
+          "Main city"
+        ],
+        null,
+        null
+      ],
+      "812125426": [
+        7,
+        [
+          "roads"
+        ],
+        [],
+        null,
+        null
+      ],
+      "2862121823": [
+        7,
+        [],
+        [],
+        null,
+        null
+      ]
+    }
+  },
+  "RimWorld": {
+    "groups": [],
+    "items": {
+      "2009463077": [
+        null,
+        [],
+        [],
+        null,
+        null
+      ],
+      "2023507013": [
+        null,
+        [],
+        [],
+        null,
+        null
+      ],
+      "1718190143": [
+        8,
+        [
+          "furniture",
+          "vanilla-expanded"
+        ],
+        [],
+        null,
+        null
+      ]
+    }
+  },
+  "Project Zomboid": {
+    "groups": [],
+    "items": {
+      "2169435993": [
+        null,
+        [],
+        [],
+        null,
+        null
+      ],
+      "2392709985": [
+        null,
+        [],
+        [],
+        null,
+        null
+      ],
+      "2282429356": [
+        7,
+        [
+          "vehicles"
+        ],
+        [],
+        null,
+        null
+      ]
+    }
+  },
+  "Slay the Spire": {
+    "groups": [],
+    "items": {
+      "1610056683": [
+        9,
+        [
+          "characters",
+          "favorite"
+        ],
+        [],
+        "Play the Guardian first, it's the easiest of the new characters.",
+        null
+      ]
+    }
+  },
+  "Don't Starve Together": {
+    "groups": [],
+    "items": {
+      "376333686": [
+        9,
+        [
+          "hud"
+        ],
+        [],
+        null,
+        null
+      ],
+      "351325790": [
+        8,
+        [
+          "building"
+        ],
+        [],
+        null,
+        null
+      ]
+    }
+  }
+}
