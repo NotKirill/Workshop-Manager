@@ -75,8 +75,9 @@ APT::Periodic::Unattended-Upgrade "1";
 EOF
 
 step "Swap"
-if [[ -z $(swapon --show --noheadings) ]]; then
-    fallocate -l "$SWAP_SIZE" /swapfile
+# Disk swap even next to zram: zram is used first, the file when it's full
+if [[ $(swapon --show=NAME --noheadings | grep -vc '^/dev/zram') == 0 ]]; then
+    [[ -e /swapfile ]] || fallocate -l "$SWAP_SIZE" /swapfile
     chmod 600 /swapfile
     mkswap /swapfile
     swapon /swapfile
