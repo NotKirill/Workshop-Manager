@@ -1,6 +1,6 @@
 # SteamCMD for content backups of Steam items, driven by the backend over HTTP
 
-FROM eclipse-temurin:25-jdk AS build
+FROM eclipse-temurin:25.0.5.1_2-jdk-noble AS build
 COPY src/main/java/ /src/
 RUN javac -d /out /src/notkirill/workshopmanager/steamcmd/*.java \
  && jlink --add-modules java.base,jdk.httpserver --strip-debug --no-header-files --no-man-pages --output /jre
@@ -13,12 +13,10 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/* \
  && groupadd --gid "$GID" steam \
  && useradd --uid "$UID" --gid "$GID" --create-home steam \
- && mkdir /opt/steamcmd /downloads \
- && curl -fsSL https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz | tar -xz -C /opt/steamcmd \
- && chown -R steam:steam /opt/steamcmd /downloads
+ && install -d -o steam -g steam /opt/steamcmd /downloads
 COPY --from=build /jre /opt/jre
 COPY --from=build /out /opt/wrapper
 ENV HOME=/home/steam
 EXPOSE 8095
-# Host folder for /downloads as root: hand it to the steam user, then drop root
-ENTRYPOINT ["sh", "-c", "chown steam:steam /downloads && exec setpriv --reuid=steam --regid=steam --init-groups /opt/jre/bin/java -cp /opt/wrapper notkirill.workshopmanager.steamcmd.SteamCmdWrapper"]
+COPY entrypoint.sh /opt/entrypoint.sh
+ENTRYPOINT ["/opt/entrypoint.sh"]

@@ -22,19 +22,18 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Pattern;
 
 /**
- * Runs SteamCMD inside its own container.
- * <p>
- * {@code POST /download?app_id=4000&file_id=160250458&folder=job-12-x&timeout=PT30M} downloads one workshop item into
- * {@code /downloads/{folder}}, a folder shared with the backend, and answers with JSON:
- * {@code {"status":"OK","content":"<the item's folder inside {folder}>"}} or
- * {@code {"status":"TIMEOUT|NOT_DOWNLOADABLE|FAILED","message":"..."}}. The backend deletes the folder when it is done.
- * One download runs at a time; another request meanwhile gets 503. {@code GET /health} answers 200.
- * <p>
- * Right after start SteamCMD updates itself (into the {@code /opt/steamcmd} volume, so the update is kept); downloads
- * get 503 meanwhile. Every request writes one line to standard output ({@code docker compose logs steamcmd}).
+ * Small HTTP server that runs SteamCMD for the backend.
+ * <ul>
+ *     <li>{@code POST /download?app_id=4000&file_id=160250458&folder=job-12-x&timeout=PT30M} downloads one workshop
+ *     item into {@code /downloads/{folder}} (shared with the backend, which deletes it afterwards). Answer:
+ *     {@code {"status":"OK","content":"<item folder inside {folder}>"}} or
+ *     {@code {"status":"TIMEOUT|NOT_DOWNLOADABLE|FAILED","message":"..."}}</li>
+ *     <li>{@code GET /health} answers 200</li>
+ * </ul>
+ * One download at a time: others get 503, also while SteamCMD updates itself after start. Each request logs one line.
  */
 public final class SteamCmdWrapper {
-    private static final Pattern ID = Pattern.compile("[/d]{1,20}");
+    private static final Pattern ID = Pattern.compile("\\d{1,20}");
     private static final Pattern FOLDER = Pattern.compile("[A-Za-z0-9-]{1,100}");
     private static final Pattern ANSI_CODE = Pattern.compile("\u001B\\[[0-9;]*[A-Za-z]");
 
