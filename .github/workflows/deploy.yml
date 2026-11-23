@@ -1,0 +1,151 @@
+# Builds both images, pushes them to ghcr.io and deploys them. Runs on a v* tag or by hand;
+# by hand with an image tag it only deploys that tag (rollback).
+#
+# Environment "production":
+#   variables: DEPLOY_HOST, SSH_KNOWN_HOSTS
+#   secrets:   DEPLOY_SSH_KEY
+name: Deploy
+
+on:
+  push:
+    tags: [ "v*" ]
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Deploy this existing image tag instead of building (rollback)"
+        required: false
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+permissions: { }
+
+jobs:
+  ci:
+    if: inputs.image_tag == ''
+    permissions:
+      contents: read
+    uses: ./.github/workflows/ci.yml
+
+  build:
+    needs: ci
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      tag: ${{ steps.names.outputs.tag }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Image names
+        id: names
+        run: |
+          echo "image=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+          if [[ $GITHUB_REF_TYPE == tag ]]; then
+            echo "tag=$GITHUB_REF_NAME" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=sha-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+        id: buildx
+
+      - uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Keeps the Dockerfile's cache mounts (Gradle, Node, npm) between runs
+      - name: Cache of the build's downloads
+        id: cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: cache-mounts
+          key: cache-mounts-${{ hashFiles('backend/**/*.gradle.kts', 'backend/gradle/wrapper/gradle-wrapper.properties', 'frontend/package-lock.json') }}
+          restore-keys: cache-mounts-
+
+      - uses: reproducible-containers/buildkit-cache-dance@5422eac04292c961a382e0f584ea0f03ad9da723 # v3.4.0
+        with:
+          builder: ${{ steps.buildx.outputs.name }}
+          cache-map: |
+            {
+              "cache-mounts/gradle-home": "/root/.gradle",
+              "cache-mounts/gradle-project": "/src/backend/.gradle",
+              "cache-mounts/npm": "/root/.npm"
+            }
+          skip-extraction: ${{ steps.cache.outputs.cache-hit }}
+
+      - name: Application image
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          file: backend/Dockerfile
+          push: true
+          tags: ${{ steps.names.outputs.image }}:${{ steps.names.outputs.tag }}
+          cache-from: type=gha,scope=app
+          cache-to: type=gha,scope=app,mode=max
+
+      - name: SteamCMD image
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: backend/steamcmd
+          # Same as in compose.yaml
+          build-args: |
+            UID=10001
+            GID=10001
+          push: true
+          tags: ${{ steps.names.outputs.image }}-steamcmd:${{ steps.names.outputs.tag }}
+          cache-from: type=gha,scope=steamcmd
+          cache-to: type=gha,scope=steamcmd,mode=max
+
+  deploy:
+    needs: build
+    # Also when the build is skipped (rollback)
+    if: ${{ !cancelled() && !failure() }}
+    runs-on: ubuntu-24.04
+    environment: production
+    permissions:
+      contents: read
+      packages: read
+    env:
+      HOST: ${{ vars.DEPLOY_HOST }}
+      TAG: ${{ inputs.image_tag || needs.build.outputs.tag }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: SSH to the server
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          SSH_KNOWN_HOSTS: ${{ vars.SSH_KNOWN_HOSTS }}
+        run: |
+          [[ -n $HOST && -n $SSH_KNOWN_HOSTS ]] \
+            || { echo "::error::Set DEPLOY_HOST and SSH_KNOWN_HOSTS in the production environment"; exit 1; }
+          # The tag is used in a command on the server
+          [[ $TAG =~ ^[A-Za-z0-9._-]+$ ]] || { echo "::error::Invalid image tag: $TAG"; exit 1; }
+          install -d -m 700 ~/.ssh
+          (umask 077; printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/id_ed25519)
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          printf 'Host server\n  HostName %s\n  User deploy\n  BatchMode yes\n' "$HOST" > ~/.ssh/config
+
+      - name: Copy compose.yaml, nginx/, monitoring/ and deploy.sh
+        run: |
+          rsync -a backend/compose.yaml backend/deploy/deploy.sh server:/opt/workshop-manager/
+          rsync -a --delete backend/nginx/ server:/opt/workshop-manager/nginx/
+          rsync -a --delete backend/monitoring/ server:/opt/workshop-manager/monitoring/
+
+      - name: Sign the server in to ghcr.io
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: printf '%s' "$TOKEN" | ssh server docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
+
+      - name: Deploy
+        run: |
+          # shellcheck disable=SC2029
+          ssh server bash /opt/workshop-manager/deploy.sh "ghcr.io/${GITHUB_REPOSITORY,,}" "$TAG"
+
+      - name: Sign the server out of ghcr.io
+        if: always()
+        run: ssh server docker logout ghcr.io || true

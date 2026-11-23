@@ -1,0 +1,96 @@
+# Prepares a new server with backend/deploy/prepare-server.sh. Once per server: root can't sign in afterwards.
+# Steps by hand: backend/deploy/README.md
+#
+# Environment "production":
+#   variables: DEPLOY_HOST, DOMAIN, DEPLOY_PUBLIC_KEYS (one per line), LETSENCRYPT_EMAIL, BOOTSTRAP_ADMIN_STEAM_ID
+#   secrets:   ROOT_SSH_KEY, DEPLOY_SSH_KEY, STEAM_WEB_API_KEY
+name: Provision server
+
+on:
+  workflow_dispatch:
+    inputs:
+      host_key_fingerprint:
+        description: "Expected host key fingerprint (SHA256:...). Empty: not checked"
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  provision:
+    runs-on: ubuntu-24.04
+    environment: production
+    env:
+      HOST: ${{ vars.DEPLOY_HOST }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Check the settings
+        env:
+          DOMAIN: ${{ vars.DOMAIN }}
+          DEPLOY_PUBLIC_KEYS: ${{ vars.DEPLOY_PUBLIC_KEYS }}
+          HAS_ROOT_KEY: ${{ secrets.ROOT_SSH_KEY != '' }}
+          HAS_DEPLOY_KEY: ${{ secrets.DEPLOY_SSH_KEY != '' }}
+        run: |
+          missing=()
+          [[ -n $HOST ]] || missing+=(DEPLOY_HOST)
+          [[ -n $DOMAIN ]] || missing+=(DOMAIN)
+          [[ -n $DEPLOY_PUBLIC_KEYS ]] || missing+=(DEPLOY_PUBLIC_KEYS)
+          [[ $HAS_ROOT_KEY == true ]] || missing+=(ROOT_SSH_KEY)
+          [[ $HAS_DEPLOY_KEY == true ]] || missing+=(DEPLOY_SSH_KEY)
+          if (( ${#missing[@]} )); then
+            echo "::error::Missing in the production environment: ${missing[*]}"
+            exit 1
+          fi
+
+      - name: Trust the server's host key
+        env:
+          EXPECTED: ${{ inputs.host_key_fingerprint }}
+        run: |
+          install -d -m 700 ~/.ssh
+          ssh-keyscan -t ed25519 "$HOST" > ~/.ssh/known_hosts 2> /dev/null
+          [[ -s ~/.ssh/known_hosts ]] || { echo "::error::$HOST does not answer on SSH"; exit 1; }
+          actual=$(ssh-keygen -lf ~/.ssh/known_hosts | awk '{print $2}')
+          if [[ -n $EXPECTED ]]; then
+            [[ $actual == "$EXPECTED" ]] || { echo "::error::Host key $actual is not the expected $EXPECTED"; exit 1; }
+          else
+            echo "::warning::Host key trusted without a check: $actual"
+          fi
+
+      - name: Prepare the server
+        env:
+          ROOT_SSH_KEY: ${{ secrets.ROOT_SSH_KEY }}
+          DOMAIN: ${{ vars.DOMAIN }}
+          DEPLOY_PUBLIC_KEYS: ${{ vars.DEPLOY_PUBLIC_KEYS }}
+          LETSENCRYPT_EMAIL: ${{ vars.LETSENCRYPT_EMAIL }}
+          BOOTSTRAP_ADMIN_STEAM_ID: ${{ vars.BOOTSTRAP_ADMIN_STEAM_ID }}
+          STEAM_WEB_API_KEY: ${{ secrets.STEAM_WEB_API_KEY }}
+        run: |
+          umask 077
+          printf '%s\n' "$ROOT_SSH_KEY" > ~/.ssh/root_key
+          # A file, because DEPLOY_PUBLIC_KEYS spans lines
+          for name in DOMAIN DEPLOY_PUBLIC_KEYS LETSENCRYPT_EMAIL BOOTSTRAP_ADMIN_STEAM_ID STEAM_WEB_API_KEY; do
+            printf '%s=%q\n' "$name" "${!name}"
+          done > provision.env
+          scp -i ~/.ssh/root_key -o BatchMode=yes backend/deploy/prepare-server.sh provision.env "root@$HOST:"
+          ssh -i ~/.ssh/root_key -o BatchMode=yes "root@$HOST" \
+            'bash -c "set -a; . ./provision.env; set +a; rm provision.env; exec bash prepare-server.sh"'
+
+      - name: Check the deploy user
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          umask 077
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+          ssh -i ~/.ssh/deploy_key -o BatchMode=yes "deploy@$HOST" 'docker compose version && sudo -n true'
+
+      - name: Next steps
+        run: |
+          {
+            echo "### Server prepared"
+            echo "Save this line as the **SSH_KNOWN_HOSTS** variable of the production environment, then run Deploy:"
+            echo '```'
+            cat ~/.ssh/known_hosts
+            echo '```'
+            echo "The first administrator's password: \`ssh deploy@$HOST sudo grep BOOTSTRAP_ /opt/workshop-manager/.env\`"
+          } >> "$GITHUB_STEP_SUMMARY"

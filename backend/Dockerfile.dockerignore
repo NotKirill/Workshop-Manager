@@ -31,6 +31,7 @@ backend/src/test
 backend/steamcmd/src
 backend/steamcmd/Dockerfile
 backend/steamcmd/.dockerignore
+backend/steamcmd/entrypoint.sh
 backend/dev
 backend/deploy
 backend/monitoring
