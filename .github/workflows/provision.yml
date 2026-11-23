@@ -2,8 +2,8 @@
 # Steps by hand: backend/deploy/README.md
 #
 # Environment "production":
-#   variables: DEPLOY_HOST, DOMAIN, DEPLOY_PUBLIC_KEYS (one per line), LETSENCRYPT_EMAIL, BOOTSTRAP_ADMIN_STEAM_ID
-#   secrets:   ROOT_SSH_KEY, DEPLOY_SSH_KEY, STEAM_WEB_API_KEY
+#   variables: DEPLOY_HOST, DOMAIN, DEPLOY_PUBLIC_KEYS (one per line)
+#   secrets:   ROOT_SSH_KEY, DEPLOY_SSH_KEY, STEAM_WEB_API_KEY, LETSENCRYPT_EMAIL, BOOTSTRAP_ADMIN_STEAM_ID
 name: Provision server
 
 on:
@@ -62,8 +62,8 @@ jobs:
           ROOT_SSH_KEY: ${{ secrets.ROOT_SSH_KEY }}
           DOMAIN: ${{ vars.DOMAIN }}
           DEPLOY_PUBLIC_KEYS: ${{ vars.DEPLOY_PUBLIC_KEYS }}
-          LETSENCRYPT_EMAIL: ${{ vars.LETSENCRYPT_EMAIL }}
-          BOOTSTRAP_ADMIN_STEAM_ID: ${{ vars.BOOTSTRAP_ADMIN_STEAM_ID }}
+          LETSENCRYPT_EMAIL: ${{ secrets.LETSENCRYPT_EMAIL }}
+          BOOTSTRAP_ADMIN_STEAM_ID: ${{ secrets.BOOTSTRAP_ADMIN_STEAM_ID }}
           STEAM_WEB_API_KEY: ${{ secrets.STEAM_WEB_API_KEY }}
         run: |
           umask 077

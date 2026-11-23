@@ -7,8 +7,9 @@ Everything else is automated by `.github/workflows/` (`provision.yml`, `deploy.y
 1. CI key pair: `ssh-keygen -t ed25519 -N "" -C wm-deploy-ci -f wm_deploy_ci`
 2. Settings → Environments → `production` (deployment branches: no restriction):
     - variables: `DEPLOY_HOST`, `DOMAIN`, `DEPLOY_PUBLIC_KEYS` (your own public key + `wm_deploy_ci.pub`, one per
-      line), optional `LETSENCRYPT_EMAIL`, `BOOTSTRAP_ADMIN_STEAM_ID`
-    - secrets: `DEPLOY_SSH_KEY` (the whole content of `wm_deploy_ci` file), optional `STEAM_WEB_API_KEY`
+      line)
+    - secrets: `DEPLOY_SSH_KEY` (the whole content of `wm_deploy_ci` file), optional `STEAM_WEB_API_KEY`,
+      `LETSENCRYPT_EMAIL`, `BOOTSTRAP_ADMIN_STEAM_ID`
 3. Delete both `wm_deploy_ci` files. Your own private key stays on your computer; the CI's lives only in GitHub.
 
 ## Once per server
