@@ -71,18 +71,22 @@ Good to know:
 
 Everything runs with Docker Compose, the app included.
 
-1. Copy `backend/.env.example` to `backend/.env` and fill it in. Each value is explained there. For `APP_IMAGE`, any
-   name works, for example `APP_IMAGE=workshop-manager:local`: Docker gives this name to the app image you build in the
-   next step.
-2. In `backend/`, build the app image and start everything:
+1. Copy `backend/.env.example` to `backend/.env` and fill it in. Each value is explained there. For `APP_IMAGE` and
+   `STEAMCMD_IMAGE`, any names work, for example `workshop-manager:local` and `workshop-manager-steamcmd:local`:
+   Docker gives these names to the images you build in the next step.
+2. In `backend/`, build the images and start everything:
 
    ```bash
-   docker compose build app
+   docker compose build
    docker compose up -d
    ```
 
 This runs the app with PostgreSQL, Redis, SeaweedFS, SteamCMD, Prometheus, Grafana and nginx. nginx serves the app
-over HTTPS on your domain, so the certificate files have to be in the folder set in `TLS_CERT_DIR`.
+over HTTPS on your domain, so the certificate files have to be in the folder set in `TLS_CERT_DIR` (for example from
+Let's Encrypt with certbot).
+
+To set up a fresh Debian 13 server and deploy to it with GitHub Actions instead, see
+[backend/deploy](backend/deploy/README.md).
 
 ## License
 
