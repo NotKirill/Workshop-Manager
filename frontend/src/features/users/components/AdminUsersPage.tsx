@@ -11,7 +11,7 @@ import {
     Table,
     Text,
 } from "@chakra-ui/react";
-import {useState} from "react";
+import {type ReactNode, useState} from "react";
 import {FiEdit2, FiPlus, FiTrash2} from "react-icons/fi";
 import {useAdminUsers, usePermissionInfo} from "@/features/users/queries.ts";
 import {
@@ -28,6 +28,8 @@ import {notifySuccess} from "@/lib/notify.ts";
 import type {AdminUser, AuthSource, Permission} from "@/features/users/types.ts";
 import {AppDialog} from "@/features/shared/AppDialog.tsx";
 import {Field} from "@/features/shared/Field.tsx";
+import {PasswordRules} from "@/features/auth/components/PasswordRules.tsx";
+import {passwordSignUpSchema} from "@/features/auth/schemas.ts";
 
 const DEFAULT_PERMISSIONS: Permission[] = ["ITEMS_READ", "ITEMS_WRITE", "ITEMS_REGISTER", "CONTENT_IMPORT", "MEDIA_UPLOAD"];
 
@@ -74,21 +76,25 @@ const CreateUserDialog = ({open, onOpenChange}: { open: boolean; onOpenChange: (
             },
         });
     };
-    const field = (key: keyof typeof form, label: string, helper?: string, type = "text") => (
+    const weakPassword = form.password !== "" && !passwordSignUpSchema.shape.password.safeParse(form.password).success;
+    const field = (key: keyof typeof form, label: string, helper?: ReactNode, type = "text") => (
         <Field label={label} helperText={helper}>
-            <Input type={type} value={form[key]} onChange={event => setForm({...form, [key]: event.target.value})}/>
+            <Input type={type} autoComplete={type === "password" ? "new-password" : "off"} value={form[key]}
+                   onChange={event => setForm({...form, [key]: event.target.value})}/>
         </Field>
     );
     return (
         <AppDialog open={open} onOpenChange={onOpenChange} title="New user" lazy closeButton footer={<>
             <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-            <Button colorPalette="brand" loading={create.isPending} onClick={submit}>Create</Button>
+            <Button colorPalette="brand" loading={create.isPending} disabled={weakPassword} onClick={submit}>Create</Button>
         </>}>
             <Stack gap="3">
                 {field("name", "Display name")}
                 {field("username", "Username", "Sign-in with username + password")}
                 {field("email", "Email", "Optional alternative to the username")}
-                {field("password", "Password", "Required for username/email sign-in", "password")}
+                {field("password", "Password",
+                    form.password ? <PasswordRules password={form.password}/> : "Required for username/email sign-in",
+                    "password")}
                 {field("steam_id", "SteamID64", "17 digits; allows signing in with Steam")}
                 <Text fontWeight="semibold" mt="2">Permissions</Text>
                 <PermissionChecklist value={permissions} onChange={setPermissions}/>
@@ -167,9 +173,9 @@ const EditUserDialog = ({user, onClose}: { user: AdminUser; onClose: () => void 
                 ))}
                 <Text fontWeight="semibold">Set password</Text>
                 <HStack>
-                    <Input size="sm" type="password" value={password}
+                    <Input size="sm" type="password" autoComplete="new-password" value={password}
                            onChange={event => setPassword(event.target.value)}/>
-                    <Button size="sm" variant="outline" disabled={password.length < 8}
+                    <Button size="sm" variant="outline" disabled={!passwordSignUpSchema.shape.password.safeParse(password).success}
                             loading={resetPassword.isPending}
                             onClick={() => resetPassword.mutate(password, {
                                 onSuccess: () => {
@@ -178,6 +184,7 @@ const EditUserDialog = ({user, onClose}: { user: AdminUser; onClose: () => void 
                                 },
                             })}>Set</Button>
                 </HStack>
+                {password && <PasswordRules password={password}/>}
             </Stack>
         </AppDialog>
     );

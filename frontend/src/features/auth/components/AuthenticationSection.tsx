@@ -3,18 +3,18 @@ import {Link as RouterLink} from "react-router";
 import {z} from "zod";
 import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
-import {loginFieldSchema, passwordSignInSchema} from "@/features/auth/schemas.ts";
+import {loginSchema, passwordSignInSchema} from "@/features/auth/schemas.ts";
 import {useLogin} from "@/features/auth/mutations.ts";
 import type {AuthRequest} from "@/features/auth/types.ts";
 import {getErrorMessage} from "@/lib/errors.ts";
 import {ErrorAlert} from "@/features/shared/ErrorAlert.tsx";
 
-const loginSchema = z.object({
-    login: loginFieldSchema,
+const signInFormSchema = z.object({
+    login: loginSchema.shape.login,
     password: passwordSignInSchema.shape.password,
 });
-type FormInput = z.input<typeof loginSchema>;
-type FormOutput = z.output<typeof loginSchema>;
+type FormInput = z.input<typeof signInFormSchema>;
+type FormOutput = z.output<typeof signInFormSchema>;
 
 export const AuthenticationSection = () => {
     const {register, handleSubmit, formState: {errors, isSubmitting}} = useForm<FormInput, unknown, FormOutput>({
@@ -22,7 +22,7 @@ export const AuthenticationSection = () => {
             login: "",
             password: "",
         },
-        resolver: zodResolver(loginSchema),
+        resolver: zodResolver(signInFormSchema),
     });
 
     const {mutate: login, isPending, error} = useLogin();
@@ -40,7 +40,7 @@ export const AuthenticationSection = () => {
         <VStack minW="full" align="stretch" as="form" onSubmit={handleSubmit(onSubmit)} p="0" gap="3">
             <Field.Root invalid={!!errors.login}>
                 <Field.Label htmlFor="login">Username or email address</Field.Label>
-                <Input id="login" placeholder="Username or email" {...register("login")}/>
+                <Input id="login" placeholder="Username or email" autoComplete="username" {...register("login")}/>
                 <Field.ErrorText overflowWrap="anywhere">{errors.login?.message}</Field.ErrorText>
             </Field.Root>
 
@@ -53,7 +53,8 @@ export const AuthenticationSection = () => {
                         <RouterLink to="/change-password">Change password</RouterLink>
                     </ChakraLink>
                 </HStack>
-                <Input id="password" type="password" placeholder="Password" {...register("password")}/>
+                <Input id="password" type="password" placeholder="Password" autoComplete="current-password"
+                       {...register("password")}/>
                 <Field.ErrorText overflowWrap="anywhere">{errors.password?.message}</Field.ErrorText>
             </Field.Root>
 

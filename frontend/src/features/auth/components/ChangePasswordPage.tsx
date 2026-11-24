@@ -1,18 +1,19 @@
 import {Button, Center, Heading, HStack, Input, Link as ChakraLink, Stack, Text, VStack} from "@chakra-ui/react";
 import {z} from "zod";
-import {useForm} from "react-hook-form";
+import {useForm, useWatch} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {Link as RouterLink, useNavigate} from "react-router";
 import {FiArchive} from "react-icons/fi";
-import {loginFieldSchema, passwordSignInSchema, passwordSignUpSchema} from "@/features/auth/schemas.ts";
+import {loginSchema, passwordSignInSchema, passwordSignUpSchema} from "@/features/auth/schemas.ts";
 import {useChangePasswordBySignIn} from "@/features/auth/mutations.ts";
 import {getErrorMessage} from "@/lib/errors.ts";
 import {notifySuccess} from "@/lib/notify.ts";
 import {ErrorAlert} from "@/features/shared/ErrorAlert.tsx";
 import {Field} from "@/features/shared/Field.tsx";
+import {PasswordRules} from "@/features/auth/components/PasswordRules.tsx";
 
 const changePasswordSchema = z.object({
-    login: loginFieldSchema,
+    login: loginSchema.shape.login,
     currentPassword: passwordSignInSchema.shape.password,
     newPassword: passwordSignUpSchema.shape.password,
     repeatPassword: z.string(),
@@ -25,10 +26,12 @@ type FormOutput = z.output<typeof changePasswordSchema>;
 
 const ChangePasswordPage = () => {
     const navigate = useNavigate();
-    const {register, handleSubmit, formState: {errors, isSubmitting}} = useForm<FormInput, unknown, FormOutput>({
+    const {register, handleSubmit, control, formState: {errors, isSubmitting}} = useForm<FormInput, unknown, FormOutput>({
         defaultValues: {login: "", currentPassword: "", newPassword: "", repeatPassword: ""},
         resolver: zodResolver(changePasswordSchema),
     });
+    const watchedPassword = useWatch({control, name: "newPassword"});
+    const newPassword = typeof watchedPassword === "string" ? watchedPassword : "";
     const {mutate: changePassword, isPending, error} = useChangePasswordBySignIn();
 
     const onSubmit = (data: FormOutput) => {
@@ -67,7 +70,8 @@ const ChangePasswordPage = () => {
                                    {...register("currentPassword")}/>
                         </Field>
 
-                        <Field invalid={!!errors.newPassword} label="New password" helperText="8–128 characters with upper and lower case letters, a number and a special character." errorText={errors.newPassword?.message}>
+                        <Field invalid={!!errors.newPassword} label="New password"
+                               helperText={<PasswordRules password={newPassword}/>} errorText={errors.newPassword?.message}>
                             <Input type="password" autoComplete="new-password"
                                    {...register("newPassword")}/>
                         </Field>

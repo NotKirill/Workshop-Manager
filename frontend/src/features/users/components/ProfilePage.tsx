@@ -14,7 +14,6 @@ import {useState} from "react";
 import {useSearchParams} from "react-router";
 import {useMe} from "@/features/auth/queries.ts";
 import {
-    useChangePassword,
     useRemoveIdentity,
     useRenameProfile,
     useSetIdentity,
@@ -27,6 +26,7 @@ import type {AuthSource, Profile} from "@/features/users/types.ts";
 import {ErrorAlert} from "@/features/shared/ErrorAlert.tsx";
 import {redirectErrorMessage} from "@/features/auth/redirectErrors.ts";
 import {Field} from "@/features/shared/Field.tsx";
+import {PasswordCard} from "@/features/users/components/PasswordCard.tsx";
 
 const IdentityRow = ({profile, provider, label}: { profile: Profile; provider: AuthSource; label: string }) => {
     const current = profile.identities.find(identity => identity.provider === provider);
@@ -53,13 +53,10 @@ export const ProfilePage = () => {
     const [searchParams] = useSearchParams();
     const {data: profile} = useMe();
     const [name, setName] = useState<string | null>(null);
-    const [currentPassword, setCurrentPassword] = useState("");
-    const [newPassword, setNewPassword] = useState("");
 
     const rename = useRenameProfile();
-    const changePassword = useChangePassword();
     const linkSteam = useStartSteamLink();
-    const unlinkSteam = useRemoveIdentity();
+    const removeIdentity = useRemoveIdentity();
 
     if (!profile) return null;
     const steam = profile.identities.find(identity => identity.provider === "STEAM");
@@ -112,8 +109,8 @@ export const ProfilePage = () => {
                                 <Text>{steam ? `Steam account ${steam.key}` : "No Steam account linked"}</Text>
                             </HStack>
                             {steam ? (
-                                <Button size="sm" variant="ghost" colorPalette="red" loading={unlinkSteam.isPending}
-                                        onClick={() => unlinkSteam.mutate("STEAM")}>Unlink</Button>
+                                <Button size="sm" variant="ghost" colorPalette="red" loading={removeIdentity.isPending}
+                                        onClick={() => removeIdentity.mutate("STEAM")}>Unlink</Button>
                             ) : (
                                 <Button size="sm" variant="outline" loading={linkSteam.isPending}
                                         onClick={() => linkSteam.mutate()}>Link Steam account</Button>
@@ -122,33 +119,7 @@ export const ProfilePage = () => {
                     </Card.Body>
                 </Card.Root>
 
-                <Card.Root>
-                    <Card.Body gap="4">
-                        <Heading size="md">{profile.has_password ? "Change password" : "Set a password"}</Heading>
-                        {profile.has_password && (
-                            <Field label="Current password">
-                                <Input type="password" value={currentPassword}
-                                       onChange={event => setCurrentPassword(event.target.value)}/>
-                            </Field>
-                        )}
-                        <Field label="New password" helperText="8–128 characters with upper and lower case letters, a number and a special character.">
-                            <Input type="password" value={newPassword} onChange={event => setNewPassword(event.target.value)}/>
-                        </Field>
-                        <HStack justify="flex-end">
-                            <Button colorPalette="brand" disabled={newPassword.length < 8} loading={changePassword.isPending}
-                                    onClick={() => changePassword.mutate({
-                                        currentPassword: profile.has_password ? currentPassword : null,
-                                        newPassword,
-                                    }, {
-                                        onSuccess: () => {
-                                            setCurrentPassword("");
-                                            setNewPassword("");
-                                            notifySuccess("Password changed");
-                                        },
-                                    })}>Save password</Button>
-                        </HStack>
-                    </Card.Body>
-                </Card.Root>
+                <PasswordCard key={String(profile.has_password)} hasPassword={profile.has_password}/>
             </Stack>
         </Container>
     );
