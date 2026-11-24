@@ -85,7 +85,7 @@ This runs the app with PostgreSQL, Redis, SeaweedFS, SteamCMD, Prometheus, Grafa
 over HTTPS on your domain, so the certificate files have to be in the folder set in `TLS_CERT_DIR` (for example from
 Let's Encrypt with certbot).
 
-To set up a fresh Debian 13 server and deploy to it with GitHub Actions instead, see
+To set up a fresh Debian 13 (or 12) server and deploy to it with GitHub Actions instead, see
 [backend/deploy](backend/deploy/README.md).
 
 ## License

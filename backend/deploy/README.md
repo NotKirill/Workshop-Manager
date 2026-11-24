@@ -14,7 +14,7 @@ Everything else is automated by `.github/workflows/` (`provision.yml`, `deploy.y
 
 ## Once per server
 
-1. Order Debian 13. Point the domain's A record to it.
+1. Order Debian 13 (12 works too). Point the domain's A record to it.
    Check: `dig +short NS DOMAIN` shows your DNS provider, `dig +short DOMAIN` shows the server's IP.
 2. A new root key pair (each server gets its own; provisioning disables root sign-in):
    `ssh-keygen -t ed25519 -N "" -C wm-root -f wm_root`, then `ssh-copy-id -f -i wm_root.pub root@SERVER`, and put
@@ -40,4 +40,5 @@ same value.
 
 - Backups: the data lives only on the server (Docker volumes `workshop-manager_postgres_data`,
   `workshop-manager_seaweedfs_data`).
-- Debian 14: change `trixie` in `prepare-server.sh` (the version check and the Docker repository).
+- Debian 14: add its codename to the version check in `prepare-server.sh` (Docker's repository follows the
+  server's version by itself).
