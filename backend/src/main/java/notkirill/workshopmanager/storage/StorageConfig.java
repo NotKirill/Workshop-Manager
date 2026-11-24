@@ -11,15 +11,7 @@ public class StorageConfig {
 
     @Bean
     public ObjectStorage objectStorage(StorageProperties properties) {
-        return switch (properties.type()) {
-            case S3 -> {
-                log.info("Using S3 object storage, bucket '{}'", properties.s3().bucket());
-                yield new S3ObjectStorage(properties.s3());
-            }
-            case FILESYSTEM -> {
-                log.info("Using filesystem object storage at {}", properties.filesystem().root());
-                yield new FilesystemObjectStorage(properties.filesystem().root());
-            }
-        };
+        log.info("Using S3 object storage, bucket '{}'", properties.s3().bucket());
+        return new S3ObjectStorage(properties.s3());
     }
 }

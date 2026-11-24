@@ -96,7 +96,6 @@ application:
   one-time-code:
     default-ttl: 3m
   storage:
-    type: S3
     s3:
       endpoint: http://localhost:8334
       region: us-east-1

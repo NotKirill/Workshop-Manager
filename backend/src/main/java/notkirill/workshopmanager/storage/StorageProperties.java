@@ -6,36 +6,15 @@ import org.springframework.boot.context.properties.bind.Name;
 import org.springframework.validation.annotation.Validated;
 
 import java.net.URI;
-import java.nio.file.Path;
 
 @ConfigurationProperties("application.storage")
 @Validated
 public record StorageProperties(
-        @Name("type") Type type,
-        @Name("filesystem") @Valid Filesystem filesystem,
         @Name("s3") @Valid S3 s3
 ) {
     public StorageProperties {
-        if (type == null) {
-            type = Type.FILESYSTEM;
-        }
-        if (filesystem == null) {
-            filesystem = new Filesystem(null);
-        }
         if (s3 == null) {
             s3 = new S3(null, null, null, null, null, null);
-        }
-    }
-
-    public enum Type {
-        FILESYSTEM, S3
-    }
-
-    public record Filesystem(@Name("root") Path root) {
-        public Filesystem {
-            if (root == null) {
-                root = Path.of(System.getProperty("user.home"), ".workshop-manager", "storage");
-            }
         }
     }
 

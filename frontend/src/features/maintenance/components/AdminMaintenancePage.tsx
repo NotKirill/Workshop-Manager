@@ -108,7 +108,6 @@ export const AdminMaintenancePage = () => {
 
             {data && (
                 <HStack fontSize="sm" gap="4" wrap="wrap">
-                    <Text>Storage: <b>{data.storage_type}</b></Text>
                     <HStack>Steam API key {data.steam_api_key_configured ? <Badge colorPalette="green">set</Badge> : <Badge colorPalette="orange">missing</Badge>}</HStack>
                     <HStack>SteamCMD {data.steamcmd_configured ? <Badge colorPalette="green">ready</Badge> : <Badge colorPalette="orange">not configured</Badge>}</HStack>
                     <Text color="fg.muted">Counts, queues, quotas and trends are in Grafana ("Workshop Manager: library and jobs").</Text>

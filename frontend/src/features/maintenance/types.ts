@@ -3,7 +3,6 @@ import type {ContentJobStatus, ContentJobType, ItemLifecycleState, ModspaceType}
 export interface MaintenanceOverview {
     steam_api_key_configured: boolean;
     steamcmd_configured: boolean;
-    storage_type: string;
 }
 
 export interface FailedCleanup {

@@ -17,7 +17,6 @@ import notkirill.workshopmanager.media.models.MediaSourceSync;
 import notkirill.workshopmanager.media.source.MediaSourceSyncService;
 import notkirill.workshopmanager.modspace.ModspaceType;
 import notkirill.workshopmanager.modspace.steam.SteamProperties;
-import notkirill.workshopmanager.storage.StorageProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,7 +33,6 @@ public class MaintenanceWebService {
     private final ItemLifecycleService lifecycleService;
     private final ItemSyncService syncService;
     private final SteamProperties steamProperties;
-    private final StorageProperties storageProperties;
     private final AuthorRefreshService authorRefreshService;
     private final GameLookupService gameLookupService;
     private final MediaSourceSyncService mediaSourceSyncService;
@@ -43,9 +41,8 @@ public class MaintenanceWebService {
     public MaintenanceWebService(ItemProjectionService projectionService, ContentJobProcessor contentJobProcessor,
                                  ContentJobService contentJobService, ItemCleanupService cleanupService,
                                  ItemLifecycleService lifecycleService, ItemSyncService syncService,
-                                 SteamProperties steamProperties, StorageProperties storageProperties,
-                                 AuthorRefreshService authorRefreshService, GameLookupService gameLookupService,
-                                 MediaSourceSyncService mediaSourceSyncService) {
+                                 SteamProperties steamProperties, AuthorRefreshService authorRefreshService,
+                                 GameLookupService gameLookupService, MediaSourceSyncService mediaSourceSyncService) {
         this.projectionService = projectionService;
         this.contentJobProcessor = contentJobProcessor;
         this.contentJobService = contentJobService;
@@ -53,7 +50,6 @@ public class MaintenanceWebService {
         this.lifecycleService = lifecycleService;
         this.syncService = syncService;
         this.steamProperties = steamProperties;
-        this.storageProperties = storageProperties;
         this.authorRefreshService = authorRefreshService;
         this.gameLookupService = gameLookupService;
         this.mediaSourceSyncService = mediaSourceSyncService;
@@ -75,8 +71,7 @@ public class MaintenanceWebService {
     public MaintenanceOverviewResponse overview() {
         return new MaintenanceOverviewResponse(
                 steamProperties.hasWebApiKey(),
-                contentJobProcessor.canFetch(ModspaceType.STEAM),
-                storageProperties.type().name()
+                contentJobProcessor.canFetch(ModspaceType.STEAM)
         );
     }
 
