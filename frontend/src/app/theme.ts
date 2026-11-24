@@ -1,5 +1,5 @@
 import {createSystem, defaultConfig, defineConfig} from "@chakra-ui/react";
-import {tableAnatomy} from "@chakra-ui/react/anatomy";
+import {tableAnatomy, toastAnatomy} from "@chakra-ui/react/anatomy";
 
 const BRAND = "teal";
 const shade = (light: number, dark: number) =>
@@ -32,6 +32,20 @@ const config = defineConfig({
         },
         slotRecipes: {
             table: {slots: tableAnatomy.keys(), defaultVariants: {size: "sm", variant: "outline"}},
+            toast: {
+                slots: toastAnatomy.keys(),
+                base: {
+                    root: {pe: "4"},
+                    closeTrigger: {
+                        position: "static",
+                        alignSelf: "flex-start",
+                        mt: "-0.5",
+                        color: "currentColor",
+                        opacity: 0.8,
+                        _hover: {opacity: 1, bg: "blackAlpha.200"},
+                    },
+                },
+            },
         },
     },
 });
