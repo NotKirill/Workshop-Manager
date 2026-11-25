@@ -150,7 +150,10 @@ export const ContentPanel = ({item}: { item: ItemDetail }) => {
                                         {revision.revision} {index === 0 && <Badge colorPalette="green" size="sm">latest</Badge>}
                                         {revision.uploaded && <Badge colorPalette="purple" size="sm" ms="1">your upload</Badge>}
                                     </Table.Cell>
-                                    <Table.Cell title={revision.sha256 ? `SHA-256 ${revision.sha256}` : undefined}>
+                                    <Table.Cell maxW={{base: "40", md: "xs"}} truncate
+                                                title={revision.sha256
+                                                    ? `${revision.file_name}\nSHA-256 ${revision.sha256}`
+                                                    : revision.file_name}>
                                         {revision.file_name}
                                     </Table.Cell>
                                     <Table.Cell>{formatBytes(revision.file_size)}</Table.Cell>
