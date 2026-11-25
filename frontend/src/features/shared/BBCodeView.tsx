@@ -2,13 +2,16 @@ import {Box, chakra, Code, Heading, Image, Link, List, Separator, Table, Text} f
 import {type ReactNode, useState} from "react";
 import {type BBNode, parse, plainText} from "@/lib/bbcodeParser.ts";
 
-const isSafeUrl = (url: string | null): url is string => {
-    if (!url) return false;
+const toSafeUrl = (url: string | null): string | null => {
+    const trimmed = url?.trim();
+    if (!trimmed) return null;
+    const hasScheme = /^[a-z][a-z0-9+.-]*:/i.test(trimmed);
     try {
-        const parsed = new URL(url.trim());
-        return parsed.protocol === "http:" || parsed.protocol === "https:";
+        const parsed = new URL(hasScheme ? trimmed : `https://${trimmed.replace(/^\/\//, "")}`);
+        if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return null;
+        return hasScheme || parsed.hostname.includes(".") ? parsed.href : null;
     } catch {
-        return false;
+        return null;
     }
 };
 
@@ -73,18 +76,19 @@ const renderNode = (node: BBNode, key: string): ReactNode => {
         case "p":
             return <Text key={key} mb="2">{children}</Text>;
         case "url": {
-            const href = node.arg ?? plainText(node.children);
-            if (!isSafeUrl(href)) return <span key={key}>{children}</span>;
+            const text = node.arg ?? plainText(node.children);
+            const href = toSafeUrl(text);
+            if (!href) return <span key={key}>{children}</span>;
             return (
-                <Link key={key} href={href.trim()} target="_blank" rel="noopener noreferrer nofollow"
-                      color="brand.fg" textDecoration="underline">
-                    {children.length > 0 ? children : href}
+                <Link key={key} href={href} target="_blank" rel="noopener noreferrer nofollow"
+                      display="inline" color="brand.fg" textDecoration="underline">
+                    {children.length > 0 ? children : text}
                 </Link>
             );
         }
         case "img": {
-            const src = plainText(node.children).trim();
-            if (!isSafeUrl(src)) return null;
+            const src = toSafeUrl(node.arg ?? plainText(node.children));
+            if (!src) return null;
             return <Image key={key} src={src} alt="" maxW="100%" my="2" borderRadius="md" loading="lazy"/>;
         }
         case "previewyoutube": {
