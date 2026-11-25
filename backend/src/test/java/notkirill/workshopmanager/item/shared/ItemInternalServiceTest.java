@@ -34,7 +34,7 @@ class ItemInternalServiceTest {
 
     @Test
     void firstSyncStoresTheVersionWithoutReportingAChange() {
-        boolean changed = service.markSynced(internal, VERSION_1);
+        boolean changed = service.markSynced(internal, VERSION_1, false);
 
         assertThat(changed).isFalse();
         assertThat(internal.getTimeUpdated()).isEqualTo(VERSION_1);
@@ -43,22 +43,22 @@ class ItemInternalServiceTest {
 
     @Test
     void sameVersionIsNoChange() {
-        service.markSynced(internal, VERSION_1);
+        service.markSynced(internal, VERSION_1, false);
 
-        assertThat(service.markSynced(internal, VERSION_1)).isFalse();
+        assertThat(service.markSynced(internal, VERSION_1, false)).isFalse();
     }
 
     @Test
     void newVersionIsAChange() {
-        service.markSynced(internal, VERSION_1);
+        service.markSynced(internal, VERSION_1, false);
 
-        assertThat(service.markSynced(internal, VERSION_2)).isTrue();
+        assertThat(service.markSynced(internal, VERSION_2, false)).isTrue();
         assertThat(internal.getTimeUpdated()).isEqualTo(VERSION_2);
     }
 
     @Test
     void unavailableItemKeepsItsVersionAndComesBackAvailable() {
-        service.markSynced(internal, VERSION_1);
+        service.markSynced(internal, VERSION_1, false);
 
         service.markUnavailable(internal);
 
@@ -66,7 +66,18 @@ class ItemInternalServiceTest {
         assertThat(internal.getTimeUpdated()).isEqualTo(VERSION_1);
         assertThat(internal.getTimeSynced()).isEqualTo(NOW);
 
-        assertThat(service.markSynced(internal, VERSION_1)).isFalse();
+        assertThat(service.markSynced(internal, VERSION_1, false)).isFalse();
+        assertThat(internal.getSourceStatus()).isEqualTo(ItemSourceStatus.AVAILABLE);
+    }
+
+    @Test
+    void hiddenItemGetsItsOwnStatusUntilItIsListedAgain() {
+        service.markSynced(internal, VERSION_1, true);
+
+        assertThat(internal.getSourceStatus()).isEqualTo(ItemSourceStatus.HIDDEN);
+
+        service.markSynced(internal, VERSION_1, false);
+
         assertThat(internal.getSourceStatus()).isEqualTo(ItemSourceStatus.AVAILABLE);
     }
 }

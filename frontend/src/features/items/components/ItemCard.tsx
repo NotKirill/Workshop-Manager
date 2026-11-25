@@ -49,6 +49,9 @@ export const ItemCard = ({item, selectable, selected, onToggle}: ItemCardProps) 
                     )}
                     <HStack position="absolute" top="2" right="2" gap="1">
                         {item.source_status === "UNAVAILABLE" && <Badge colorPalette="red">Removed</Badge>}
+                        {item.source_status === "HIDDEN" && (
+                            <Badge colorPalette="orange" title="Not publicly listed in its source; works by link">Hidden</Badge>
+                        )}
                         {item.backup?.active_job && (
                             <Badge colorPalette="blue"><FiLoader/> {item.backup.active_job === "BACKUP" ? "Backing up" : "Deleting"}</Badge>
                         )}

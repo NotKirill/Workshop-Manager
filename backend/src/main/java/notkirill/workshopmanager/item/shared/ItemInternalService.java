@@ -86,11 +86,11 @@ public class ItemInternalService {
     }
 
     @Transactional
-    public boolean markSynced(ItemMetadataInternal internal, OffsetDateTime sourceTimeUpdated) {
+    public boolean markSynced(ItemMetadataInternal internal, OffsetDateTime sourceTimeUpdated, boolean hidden) {
         boolean changed = internal.getTimeSynced() != null
                 && !Objects.equals(internal.getTimeUpdated(), sourceTimeUpdated);
         internal.setTimeUpdated(sourceTimeUpdated);
-        internal.setSourceStatus(ItemSourceStatus.AVAILABLE);
+        internal.setSourceStatus(hidden ? ItemSourceStatus.HIDDEN : ItemSourceStatus.AVAILABLE);
         internal.setTimeSynced(OffsetDateTime.now(clock));
         repository.save(internal);
         return changed;

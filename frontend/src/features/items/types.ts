@@ -1,6 +1,6 @@
 import type {ContentJobStatus, ContentJobType, ModspaceType, NamedRef} from "@/lib/apiTypes.ts";
 
-export type ItemSourceStatus = "AVAILABLE" | "UNAVAILABLE";
+export type ItemSourceStatus = "AVAILABLE" | "HIDDEN" | "UNAVAILABLE";
 
 export type RelationType = "PARENT" | "ALTERNATE" | "DEPENDENCY";
 
@@ -167,8 +167,15 @@ export interface RegistrationResponse {
     results: RegistrationResult[];
 }
 
+export interface SearchHelpField {
+    tag: string;
+    type: string;
+    sortable: boolean;
+    values: string[];
+}
+
 export interface SearchHelp {
-    fields: { tag: string; type: string; sortable: boolean; values: string[] }[];
+    fields: SearchHelpField[];
     examples: string[];
 }
 

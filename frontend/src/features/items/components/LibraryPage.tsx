@@ -7,20 +7,17 @@ import {
     Grid,
     HStack,
     IconButton,
-    Input,
-    InputGroup,
     Spinner,
     Stack,
     Text,
 } from "@chakra-ui/react";
 import {useMemo, useState} from "react";
 import {useSearchParams} from "react-router";
-import {FiCheckSquare, FiFilter, FiPlus, FiSearch, FiX} from "react-icons/fi";
+import {FiCheckSquare, FiFilter, FiPlus} from "react-icons/fi";
 import {useItemSearch} from "@/features/items/queries.ts";
 import {ItemCard} from "@/features/items/components/ItemCard.tsx";
 import {AddItemsDialog} from "@/features/items/components/AddItemsDialog.tsx";
 import {BulkActionsBar} from "@/features/items/components/BulkActionsBar.tsx";
-import {SearchHelpPopover} from "@/features/items/components/SearchHelpPopover.tsx";
 import {UNKNOWN_GAME_ID, useGames} from "@/features/games/queries.ts";
 import {getErrorMessage} from "@/lib/errors.ts";
 import {usePermissions} from "@/features/auth/queries.ts";
@@ -30,10 +27,10 @@ import {buildQuery, emptyFilters, type Filters} from "@/features/items/component
 import {LibraryFilters} from "@/features/items/components/library/LibraryFilters.tsx";
 import {UnknownGameNotice} from "@/features/items/components/library/UnknownGameNotice.tsx";
 import {LibraryEmptyState} from "@/features/items/components/library/LibraryEmptyState.tsx";
+import {LibrarySearchBox} from "@/features/items/components/library/LibrarySearchBox.tsx";
 
 export const LibraryPage = () => {
     const [searchParams, setSearchParams] = useSearchParams();
-    const [text, setText] = useState(searchParams.get("q") ?? "");
     const [submittedText, setSubmittedText] = useState(searchParams.get("q") ?? "");
     const [filters, setFilters] = useState<Filters>(() => ({...emptyFilters, game: searchParams.get("game") ?? ""}));
     const [showFilters, setShowFilters] = useState(true);
@@ -63,7 +60,7 @@ export const LibraryPage = () => {
         });
     };
 
-    const submit = (value = text) => {
+    const submit = (value: string) => {
         setSubmittedText(value);
         setSearchParams(value ? {q: value} : {}, {replace: true});
     };
@@ -101,27 +98,7 @@ export const LibraryPage = () => {
                                         onClick={() => setShowFilters(value => !value)}>
                                 <FiFilter/>
                             </IconButton>
-                            <InputGroup flex="1" startElement={<FiSearch/>}
-                                        endElement={text ? (
-                                            <IconButton aria-label="Clear" size="xs" variant="ghost"
-                                                        onClick={() => {
-                                                            setText("");
-                                                            submit("");
-                                                        }}>
-                                                <FiX/>
-                                            </IconButton>
-                                        ) : undefined}>
-                                <Input placeholder='Search… e.g. map tag:favorite rating:>=8'
-                                       value={text}
-                                       onChange={event => setText(event.target.value)}
-                                       onKeyDown={event => {
-                                           if (event.key === "Enter") submit();
-                                       }}/>
-                            </InputGroup>
-                            <SearchHelpPopover onExample={example => {
-                                setText(example);
-                                submit(example);
-                            }}/>
+                            <LibrarySearchBox initialValue={submittedText} onSubmit={submit}/>
                             <Button variant={selecting ? "solid" : "outline"} colorPalette={selecting ? "brand" : "gray"}
                                     aria-label="Select items" onClick={() => {
                                         setSelecting(value => !value);

@@ -1,5 +1,6 @@
 package notkirill.workshopmanager.modspace.steam;
 
+import notkirill.workshopmanager.modspace.steam.models.SteamVisibility;
 import tools.jackson.databind.JsonNode;
 
 import java.time.OffsetDateTime;
@@ -37,6 +38,10 @@ public record SteamPublishedFile(
 
     public boolean isAvailable() {
         return result == RESULT_OK;
+    }
+
+    public boolean isHidden() {
+        return visibility != SteamVisibility.PUBLIC.code();
     }
 
     public record Tag(String key, String displayName) {

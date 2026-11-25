@@ -16,7 +16,7 @@ comp_val  : op=(GT|GTE|LT|LTE|EQ) val=WORD ;
 range_val : start=WORD? RANGE end=WORD? ;
 
 // Lexer Rules
-TAG       : [a-zA-Z_][a-zA-Z0-9_]* ':' ;
+TAG       : ([a-zA-Z_][a-zA-Z0-9_]* '.')? [a-zA-Z_][a-zA-Z0-9_]* ':' ;
 AND       : 'AND' | '&&' ;
 OR        : 'OR' | '||' ;
 NOT       : 'NOT' | '!' | '-' ;

@@ -60,7 +60,7 @@ public class SourceFetchService {
                         source.timeCreated()
                 )
         );
-        boolean sourceChanged = internalService.markSynced(internal, source.timeUpdated());
+        boolean sourceChanged = internalService.markSynced(internal, source.timeUpdated(), source.hidden());
         return new SyncOutcome(
                 source.originalId(), SyncStatus.SYNCED, internalId, sourceChanged,
                 source.dependenciesChanged()

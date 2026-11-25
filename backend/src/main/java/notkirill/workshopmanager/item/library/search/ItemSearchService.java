@@ -68,11 +68,11 @@ public class ItemSearchService {
 
         Pageable pageable = PageRequest.of(page, pageSize, Sort.unsorted());
         return personalService.search(
-                toSpecification(userId, criterion, visitor.getSortField(), visitor.isSortAsc()), pageable);
+                toSpecification(userId, criterion, visitor.getSortField(), visitor.getSortAsc()), pageable);
     }
 
     private Specification<ItemMetadataPersonal> toSpecification(long userId, ItemSearchCriterion criterion,
-                                                                String sortField, boolean sortAsc) {
+                                                                String sortField, Boolean sortAsc) {
         return (root, query, cb) -> {
             ItemSearchRoots roots = ItemSearchRoots.join(root, cb);
             itemSearchPredicateBuilder.applySorting(roots, query, cb, sortField, sortAsc);

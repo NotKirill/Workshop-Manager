@@ -89,6 +89,7 @@ export const LibraryFilters = ({filters, onChange, onReset}: LibraryFiltersProps
             <FilterSelect label="Availability" value={filters.status} onChange={v => onChange("status", v)}>
                 <option value="">Any</option>
                 <option value="available">Available</option>
+                <option value="hidden">Hidden in source</option>
                 <option value="unavailable">Removed from source</option>
             </FilterSelect>
             <FilterSelect label="Sort by" value={filters.sort} onChange={v => onChange("sort", v)}>
@@ -97,6 +98,7 @@ export const LibraryFilters = ({filters, onChange, onReset}: LibraryFiltersProps
                 <option value="updated">Recently updated</option>
                 <option value="created">Newest originals</option>
                 <option value="rating">Best rated</option>
+                <option value="title">Title A–Z</option>
             </FilterSelect>
         </Stack>
     );

@@ -1,0 +1,38 @@
+databaseChangeLog:
+  - changeSet:
+      id: "023-types"
+      author: NotKirill
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: ALTER TYPE item_source_status ADD VALUE 'HIDDEN' BEFORE 'UNAVAILABLE'
+      rollback:
+        # Postgres can't drop an enum value
+        - sql:
+            dbms: postgresql
+            sql: >-
+              UPDATE item_metadata_internal SET source_status = 'AVAILABLE' WHERE source_status = 'HIDDEN';
+              ALTER TABLE item_metadata_internal ALTER COLUMN source_status DROP DEFAULT;
+              ALTER TYPE item_source_status RENAME TO item_source_status_old;
+              CREATE TYPE item_source_status AS ENUM ('AVAILABLE', 'UNAVAILABLE');
+              ALTER TABLE item_metadata_internal
+                ALTER COLUMN source_status TYPE item_source_status USING source_status::text::item_source_status;
+              ALTER TABLE item_metadata_internal ALTER COLUMN source_status SET DEFAULT 'AVAILABLE';
+              DROP TYPE item_source_status_old
+  - changeSet:
+      id: "023"
+      author: NotKirill
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: >-
+              UPDATE item_metadata_internal i
+              SET source_status = 'HIDDEN'
+              FROM steam_workshop_items s
+              WHERE s.local_id = i.id
+                AND s.visibility <> 0
+                AND i.source_status = 'AVAILABLE'
+      rollback:
+        - sql:
+            dbms: postgresql
+            sql: UPDATE item_metadata_internal SET source_status = 'AVAILABLE' WHERE source_status = 'HIDDEN'

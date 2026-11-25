@@ -40,6 +40,11 @@ export const ItemHeader = ({item, onEdit, onRemove}: ItemHeaderProps) => {
                         {item.source_status === "UNAVAILABLE" && (
                             <Badge colorPalette="red">Removed from {modspaceLabels[item.modspace]}</Badge>
                         )}
+                        {item.source_status === "HIDDEN" && (
+                            <Badge colorPalette="orange" title="Not publicly listed; works by link">
+                                Hidden on {modspaceLabels[item.modspace]}
+                            </Badge>
+                        )}
                         {backupCount > 0 && <Badge colorPalette="green">{backupCount} backup(s)</Badge>}
                     </HStack>
                     <HStack align="start" gap="2">

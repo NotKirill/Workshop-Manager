@@ -144,7 +144,7 @@ public class SteamModspaceAdapter implements ModspaceAdapter {
         }
 
         return new SourceItem(
-                ModspaceType.STEAM, id, true, gameId, file.title(), file.description(), authorId,
+                ModspaceType.STEAM, id, true, file.isHidden(), gameId, file.title(), file.description(), authorId,
                 file.fileSize(), file.timeCreated(), file.timeUpdated(), saved.dependenciesChanged(),
                 saved.mediaChanged()
         );

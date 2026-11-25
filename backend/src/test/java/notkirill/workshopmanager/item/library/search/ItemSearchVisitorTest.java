@@ -43,7 +43,24 @@ class ItemSearchVisitorTest {
         assertThat(values).containsExactly("C:\\Games");
     }
 
+    @Test
+    void modspacePrefixIsPartOfTheTag() {
+        String query = "steam.tag:maps";
+
+        visit(query);
+
+        verify(predicateBuilder).buildTagPredicate(any(), any(), any(), any(), eq("steam.tag"), eq("maps"));
+    }
+
     private List<String> searchedValues(String query, int expectedCount) {
+        visit(query);
+
+        ArgumentCaptor<String> values = ArgumentCaptor.forClass(String.class);
+        verify(predicateBuilder, times(expectedCount)).buildDefaultSearch(any(), any(), any(), values.capture());
+        return values.getAllValues();
+    }
+
+    private void visit(String query) {
         ItemSearchGrammarParser parser = new ItemSearchGrammarParser(
                 new CommonTokenStream(new ItemSearchGrammarLexer(CharStreams.fromString(query))));
         parser.setErrorHandler(new SearchQueryErrorStrategy());
@@ -51,9 +68,5 @@ class ItemSearchVisitorTest {
                 predicateBuilder, new ItemSearchProperties(null, null, null, null));
 
         visitor.visit(parser.query()).toPredicate(null, null, mock());
-
-        ArgumentCaptor<String> values = ArgumentCaptor.forClass(String.class);
-        verify(predicateBuilder, times(expectedCount)).buildDefaultSearch(any(), any(), any(), values.capture());
-        return values.getAllValues();
     }
 }

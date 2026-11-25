@@ -38,11 +38,13 @@ public class ItemQueryService {
     private final ContentService contentService;
     private final MediaService mediaService;
     private final CollectionMapper collectionMapper;
+    private final SearchRegistry searchRegistry;
 
     @Autowired
     public ItemQueryService(ItemSearchService searchService, UserItemLoader userItemLoader,
                             GameService gameService, TagService tagService, ContentService contentService,
-                            MediaService mediaService, CollectionMapper collectionMapper) {
+                            MediaService mediaService, CollectionMapper collectionMapper,
+                            SearchRegistry searchRegistry) {
         this.searchService = searchService;
         this.userItemLoader = userItemLoader;
         this.gameService = gameService;
@@ -50,6 +52,7 @@ public class ItemQueryService {
         this.contentService = contentService;
         this.mediaService = mediaService;
         this.collectionMapper = collectionMapper;
+        this.searchRegistry = searchRegistry;
     }
 
     @Transactional(readOnly = true)
@@ -109,7 +112,7 @@ public class ItemQueryService {
 
     public SearchHelpResponse getSearchHelp() {
         List<SearchHelpResponse.Field> fields = new ArrayList<>();
-        for (SearchField field : SearchRegistry.getAll()) {
+        for (SearchField field : searchRegistry.getAll()) {
             List<String> values = field.enumClass() == null ? List.of()
                     : Arrays.stream(field.enumClass().getEnumConstants()).map(Enum::name).toList();
             if (field.type() == SearchField.TagType.HAS_BACKUP || field.type() == SearchField.TagType.BOOLEAN) {
@@ -124,6 +127,9 @@ public class ItemQueryService {
                 "game:4 rating:>=7 order:rating",
                 "registered:2026-01..2026-03 tag:maps",
                 "updated:>month status:unavailable",
+                "status:hidden OR status:unavailable",
+                "steam.tag:maps steam.subscriptions:>10000",
+                "tag:maps order:title",
                 "(group:server OR tag:favorite) backup:no size:50",
                 "registered:3_days_ago order:registered_asc"
         )

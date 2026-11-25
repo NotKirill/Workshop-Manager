@@ -18,7 +18,7 @@ public class ItemSearchVisitor extends ItemSearchGrammarBaseVisitor<ItemSearchCr
     private Integer size = null;
 
     private String sortField = null;
-    private boolean sortAsc = false;
+    private Boolean sortAsc = null;
 
     public ItemSearchVisitor(ItemSearchPredicateBuilder predicateBuilder, ItemSearchProperties properties) {
         this.predicateBuilder = predicateBuilder;
@@ -170,7 +170,7 @@ public class ItemSearchVisitor extends ItemSearchGrammarBaseVisitor<ItemSearchCr
             this.sortAsc = false;
             this.sortField = normalized.substring(0, normalized.length() - 5);
         } else {
-            this.sortAsc = false;
+            this.sortAsc = null;
             this.sortField = normalized;
         }
 
@@ -213,7 +213,7 @@ public class ItemSearchVisitor extends ItemSearchGrammarBaseVisitor<ItemSearchCr
         return sortField;
     }
 
-    public boolean isSortAsc() {
+    public Boolean getSortAsc() {
         return sortAsc;
     }
 }

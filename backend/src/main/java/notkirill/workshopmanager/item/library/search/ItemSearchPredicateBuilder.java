@@ -15,16 +15,19 @@ import org.springframework.stereotype.Component;
 
 import java.time.DateTimeException;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 @Component
 public class ItemSearchPredicateBuilder {
     private final DateRangeParser dateRangeParser;
+    private final SearchRegistry searchRegistry;
 
     @Autowired
-    public ItemSearchPredicateBuilder(DateRangeParser dateRangeParser) {
+    public ItemSearchPredicateBuilder(DateRangeParser dateRangeParser, SearchRegistry searchRegistry) {
         this.dateRangeParser = dateRangeParser;
+        this.searchRegistry = searchRegistry;
     }
 
     private static Number toPathType(Expression<? extends Number> path, long value) {
@@ -55,7 +58,7 @@ public class ItemSearchPredicateBuilder {
 
     public Predicate buildDefaultSearch(ItemSearchRoots roots, CriteriaQuery<?> query,
                                         CriteriaBuilder cb, String value) {
-        List<SearchField> defaultFields = SearchRegistry.getDefaultSearchFields();
+        List<SearchField> defaultFields = searchRegistry.getDefaultSearchFields();
         Predicate[] predicates = new Predicate[defaultFields.size()];
 
         for (int i = 0; i < defaultFields.size(); i++) {
@@ -67,7 +70,7 @@ public class ItemSearchPredicateBuilder {
 
     public Predicate buildTagPredicate(ItemSearchRoots roots, CriteriaQuery<?> query,
                                        CriteriaBuilder cb, CriteriaContext ctx, String tag, String value) {
-        SearchField field = SearchRegistry.get(tag);
+        SearchField field = searchRegistry.get(tag);
         if (field == null) {
             throw new BadRequestException("UNSUPPORTED_SEARCH_METATAG", "Unsupported search metatag: " + tag);
         }
@@ -76,7 +79,7 @@ public class ItemSearchPredicateBuilder {
     }
 
     public void applySorting(ItemSearchRoots roots, CriteriaQuery<?> query, CriteriaBuilder cb,
-                             String tag, boolean isAsc) {
+                             String tag, Boolean asc) {
         if (query.getResultType() != null && Number.class.isAssignableFrom(query.getResultType())) {
             return;
         }
@@ -88,11 +91,12 @@ public class ItemSearchPredicateBuilder {
             return;
         }
 
-        SearchField field = SearchRegistry.get(tag);
+        SearchField field = searchRegistry.get(tag);
         if (field == null || !field.sortable()) {
             throw new BadRequestException("UNSORTABLE_SEARCH_FIELD", "Field is not sortable: " + tag);
         }
 
+        boolean isAsc = asc != null ? asc : field.type() == SearchField.TagType.STRING_LIKE;
         Expression<?> sortExpression = field.target().resolve(roots, cb);
         Order primaryOrder = isAsc ? cb.asc(sortExpression) : cb.desc(sortExpression);
 
@@ -112,12 +116,26 @@ public class ItemSearchPredicateBuilder {
 
     private Predicate buildPredicateForField(ItemSearchRoots roots, CriteriaQuery<?> query,
                                              CriteriaBuilder cb, CriteriaContext ctx, SearchField field, String value) {
+        if (field.sourceTarget() != null) {
+            return buildSourcePredicate(roots, query, cb, ctx, field, value);
+        }
         return switch (field.type()) {
             case USER_TAG -> buildUserTagPredicate(roots, query, cb, value);
             case USER_GROUP -> buildUserGroupPredicate(roots, query, cb, value);
             case HAS_BACKUP -> buildHasBackupPredicate(roots, query, cb, field, value);
             default -> resolveTypePredicate(field.target().resolve(roots, cb), cb, ctx, field, value);
         };
+    }
+
+    private Predicate buildSourcePredicate(ItemSearchRoots roots, CriteriaQuery<?> query, CriteriaBuilder cb,
+                                           CriteriaContext ctx, SearchField field, String value) {
+        Subquery<Integer> subquery = query.subquery(Integer.class);
+        List<Predicate> conditions = new ArrayList<>();
+        Expression<?> path = field.sourceTarget().resolve(
+                subquery, roots.personal().get("internalMetadataId"), cb, conditions);
+        conditions.add(resolveTypePredicate(path, cb, ctx, field, value));
+        subquery.select(cb.literal(1)).where(conditions.toArray(Predicate[]::new));
+        return cb.exists(subquery);
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
@@ -132,7 +150,10 @@ public class ItemSearchPredicateBuilder {
                 try {
                     Enum enumVal = Enum.valueOf(
                             (Class<Enum>) (Class<?>) field.enumClass(), value.toUpperCase(Locale.ROOT));
-                    yield cb.equal(path, enumVal);
+                    yield cb.equal(
+                            path, enumVal instanceof SearchField.StoredValue stored
+                                    ? stored.storedValue() : enumVal
+                    );
                 } catch (IllegalArgumentException e) {
                     throw new BadRequestException(
                             "INVALID_ENUM_VALUE", "Unknown value for " + field.tag() + ": " + value);
