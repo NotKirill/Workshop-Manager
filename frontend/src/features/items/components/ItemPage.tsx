@@ -58,6 +58,7 @@ export const ItemPage = () => {
 
     const isLocal = item.modspace === "LOCAL";
     const backupCount = item.content.summary.revisions.length;
+    const mediaCount = item.media.filter(media => !media.hidden).length;
 
     return (
         <Container maxW="7xl" py="6">
@@ -74,10 +75,7 @@ export const ItemPage = () => {
                     <Tabs.List>
                         <Tabs.Trigger value="overview">Overview</Tabs.Trigger>
                         <Tabs.Trigger value="backups">Backups {backupCount > 0 && `(${backupCount})`}</Tabs.Trigger>
-                        <Tabs.Trigger value="media">
-                            Media {(item.media.length + (item.steam?.previews.length ?? 0)) > 0 &&
-                            `(${item.media.length + (item.steam?.previews.length ?? 0)})`}
-                        </Tabs.Trigger>
+                        <Tabs.Trigger value="media">Media {mediaCount > 0 && `(${mediaCount})`}</Tabs.Trigger>
                     </Tabs.List>
                     <Tabs.Content value="overview">
                         <Grid templateColumns={{base: "1fr", lg: "2fr 1fr"}} gap="6">
